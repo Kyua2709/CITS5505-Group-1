@@ -1,0 +1,148 @@
+/* static/css/style.css */
+
+/* Reset & Global Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  body {
+    font-family: "Helvetica Neue", sans-serif;
+    background: #f4f6f8;
+    color: #333;
+    line-height: 1.5;
+  }
+  
+  /* Header & Navigation */
+  header {
+    background: #2c3e50;
+    padding: 20px;
+    color: #fff;
+    text-align: center;
+  }
+  nav {
+    background: #34495e;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    padding: 10px;
+  }
+  nav a {
+    color: #fff;
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.3s;
+  }
+  nav a:hover {
+    color: #2980b9;
+  }
+  
+  /* Hero Section (Home) */
+  .hero {
+    padding: 80px 20px;
+    text-align: center;
+    background: #ecf0f1;
+  }
+  .hero h1 {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+  }
+  .hero p {
+    font-size: 1.2rem;
+    margin-bottom: 30px;
+  }
+  
+  /* Buttons */
+  .btn {
+    display: inline-block;
+    background: #3498db;
+    color: #fff;
+    padding: 12px 24px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 1rem;
+    transition: background 0.3s;
+  }
+  .btn:hover {
+    background: #2980b9;
+  }
+  
+  /* Features Section (Home) */
+  .features {
+    display: flex;
+    justify-content: space-around;
+    padding: 60px 20px;
+    background: #fff;
+  }
+  .feature {
+    width: 30%;
+    text-align: center;
+  }
+  .feature h3 {
+    margin-bottom: 10px;
+    color: #2c3e50;
+  }
+  .feature p {
+    color: #7f8c8d;
+  }
+  
+  /* Content Container (Upload, Overview, Comments) */
+  .container {
+    max-width: 1000px;
+    margin: 40px auto;
+    padding: 20px;
+    background: #fff;
+    border-radius: 8px;
+  }
+  
+  /* Form Elements (Upload) */
+  label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #34495e;
+  }
+  textarea,
+  input[type="text"] {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+  }
+  .note {
+    color: #999;
+    font-size: 0.9rem;
+    margin-top: 10px;
+  }
+  
+  /* Chart Placeholders (Overview) */
+  .chart-box {
+    height: 300px;
+    background: #ecf0f1;
+    border: 2px dashed #bdc3c7;
+    border-radius: 8px;
+    margin-bottom: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.1rem;
+    color: #7f8c8d;
+  }
+  
+  /* Table Styles (Comments) */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+  }
+  th,
+  td {
+    padding: 12px;
+    border: 1px solid #bdc3c7;
+    text-align: left;
+  }
+  th {
+    background: #ecf0f1;
+  }

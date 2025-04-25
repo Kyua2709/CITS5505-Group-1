@@ -1,0 +1,27 @@
+<!-- app/templates/index.html -->
+{% extends "base.html" %}
+
+{% block title %}Home – SentimentScope{% endblock %}
+
+{% block content %}
+<div class="hero">
+  <h1>Discover the True Emotions of Your Social World</h1>
+  <p>Upload text or datasets and get instant insights into sentiment trends in Weibo comments</p>
+  <a href="{{ url_for('main.upload') }}" class="btn">Start Analysis</a>
+</div>
+
+<div class="features">
+  <div class="feature">
+    <h3>Intelligent Sentiment Recognition</h3>
+    <p>Automatically detect positive, negative, and neutral sentiments in Weibo comments.</p>
+  </div>
+  <div class="feature">
+    <h3>Visual Charts</h3>
+    <p>Rich chart displays to clearly showcase sentiment trends and distributions.</p>
+  </div>
+  <div class="feature">
+    <h3>Real-time Text Processing</h3>
+    <p>Support text pasting or file uploads for flexible sentiment analysis.</p>
+  </div>
+</div>
+{% endblock %}

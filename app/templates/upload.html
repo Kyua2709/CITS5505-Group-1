@@ -1,0 +1,19 @@
+<!-- app/templates/upload.html -->
+{% extends "base.html" %}
+
+{% block title %}Upload – SentimentScope{% endblock %}
+
+{% block content %}
+<div class="container">
+  <h2>Text Input</h2>
+  <label for="text-input">Paste the Weibo comments you want to analyze:</label>
+  <textarea id="text-input" rows="4" placeholder="Paste your content here..."></textarea>
+
+  <h2>Upload Dataset</h2>
+  <label for="file-input">Enter dataset filename or link:</label>
+  <input type="text" id="file-input" placeholder="e.g. weibo_senti_100k.csv or https://..."/>
+
+  <a href="{{ url_for('main.visualize') }}" class="btn">Start Analysis (Demo)</a>
+  <p class="note">This page is for static display; the button is currently non-functional</p>
+</div>
+{% endblock %}
