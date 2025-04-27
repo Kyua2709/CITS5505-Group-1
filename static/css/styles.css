@@ -116,7 +116,11 @@ body {
 
 /* Data Upload Page Specific Styles */
 .upload-options {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
     gap: 20px;
+    justify-content: space-between;
 }
 
 .upload-option-card {
