@@ -172,20 +172,6 @@ body {
     margin-bottom: 15px;
 }
 
-.user-avatar {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    margin-right: 15px;
-}
-
-.sharing-options {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-top: 10px;
-}
-
 /* Responsive Adjustments */
 @media (max-width: 768px) {
     .hero-section {
