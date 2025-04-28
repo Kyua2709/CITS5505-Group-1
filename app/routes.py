@@ -1,20 +1,27 @@
 # app/routes.py
-from flask import Blueprint, render_template
 
-main_bp = Blueprint("main", __name__)
+from flask import render_template, request, redirect, url_for
+from app import app
+from app.models import predict_single_text, predict_batch_text
+import os
 
-@main_bp.route("/")
+@app.route('/')
 def index():
-    return render_template("index.html")
+    return render_template('index.html')
 
-@main_bp.route("/upload")
+@app.route('/upload', methods=['GET', 'POST'])
 def upload():
-    return render_template("upload.html")
+    if request.method == 'POST':
+        file = request.files['file']
+        if not file:
+            return "No file uploaded!", 400
 
-@main_bp.route("/visualize")
-def visualize():
-    return render_template("visualize.html")
+        file_contents = file.read().decode('utf-8')
+        lines = file_contents.split('\n')
+        lines = [line.strip() for line in lines if line.strip()]
 
-@main_bp.route("/share")
-def share():
-    return render_template("share.html")# route definitions go here
+        # 预测每一行的情感
+        results = predict_batch_text(lines)
+
+        return render_template('upload.html', results=results)
+    return render_template('upload.html')
