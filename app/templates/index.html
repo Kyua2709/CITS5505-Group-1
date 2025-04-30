@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SentiSocial - Social Media Sentiment Analysis Platform</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <i class="bi bi-bar-chart-line-fill me-2"></i>SentiSocial
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{{ url_for('main.index') }}">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.upload') }}">Upload Data</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.analyze') }}">Analysis</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.share') }}">Share</a>
+                    </li>
+                </ul>
+                <div class="d-flex">
+                    <button class="btn btn-outline-light me-2" data-bs-toggle="modal" data-bs-target="#loginModal">Login</button>
+                    <button class="btn btn-light" data-bs-toggle="modal" data-bs-target="#registerModal">Sign Up</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="hero-section text-white text-center">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <h1 class="display-4 fw-bold mb-4">Decode Sentiment Trends in Social Media</h1>
+                    <p class="lead mb-5">Upload social media comments, get deep sentiment analysis, discover hidden insights, and easily share your findings</p>
+                    <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+                        <button class="btn btn-primary btn-lg px-4 gap-3" data-bs-toggle="modal" data-bs-target="#registerModal">Get Started Free</button>
+                        <a href="#features" class="btn btn-outline-light btn-lg px-4">Learn More</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Features Section -->
+    <section id="features" class="features py-5">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="fw-bold">Powerful Social Media Sentiment Analysis</h2>
+                <p class="lead text-muted">Gain comprehensive understanding of user sentiment about your brand, product or topic</p>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="feature-card h-100">
+                        <div class="feature-icon mb-3">
+                            <i class="bi bi-cloud-upload"></i>
+                        </div>
+                        <h3>Easy Data Upload</h3>
+                        <p>Support multiple data input methods including manual entry, CSV/JSON upload, and direct platform links.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-card h-100">
+                        <div class="feature-icon mb-3">
+                            <i class="bi bi-graph-up"></i>
+                        </div>
+                        <h3>Comprehensive Analytics</h3>
+                        <p>Get detailed sentiment analysis with visualizations, trend charts, and keyword insights.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-card h-100">
+                        <div class="feature-icon mb-3">
+                            <i class="bi bi-share"></i>
+                        </div>
+                        <h3>Selective Sharing</h3>
+                        <p>Share specific insights and reports with colleagues while maintaining data privacy.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section class="how-it-works py-5 bg-light">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="fw-bold">How It Works</h2>
+                <p class="lead text-muted">Three simple steps to gain valuable insights</p>
+            </div>
+            <div class="row">
+                <div class="col-md-4 text-center mb-4 mb-md-0">
+                    <div class="step-circle mb-3">1</div>
+                    <h4>Upload Data</h4>
+                    <p>Input social media comments from Instagram, Twitter, TikTok, or other platforms</p>
+                </div>
+                <div class="col-md-4 text-center mb-4 mb-md-0">
+                    <div class="step-circle mb-3">2</div>
+                    <h4>Analyze Sentiment</h4>
+                    <p>Our algorithms analyze the emotional tone and key patterns in the data</p>
+                </div>
+                <div class="col-md-4 text-center">
+                    <div class="step-circle mb-3">3</div>
+                    <h4>Share Insights</h4>
+                    <p>Share your findings with team members or keep them private</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Use Cases Section -->
+    <section class="use-cases py-5">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="fw-bold">Who Can Benefit</h2>
+                <p class="lead text-muted">SentiSocial helps professionals across various industries</p>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-6 col-lg-3">
+                    <div class="use-case-card h-100">
+                        <img src="https://via.placeholder.com/80" alt="Marketing" class="mb-3">
+                        <h4>Marketing Teams</h4>
+                        <p>Monitor campaign performance and audience reactions in real-time</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="use-case-card h-100">
+                        <img src="https://via.placeholder.com/80" alt="Brand" class="mb-3">
+                        <h4>Brand Managers</h4>
+                        <p>Track brand perception and identify potential PR issues early</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="use-case-card h-100">
+                        <img src="https://via.placeholder.com/80" alt="Research" class="mb-3">
+                        <h4>Market Researchers</h4>
+                        <p>Gather authentic customer feedback without traditional surveys</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="use-case-card h-100">
+                        <img src="https://via.placeholder.com/80" alt="Product" class="mb-3">
+                        <h4>Product Teams</h4>
+                        <p>Understand user reactions to new features or products</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Call to Action -->
+    <section class="cta py-5 text-white text-center">
+        <div class="container">
+            <h2 class="fw-bold mb-4">Ready to Unlock Social Media Insights?</h2>
+            <button class="btn btn-light btn-lg" data-bs-toggle="modal" data-bs-target="#registerModal">Create Free Account</button>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer py-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 mb-4 mb-md-0">
+                    <h5><i class="bi bi-bar-chart-line-fill me-2"></i>SentiSocial</h5>
+                    <p class="text-muted">A powerful platform for analyzing sentiment in social media comments.</p>
+                </div>
+                <div class="col-md-3 mb-4 mb-md-0">
+                    <h5>Quick Links</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="upload.html">Upload Data</a></li>
+                        <li><a href="analyze.html">Analysis</a></li>
+                        <li><a href="share.html">Share</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3 mb-4 mb-md-0">
+                    <h5>Follow Us</h5>
+                    <div class="social-icons mt-3">
+                        <a href="#" class="me-2 text-decoration-none">
+                            <i class="bi bi-facebook fs-4"></i>
+                        </a>
+                        <a href="#" class="me-2 text-decoration-none">
+                            <i class="bi bi-twitter fs-4"></i>
+                        </a>
+                        <a href="#" class="me-2 text-decoration-none">
+                            <i class="bi bi-linkedin fs-4"></i>
+                        </a>
+                        <a href="#" class="me-2 text-decoration-none">
+                            <i class="bi bi-instagram fs-4"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <hr>
+            <div class="text-center text-muted">
+                <small>&copy; 2025 SentiSocial. All rights reserved.</small>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Login Modal -->
+    <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="loginModalLabel">Login to SentiSocial</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="mb-3">
+                            <label for="loginEmail" class="form-label">Email address</label>
+                            <input type="email" class="form-control" id="loginEmail" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="loginPassword" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="loginPassword" required>
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="rememberMe">
+                            <label class="form-check-label" for="rememberMe">Remember me</label>
+                        </div>
+                        <div class="text-end">
+                            <a href="#" class="text-decoration-none">Forgot password?</a>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 mt-3">Login</button>
+                    </form>
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <p class="text-muted">Don't have an account? <a href="#" data-bs-toggle="modal" data-bs-target="#registerModal" data-bs-dismiss="modal">Sign up</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div class="modal fade" id="registerModal" tabindex="-1" aria-labelledby="registerModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="registerModalLabel">Create Account</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="firstName" class="form-label">First Name</label>
+                                <input type="text" class="form-control" id="firstName" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="lastName" class="form-label">Last Name</label>
+                                <input type="text" class="form-control" id="lastName" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="registerEmail" class="form-label">Email address</label>
+                            <input type="email" class="form-control" id="registerEmail" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="registerPassword" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="registerPassword" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="confirmPassword" class="form-label">Confirm Password</label>
+                            <input type="password" class="form-control" id="confirmPassword" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 mt-3">Create Account</button>
+                    </form>
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <p class="text-muted">Already have an account? <a href="#" data-bs-toggle="modal" data-bs-target="#loginModal" data-bs-dismiss="modal">Login</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

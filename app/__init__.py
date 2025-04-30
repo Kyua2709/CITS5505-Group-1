@@ -1,0 +1,24 @@
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+
+db = SQLAlchemy()
+
+def create_app():
+    app = Flask(
+        __name__,
+        static_folder="static",  # 指向 app/static
+        template_folder="templates"  # 指向 app/templates
+    )
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///../instance/uploads.db'
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+    db.init_app(app)
+
+    with app.app_context():
+        db.create_all()  # 创建数据库表
+
+    # 注册路由蓝图
+    from .routes import main_bp
+    app.register_blueprint(main_bp)
+
+    return app
