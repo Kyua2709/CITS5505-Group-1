@@ -71,8 +71,8 @@ This project aims to create a platform where users can upload social media comme
 
 1. Clone the repository
 ```bash
-git clone https://github.com/yourusername/social-media-sentiment-analysis.git
-cd social-media-sentiment-analysis
+git clone https://github.com/yourusername/CITS5505-Group-1.git
+cd CITS5505-Group-1
 ```
 
 2. Set up virtual environment
