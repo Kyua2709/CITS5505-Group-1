@@ -1,5 +1,7 @@
-from flask import Blueprint, render_template, request, jsonify
+from flask import Blueprint, render_template, request, jsonify, redirect, url_for, flash
 from app.models import Upload, db, predict_batch_text
+import json
+import os
 
 # 定义蓝图
 main_bp = Blueprint('main', __name__)
@@ -11,37 +13,58 @@ def index():
 
 @main_bp.route('/upload', methods=['GET', 'POST'])
 def upload():
-    """上传数据页面"""
     if request.method == 'POST':
+        if 'file' not in request.files:
+            flash('No file part in the request.', 'danger')
+            return redirect(url_for('main.upload'))
+
         file = request.files['file']
-        if not file:
-            return "No file uploaded!", 400
+        if file.filename == '':
+            flash('No file selected for uploading.', 'danger')
+            return redirect(url_for('main.upload'))
 
-        file_contents = file.read().decode('utf-8')
-        lines = file_contents.split('\n')
-        lines = [line.strip() for line in lines if line.strip()]
+        try:
+            file_contents = file.read().decode('utf-8')
+            lines = file_contents.split('\n')
+            lines = [line.strip() for line in lines if line.strip()]
 
-        results = predict_batch_text(lines)
+            results = predict_batch_text(lines)
+            return render_template('upload.html', results=results)
+        except Exception as e:
+            flash(f'Error processing file: {e}', 'danger')
+            return redirect(url_for('main.upload'))
 
-        return render_template('upload.html', results=results)
     return render_template('upload.html')
 
 @main_bp.route('/save_upload', methods=['POST'])
 def save_upload():
-    """保存上传记录到数据库"""
-    data = request.json
-    upload = Upload(
-        dataset_name=data.get('dataset_name'),
-        platform=data.get('platform'),
-        upload_type=data.get('upload_type'),
-        file_path=data.get('file_path'),
-        url=data.get('url'),
-        comments=data.get('comments'),
-        status="Processing"
-    )
-    db.session.add(upload)
-    db.session.commit()
-    return jsonify({"message": "Upload saved successfully", "id": upload.id}), 201
+    try:
+        # 获取 JSON 数据
+        data = request.json
+        if not data:
+            return jsonify({"error": "No data provided"}), 400
+
+        # 验证必填字段
+        if not data.get('dataset_name') or not data.get('platform'):
+            return jsonify({"error": "Dataset name and platform are required"}), 400
+
+        # 创建数据库记录
+        upload = Upload(
+            dataset_name=data.get('dataset_name', 'Unknown Dataset'),
+            platform=data.get('platform', 'Unknown Platform'),
+            upload_type=data.get('upload_type', 'Unknown Type'),
+            file_path=data.get('file_path', ''),
+            url=data.get('url', ''),
+            comments=data.get('comments', ''),
+            status="Processing"
+        )
+        db.session.add(upload)
+        db.session.commit()
+
+        return jsonify({"message": "Upload saved successfully", "id": upload.id}), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": f"Failed to save upload: {str(e)}"}), 500
 
 @main_bp.route('/get_uploads', methods=['GET'])
 def get_uploads():
@@ -65,3 +88,28 @@ def analyze():
 def share():
     """分享页面"""
     return render_template('share.html')
+
+@main_bp.route('/save_manual_entry', methods=['POST'])
+def save_manual_entry():
+    platform = request.form.get('platform')
+    source = request.form.get('source')
+    category = request.form.get('category')
+    comments = request.form.get('comments')
+
+    data = {
+        "platform": platform,
+        "source": source,
+        "category": category,
+        "comments": comments.splitlines()
+    }
+
+    # 使用 Flask 的 instance_path 保存文件
+    file_path = os.path.join(main_bp.root_path, 'manual_entries.json')
+    try:
+        with open(file_path, 'a') as f:
+            f.write(json.dumps(data) + '\n')
+        flash('Manual entry saved successfully!', 'success')
+    except Exception as e:
+        flash(f'Failed to save manual entry: {e}', 'danger')
+
+    return redirect(url_for('main.upload'))
