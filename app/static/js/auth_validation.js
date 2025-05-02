@@ -1,78 +1,67 @@
-// Handle login and register modal validation
-// Reset modals on shown
-
-document.addEventListener('DOMContentLoaded', function () {
-    // RESET MODALS
-    const loginModal = document.getElementById('loginModal');
-    const registerModal = document.getElementById('registerModal');
-
-    if (loginModal) {
-        loginModal.addEventListener('shown.bs.modal', () => {
-            loginModal.querySelector('form').reset();
-            const errorBox = document.getElementById('loginError');
-            if (errorBox) {
-                errorBox.innerHTML = '';
-                errorBox.style.display = 'none';
-            }
-        });
+$(document).ready(function () {
+    function setLoading($button, isLoading) {
+        if (isLoading) {
+            $button.prop('disabled', true);
+            $button.html(`<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Processing...`);
+        } else {
+            $button.prop('disabled', false);
+            $button.html($button.data('original-text'));
+        }
     }
 
-    if (registerModal) {
-        registerModal.addEventListener('shown.bs.modal', () => {
-            registerModal.querySelector('form').reset();
-            const errorBox = document.getElementById('registerError');
-            if (errorBox) {
-                errorBox.innerHTML = '';
-                errorBox.style.display = 'none';
+    // LOGIN
+    $('#loginModal form').submit(function (e) {
+        e.preventDefault();
+        const $form = $(this);
+        const $errorBox = $('#loginError');
+        const $button = $form.find('button[type="submit"]');
+
+        $errorBox.hide().empty();
+        $button.data('original-text', $button.html());
+        setLoading($button, true);
+
+        $.ajax({
+            type: 'POST',
+            url: '/login',
+            data: $form.serialize(),
+            success: function () {
+                location.reload();
+            },
+            error: function (error) {
+                const msg = error.responseJSON?.message || 'Login failed.';
+                $errorBox.html(`<div class="alert alert-danger">${msg}</div>`).show();
+                setLoading($button, false);
             }
         });
-    }
+    });
 
-    // REGISTER VALIDATION
-    const registerForm = registerModal?.querySelector('form');
-    const registerError = document.getElementById('registerError');
+    // REGISTER
+    $('#registerModal form').submit(function (e) {
+        e.preventDefault();
+        const $form = $(this);
+        const $errorBox = $('#registerError');
+        const $button = $form.find('button[type="submit"]');
 
-    if (registerForm && registerError) {
-        const passwordInput = document.getElementById('registerPassword');
-        const confirmInput = document.getElementById('confirmPassword');
-        const emailInput = document.getElementById('registerEmail');
+        $errorBox.hide().empty();
+        $button.data('original-text', $button.html());
+        setLoading($button, true);
 
-        registerForm.addEventListener('submit', function (event) {
-            let messages = [];
-            const email = emailInput.value.trim();
-            const password = passwordInput.value;
-            const confirmPassword = confirmInput.value;
-
-            registerError.innerHTML = '';
-            registerError.style.display = 'none';
-
-            const emailPattern = /^[^@]+@[^@]+\.[^@]+$/;
-            if (!emailPattern.test(email)) {
-                messages.push("Please enter a valid email address.");
-            }
-
-            if (password.length < 6) {
-                messages.push("Password must be at least 6 characters.");
-            }
-
-            if (password !== confirmPassword) {
-                messages.push("Passwords do not match.");
-            }
-
-            if (messages.length > 0) {
-                event.preventDefault();
-                registerError.style.display = 'block';
-                registerError.innerHTML = `
-                    <div class="alert alert-danger mb-3">
-                        ${messages.map(msg => `<div>${msg}</div>`).join('')}
-                    </div>
-                `;
+        $.ajax({
+            type: 'POST',
+            url: '/register',
+            data: $form.serialize(),
+            success: function (response) {
+                $errorBox.html(`<div class="alert alert-success">${response.message}</div>`).show();
+                setTimeout(function () {
+                    $('#registerModal').modal('hide');
+                    location.reload();
+                }, 1000);
+            },
+            error: function (error) {
+                const msg = error.responseJSON?.message || 'Registration failed.';
+                $errorBox.html(`<div class="alert alert-danger">${msg}</div>`).show();
+                setLoading($button, false);
             }
         });
-    }
-
-    // LOGIN VALIDATION
-    const loginForm = loginModal?.querySelector('form');
-    const loginError = document.getElementById('loginError');
-
+    });
 });

@@ -16,9 +16,9 @@ def index():
 def register():
     data = request.form
     email = data.get('email')
+
     if User.query.filter_by(email=email).first():
-        flash('Email already registered.', 'danger')
-        return redirect(url_for('main.index'))
+        return jsonify({'status': 'error', 'message': 'Email already registered'}), 400
 
     user = User(
         first_name=data.get('first_name'),
@@ -29,8 +29,12 @@ def register():
     db.session.add(user)
     db.session.commit()
 
-    flash('Registration successful. Please log in.', 'success')
-    return redirect(url_for('main.index'))
+    # Auto login
+    session['user_id'] = user.id
+    session['user_name'] = user.first_name
+
+    return jsonify({'status': 'success', 'message': f'Welcome, {user.first_name}!'})
+
 
 @main_bp.route('/login', methods=['POST'])
 def login():
@@ -40,13 +44,11 @@ def login():
 
     user = User.query.filter_by(email=email).first()
     if user and user.check_password(password):
-        flash('Login successful.', 'success')
         session['user_id'] = user.id
         session['user_name'] = user.first_name
-        return redirect(url_for('main.index'))
+        return jsonify({'status': 'success', 'message': 'Login successful'})
     else:
-        flash('Invalid email or password.', 'danger')
-        return redirect(url_for('main.index'))
+        return jsonify({'status': 'error', 'message': 'Invalid email or password'}), 401
 
 @main_bp.route('/logout')
 def logout():

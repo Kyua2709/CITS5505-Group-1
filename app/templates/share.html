@@ -9,10 +9,10 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-   
+    
     <!-- Navigation Bar -->
     {% include 'partials/navbar.html' %}
-
+    
     <!-- Page Header -->
     <header class="bg-light py-5">
         <div class="container">
@@ -32,7 +32,7 @@
             </div>
         </div>
     </header>
-
+    
     <!-- Share Options Section -->
     <section class="py-5">
         <div class="container">
@@ -75,7 +75,7 @@
                         </div>
                     </div>
                 </div>
-
+                
                 <!-- Right Column - Share Form -->
                 <div class="col-lg-7">
                     <div class="card dashboard-card mb-4">
@@ -145,7 +145,7 @@
             </div>
         </div>
     </section>
-
+    
     <!-- Shared with Me Section -->
     <section class="py-5 bg-light">
         <div class="container">
@@ -208,13 +208,15 @@
             </div>
         </div>
     </section>
-
+    
+    <!-- JQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     
     {% include 'partials/footer.html' %}
     {% include 'partials/login_modal.html' %}
     {% include 'partials/register_modal.html' %}
-
+    
 </body>
 </html>
