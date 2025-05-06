@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, jsonify, redirect, url_for, flash
+from flask import Blueprint, render_template, request, jsonify, redirect, url_for, flash, current_app
 from app.models import Upload, db, predict_batch_text
 import json
 import os
@@ -96,6 +96,12 @@ def save_manual_entry():
     category = request.form.get('category')
     comments = request.form.get('comments')
 
+    # 验证必填字段
+    if not platform or not comments:
+        flash('Platform and comments are required.', 'danger')
+        return redirect(url_for('main.upload'))
+
+    # 准备数据
     data = {
         "platform": platform,
         "source": source,
@@ -103,8 +109,9 @@ def save_manual_entry():
         "comments": comments.splitlines()
     }
 
-    # 使用 Flask 的 instance_path 保存文件
-    file_path = os.path.join(main_bp.root_path, 'manual_entries.json')
+    # 保存到 instance/manual_entries.json
+    file_path = os.path.join(current_app.instance_path, 'manual_entries.json')
+    os.makedirs(os.path.dirname(file_path), exist_ok=True)  # 确保目录存在
     try:
         with open(file_path, 'a') as f:
             f.write(json.dumps(data) + '\n')
@@ -113,3 +120,118 @@ def save_manual_entry():
         flash(f'Failed to save manual entry: {e}', 'danger')
 
     return redirect(url_for('main.upload'))
+
+
+@main_bp.route('/save_file_upload', methods=['POST'])
+def save_file_upload():
+    platform = request.form.get('platform')
+    dataset_name = request.form.get('dataset_name')
+    date_range_start = request.form.get('start_date')
+    date_range_end = request.form.get('end_date')
+    file = request.files.get('file')
+
+    if not platform or not dataset_name or not file:
+        flash('Platform, dataset name, and file are required.', 'danger')
+        return redirect(url_for('main.upload'))
+
+    # 保存文件信息
+    data = {
+        "platform": platform,
+        "dataset_name": dataset_name,
+        "date_range_start": date_range_start,
+        "date_range_end": date_range_end,
+        "file_name": file.filename
+    }
+
+    # 保存到文件
+    file_path = os.path.join(current_app.instance_path, 'file_uploads.json')
+    os.makedirs(os.path.dirname(file_path), exist_ok=True)
+    try:
+        with open(file_path, 'a') as f:
+            f.write(json.dumps(data) + '\n')
+        flash('File upload saved successfully!', 'success')
+    except Exception as e:
+        flash(f'Failed to save file upload: {e}', 'danger')
+
+    return redirect(url_for('main.upload'))
+
+@main_bp.route('/save_platform_url', methods=['POST'])
+def save_platform_url():
+    platform = request.form.get('platform')
+    url_type = request.form.get('url_type')
+    url = request.form.get('url')
+    comment_limit = request.form.get('comment_limit')
+
+    if not platform or not url or not url_type:
+        flash('Platform, URL type, and URL are required.', 'danger')
+        return redirect(url_for('main.upload'))
+
+    # 保存 URL 信息
+    data = {
+        "platform": platform,
+        "url_type": url_type,
+        "url": url,
+        "comment_limit": comment_limit
+    }
+
+    # 保存到文件
+    file_path = os.path.join(current_app.instance_path, 'platform_urls.json')
+    os.makedirs(os.path.dirname(file_path), exist_ok=True)
+    try:
+        with open(file_path, 'a') as f:
+            f.write(json.dumps(data) + '\n')
+        flash('Platform URL saved successfully!', 'success')
+    except Exception as e:
+        flash(f'Failed to save platform URL: {e}', 'danger')
+
+    return redirect(url_for('main.upload'))
+
+
+@main_bp.route('/upload', methods=['GET', 'POST'])
+def upload_with_recent_uploads():
+    # 定义文件路径
+    manual_entries_path = os.path.join(current_app.instance_path, 'manual_entries.json')
+    file_uploads_path = os.path.join(current_app.instance_path, 'file_uploads.json')
+    platform_urls_path = os.path.join(current_app.instance_path, 'platform_urls.json')
+
+    # 初始化数据列表
+    recent_uploads = []
+
+    # 读取 manual_entries.json
+    if os.path.exists(manual_entries_path):
+        with open(manual_entries_path, 'r') as f:
+            for line in f:
+                entry = json.loads(line.strip())
+                recent_uploads.append({
+                    "platform": entry.get("platform", "Unknown"),
+                    "date_uploaded": datetime.now().strftime('%b %d, %Y'),  # 当前日期
+                    "size": f"{len(entry.get('comments', []))} comments",
+                    "status": "Completed"
+                })
+
+    # 读取 file_uploads.json
+    if os.path.exists(file_uploads_path):
+        with open(file_uploads_path, 'r') as f:
+            for line in f:
+                entry = json.loads(line.strip())
+                recent_uploads.append({
+                    "platform": entry.get("platform", "Unknown"),
+                    "date_uploaded": datetime.now().strftime('%b %d, %Y'),  # 当前日期
+                    "size": entry.get("file_name", "Unknown"),
+                    "status": "Completed"
+                })
+
+    # 读取 platform_urls.json
+    if os.path.exists(platform_urls_path):
+        with open(platform_urls_path, 'r') as f:
+            for line in f:
+                entry = json.loads(line.strip())
+                recent_uploads.append({
+                    "platform": entry.get("platform", "Unknown"),
+                    "date_uploaded": datetime.now().strftime('%b %d, %Y'),  # 当前日期
+                    "size": f"Limit: {entry.get('comment_limit', 'Unknown')}",
+                    "status": "Completed"
+                })
+
+    # 将 recent_uploads 数据传递到模板
+    return render_template('upload.html', recent_uploads=recent_uploads)
