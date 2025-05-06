@@ -66,6 +66,20 @@
             </div>
         </div>
     </header>
+·
+    <!-- Feedback Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="container mt-4">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
 
     <!-- Upload Options Section -->
     <section class="py-5">
@@ -108,10 +122,10 @@
                         <h5 class="mb-0">Manual Data Entry</h5>
                     </div>
                     <div class="card-body">
-                        <form>
+                        <form action="{{ url_for('main.save_manual_entry') }}" method="POST">
                             <div class="mb-3">
                                 <label for="platformSelect" class="form-label">Social Media Platform</label>
-                                <select class="form-select" id="platformSelect" required>
+                                <select class="form-select" id="platformSelect" name="platform" required>
                                     <option value="" selected disabled>Select platform</option>
                                     <option value="instagram">Instagram</option>
                                     <option value="twitter">Twitter</option>
@@ -124,15 +138,15 @@
                             </div>
                             <div class="mb-3">
                                 <label for="commentSource" class="form-label">Source Description (e.g., Post URL, Account Name)</label>
-                                <input type="text" class="form-control" id="commentSource" placeholder="Enter source information">
+                                <input type="text" class="form-control" id="commentSource" name="source" placeholder="Enter source information">
                             </div>
                             <div class="mb-3">
                                 <label for="commentCategory" class="form-label">Category (Optional)</label>
-                                <input type="text" class="form-control" id="commentCategory" placeholder="E.g., Product Feedback, Customer Service">
+                                <input type="text" class="form-control" id="commentCategory" name="category" placeholder="E.g., Product Feedback, Customer Service">
                             </div>
                             <div class="mb-3">
                                 <label for="commentsTextarea" class="form-label">Comments/Posts (One per line)</label>
-                                <textarea class="form-control" id="commentsTextarea" rows="10" placeholder="Paste or type comments here, one per line" required></textarea>
+                                <textarea class="form-control" id="commentsTextarea" name="comments" rows="10" placeholder="Paste or type comments here, one per line" required></textarea>
                             </div>
                             <div class="text-end">
                                 <button type="button" class="btn btn-outline-secondary me-2" data-bs-toggle="collapse" data-bs-target="#manualEntryForm">Cancel</button>
@@ -299,6 +313,24 @@
         </div>
     </section>
 
+    <!-- Success Modal -->
+    <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="successModalLabel">Upload Successful</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Your data has been uploaded successfully!
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="window.location.href='{{ url_for('main.upload') }}'">Return to Upload</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Footer -->
     <footer class="footer py-4">
         <div class="container">
@@ -346,12 +378,12 @@
     <script>
         document.getElementById('uploadForm').addEventListener('submit', async (e) => {
             e.preventDefault(); // 阻止表单默认提交行为
-
+    
             const datasetName = document.getElementById('datasetName').value;
             const platform = document.getElementById('platform').value;
             const uploadType = document.getElementById('uploadType').value;
             const comments = document.getElementById('comments').value;
-
+    
             const response = await fetch('/save_upload', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -362,9 +394,13 @@
                     comments: comments
                 })
             });
-
+    
             if (response.ok) {
-                alert('Upload saved successfully!');
+                // 显示模态框
+                const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+                successModal.show();
+    
+                // 重置表单
                 document.getElementById('uploadForm').reset();
             } else {
                 alert('Failed to save upload.');
