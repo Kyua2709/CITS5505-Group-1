@@ -63,4 +63,5 @@
             "test"
         ]
     }
-]
+]{"platform": "twitter", "source": "test test", "category": "test", "comments": ["test test"]}
+{"platform": "instagram", "source": "test", "category": "test", "comments": ["test"]}
