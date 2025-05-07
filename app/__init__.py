@@ -1,5 +1,6 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+import os
 
 db = SQLAlchemy()
 
@@ -10,17 +11,15 @@ def create_app():
         template_folder="templates"  # 指向 app/templates
     )
     
-    # 配置 SECRET_KEY
-    app.config['SECRET_KEY'] = 'your_secret_key_here'  # 替换为一个随机的、唯一的字符串
-
-    # 配置数据库
+    app.config['DEBUG'] = os.getenv('FLASK_DEBUG', '1') == '1'
+    app.config['SECRET_KEY'] = os.getenv('SQLITE_SECRET')
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///../instance/uploads.db'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-    # 初始化数据库
+    
     db.init_app(app)
+    
+    from .models import User, Upload
 
-    # 创建数据库表
     with app.app_context():
         db.create_all()
 

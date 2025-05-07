@@ -1,6 +1,66 @@
-{"platform": "facebook", "source": "1212", "category": "1212", "comments": ["1212"]}
-{"platform": "twitter", "source": "123123", "category": "32132", "comments": ["3123"]}
-{"platform": "twitter", "source": "123123", "category": "32132", "comments": ["3123"]}
-{"platform": "tiktok", "source": "123123", "category": "32132", "comments": ["3123"]}
-{"platform": "twitter", "source": "21", "category": "321", "comments": ["421"]}
-{"platform": "youtube", "source": "2131", "category": "4123", "comments": ["4124214"]}
+[
+    {
+        "platform": "facebook",
+        "source": "1212",
+        "category": "1212",
+        "comments": [
+            "1212"
+        ]
+    },
+    {
+        "platform": "twitter",
+        "source": "123123",
+        "category": "32132",
+        "comments": [
+            "3123"
+        ]
+    },
+    {
+        "platform": "twitter",
+        "source": "123123",
+        "category": "32132",
+        "comments": [
+            "3123"
+        ]
+    },
+    {
+        "platform": "tiktok",
+        "source": "123123",
+        "category": "32132",
+        "comments": [
+            "3123"
+        ]
+    },
+    {
+        "platform": "twitter",
+        "source": "21",
+        "category": "321",
+        "comments": [
+            "421"
+        ]
+    },
+    {
+        "platform": "youtube",
+        "source": "2131",
+        "category": "4123",
+        "comments": [
+            "4124214"
+        ]
+    },
+    {
+        "platform": "twitter",
+        "source": "test",
+        "category": "test",
+        "comments": [
+            "test"
+        ]
+    },
+    {
+        "platform": "facebook",
+        "source": "test",
+        "category": "test",
+        "comments": [
+            "test"
+        ]
+    }
+]{"platform": "twitter", "source": "test", "category": "test", "comments": ["test"]}

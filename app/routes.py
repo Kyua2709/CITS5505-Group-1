@@ -1,5 +1,5 @@
-from flask import Blueprint, render_template, request, jsonify, redirect, url_for, flash, current_app
-from app.models import Upload, db, predict_batch_text
+from flask import Blueprint, render_template, request, jsonify, redirect, session, url_for, flash, current_app
+from app.models import Upload, User, db, predict_batch_text
 import json
 import os
 
@@ -10,6 +10,51 @@ main_bp = Blueprint('main', __name__)
 def index():
     """主页"""
     return render_template('index.html')
+
+# authentication routes
+@main_bp.route('/register', methods=['POST'])
+def register():
+    data = request.form
+    email = data.get('email')
+
+    if User.query.filter_by(email=email).first():
+        return jsonify({'status': 'error', 'message': 'Email already registered'}), 400
+
+    user = User(
+        first_name=data.get('first_name'),
+        last_name=data.get('last_name'),
+        email=email
+    )
+    user.set_password(data.get('password'))
+    db.session.add(user)
+    db.session.commit()
+
+    # Auto login
+    session['user_id'] = user.id
+    session['user_name'] = user.first_name
+
+    return jsonify({'status': 'success', 'message': f'Welcome, {user.first_name}!'})
+
+
+@main_bp.route('/login', methods=['POST'])
+def login():
+    data = request.form
+    email = data.get('email')
+    password = data.get('password')
+
+    user = User.query.filter_by(email=email).first()
+    if user and user.check_password(password):
+        session['user_id'] = user.id
+        session['user_name'] = user.first_name
+        return jsonify({'status': 'success', 'message': 'Login successful'})
+    else:
+        return jsonify({'status': 'error', 'message': 'Invalid email or password'}), 401
+
+@main_bp.route('/logout')
+def logout():
+    session.clear()
+    flash('Logged out successfully.', 'info')
+    return redirect(url_for('main.index'))
 
 @main_bp.route('/upload', methods=['GET', 'POST'])
 def upload():
