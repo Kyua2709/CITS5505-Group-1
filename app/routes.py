@@ -1,5 +1,6 @@
-from flask import Blueprint, render_template, request, jsonify, redirect, session, url_for, flash
+from flask import Blueprint, render_template, request, jsonify, redirect, session, url_for, flash, current_app
 from app.models import Upload, User, db, predict_batch_text
+from werkzeug.utils import secure_filename
 import json
 import os
 
@@ -74,6 +75,8 @@ def upload():
             lines = [line.strip() for line in lines if line.strip()]
 
             results = predict_batch_text(lines)
+            
+            # TODO: Load uploads from the database, pass the first 3 uploads to the upload page, and implement pagination for additional uploads.
             return render_template('upload.html', results=results)
         except Exception as e:
             flash(f'Error processing file: {e}', 'danger')
@@ -84,23 +87,29 @@ def upload():
 @main_bp.route('/save_upload', methods=['POST'])
 def save_upload():
     try:
-        # 获取 JSON 数据
-        data = request.json
-        if not data:
-            return jsonify({"error": "No data provided"}), 400
+        data = request.form
+        file = request.files.get('file')
+        file_path = ''
 
-        # 验证必填字段
+        if file:
+            filename = secure_filename(file.filename)
+            save_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+            file.save(save_path)
+            file_path = save_path
+
         if not data.get('dataset_name') or not data.get('platform'):
-            return jsonify({"error": "Dataset name and platform are required"}), 400
+            return jsonify({"message": "Dataset name and platform are required"}), 400
 
-        # 创建数据库记录
         upload = Upload(
-            dataset_name=data.get('dataset_name', 'Unknown Dataset'),
-            platform=data.get('platform', 'Unknown Platform'),
-            upload_type=data.get('upload_type', 'Unknown Type'),
-            file_path=data.get('file_path', ''),
-            url=data.get('url', ''),
-            comments=data.get('comments', ''),
+            dataset_name=data.get('dataset_name'),
+            platform=data.get('platform'),
+            file_path=file_path,
+            url=data.get('url', 'N/A'),
+            url_type=data.get('url_type', 'N/A'),
+            source=data.get('source', 'N/A'),
+            comments=data.get('comments', 'N/A'),
+            category=data.get('category', 'N/A'),
+            comment_limit=data.get('comment_limit', 'N/A'),
             status="Processing"
         )
         db.session.add(upload)
@@ -109,7 +118,7 @@ def save_upload():
         return jsonify({"message": "Upload saved successfully", "id": upload.id}), 201
     except Exception as e:
         db.session.rollback()
-        return jsonify({"error": f"Failed to save upload: {str(e)}"}), 500
+        return jsonify({"message": f"Failed to save upload: {str(e)}"}), 500
 
 @main_bp.route('/get_uploads', methods=['GET'])
 def get_uploads():
@@ -133,28 +142,3 @@ def analyze():
 def share():
     """分享页面"""
     return render_template('share.html')
-
-@main_bp.route('/save_manual_entry', methods=['POST'])
-def save_manual_entry():
-    platform = request.form.get('platform')
-    source = request.form.get('source')
-    category = request.form.get('category')
-    comments = request.form.get('comments')
-
-    data = {
-        "platform": platform,
-        "source": source,
-        "category": category,
-        "comments": comments.splitlines()
-    }
-
-    # 使用 Flask 的 instance_path 保存文件
-    file_path = os.path.join(main_bp.root_path, 'manual_entries.json')
-    try:
-        with open(file_path, 'a') as f:
-            f.write(json.dumps(data) + '\n')
-        flash('Manual entry saved successfully!', 'success')
-    except Exception as e:
-        flash(f'Failed to save manual entry: {e}', 'danger')
-
-    return redirect(url_for('main.upload'))
