@@ -76,13 +76,16 @@ def upload():
 
             results = predict_batch_text(lines)
             
-            # TODO: Load uploads from the database, pass the first 3 uploads to the upload page, and implement pagination for additional uploads.
-            return render_template('upload.html', results=results)
+            # Get recent uploads
+            recent_uploads = Upload.query.order_by(Upload.upload_date.desc()).limit(10).all()
+            return render_template('upload.html', results=results, recent_uploads=recent_uploads)
         except Exception as e:
             flash(f'Error processing file: {e}', 'danger')
             return redirect(url_for('main.upload'))
 
-    return render_template('upload.html')
+    # Get recent uploads for GET request
+    recent_uploads = Upload.query.order_by(Upload.upload_date.desc()).limit(10).all()
+    return render_template('upload.html', recent_uploads=recent_uploads)
 
 @main_bp.route('/save_upload', methods=['POST'])
 def save_upload():

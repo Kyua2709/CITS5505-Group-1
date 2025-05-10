@@ -1,4 +1,44 @@
 $(document).ready(function () {
+    // Function to refresh uploads list
+    function refreshUploadsList() {
+        $.ajax({
+            url: '/get_uploads',
+            method: 'GET',
+            success: function(response) {
+                const tbody = $('table tbody');
+                tbody.empty();
+                
+                if (response.length === 0) {
+                    tbody.append('<tr><td colspan="6" class="text-center">No uploads found</td></tr>');
+                    return;
+                }
+                
+                response.forEach(function(upload) {
+                    const row = `
+                        <tr>
+                            <td>${upload.dataset_name}</td>
+                            <td>${upload.platform}</td>
+                            <td>${new Date(upload.upload_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</td>
+                            <td>${upload.upload_type === 'file' ? 'File' : upload.upload_type === 'manual' ? 'Manual Entry' : 'URL'}</td>
+                            <td>
+                                <span class="badge ${upload.status === 'Completed' ? 'bg-success' : upload.status === 'Processing' ? 'bg-warning' : 'bg-danger'}">
+                                    ${upload.status}
+                                </span>
+                            </td>
+                            <td>
+                                <a href="/analyze/${upload.id}" class="btn btn-sm btn-primary">View Analysis</a>
+                            </td>
+                        </tr>
+                    `;
+                    tbody.append(row);
+                });
+            },
+            error: function(error) {
+                console.error('Failed to refresh uploads list:', error);
+            }
+        });
+    }
+
     // Upload manual form
     $('#manualEntryForm form').submit(function (e) {
         e.preventDefault();
@@ -24,9 +64,11 @@ $(document).ready(function () {
             success: function () {
                 const successModal = new bootstrap.Modal(document.getElementById('successModal'));
                 successModal.show();
+                refreshUploadsList();
             },
             error: function (error) {
                 const msg = error.responseJSON?.message || 'Upload failed.';
+                alert(msg);
             }
         });
     });
@@ -63,6 +105,7 @@ $(document).ready(function () {
             success: function () {
                 const successModal = new bootstrap.Modal(document.getElementById('successModal'));
                 successModal.show();
+                refreshUploadsList();
             },
             error: function (error) {
                 const msg = error.responseJSON?.error || 'File upload failed.';
@@ -81,7 +124,7 @@ $(document).ready(function () {
         const commentLimit = $('#commentLimit').val();
 
         const formData = new FormData();
-        formData.append('dataset_name', "Manual Entry");
+        formData.append('dataset_name', "URL Entry");
         formData.append('platform', platform);
         formData.append('url', url);
         formData.append('url_type', urlType);
@@ -96,10 +139,15 @@ $(document).ready(function () {
             success: function () {
                 const successModal = new bootstrap.Modal(document.getElementById('successModal'));
                 successModal.show();
+                refreshUploadsList();
             },
             error: function (error) {
                 const msg = error.responseJSON?.message || 'Upload failed.';
+                alert(msg);
             }
         });
     });
-})
+
+    // Initial load of uploads list
+    refreshUploadsList();
+});
