@@ -14,12 +14,20 @@ $(document).ready(function () {
                 }
                 
                 response.forEach(function(upload) {
+                    const sizeDisplay =
+                        (upload.num_comments !== null && upload.num_comments !== undefined)
+                            ? `${upload.num_comments} comments`
+                        : (upload.file_path
+                            ? upload.file_path.split('/').pop()
+                            : (upload.comments
+                                ? `${upload.comments.split('\n').length} comments`
+                                : (upload.url ? 'URL data' : 'N/A')));
                     const row = `
                         <tr>
                             <td>${upload.dataset_name}</td>
                             <td>${upload.platform}</td>
                             <td>${new Date(upload.upload_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</td>
-                            <td>${upload.upload_type === 'file' ? 'File' : upload.upload_type === 'manual' ? 'Manual Entry' : 'URL'}</td>
+                            <td>${sizeDisplay}</td>
                             <td>
                                 <span class="badge ${upload.status === 'Completed' ? 'bg-success' : upload.status === 'Processing' ? 'bg-warning' : 'bg-danger'}">
                                     ${upload.status}
@@ -47,9 +55,10 @@ $(document).ready(function () {
         const source = $('#commentSource').val();
         const category = $('#commentCategory').val();
         const comments = $('#commentsTextArea').val();
+        const datasetName = $('#manualDatasetName').val();
 
         const formData = new FormData();
-        formData.append('dataset_name', "Manual Entry");
+        formData.append('dataset_name', datasetName);
         formData.append('platform', platform);
         formData.append('source', source);
         formData.append('category', category);
@@ -119,12 +128,13 @@ $(document).ready(function () {
         e.preventDefault();
 
         const platform = $('#platformSelect3').val();
-        const urlType = $('#url_type').val();
+        const datasetName = $('#urlDatasetName').val();
+        const urlType = $('#urlType').val();
         const url = $('#urlInput').val();
         const commentLimit = $('#commentLimit').val();
 
         const formData = new FormData();
-        formData.append('dataset_name', "URL Entry");
+        formData.append('dataset_name', datasetName);
         formData.append('platform', platform);
         formData.append('url', url);
         formData.append('url_type', urlType);
