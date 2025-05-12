@@ -3,6 +3,7 @@ from app.models import Upload, User, db, predict_batch_text
 from werkzeug.utils import secure_filename
 import json
 import os
+import chardet
 
 # 定义蓝图
 main_bp = Blueprint('main', __name__)
@@ -93,12 +94,67 @@ def save_upload():
         data = request.form
         file = request.files.get('file')
         file_path = ''
+        num_comments = None
 
-        if file:
+        # 平台爬虫自动分发
+        PLATFORM_CRAWLER_MAP = {
+            'reddit': 'reddit_crawler.fetch_reddit_comments',
+            'twitter': 'twitter_crawler.fetch_twitter_comments',
+            'instagram': 'instagram_crawler.fetch_instagram_comments',
+            'facebook': 'facebook_crawler.fetch_facebook_comments',
+            'tiktok': 'tiktok_crawler.fetch_tiktok_comments',
+            'youtube': 'youtube_crawler.fetch_youtube_comments',
+        }
+        platform = data.get('platform', '').lower()
+        if platform in PLATFORM_CRAWLER_MAP and data.get('url'):
+            import importlib
+            func_path = PLATFORM_CRAWLER_MAP[platform]
+            module_name, func_name = func_path.rsplit('.', 1)
+            module = importlib.import_module(f'crawlers.{module_name}')
+            func = getattr(module, func_name)
+            try:
+                comment_limit = int(data.get('comment_limit', 100))
+            except Exception:
+                comment_limit = 100
+            comments = func(data.get('url'), comment_limit)
+            num_comments = len(comments)
+            import datetime
+            ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+            filename = f"{platform}_comments_{ts}.txt"
+            save_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+            with open(save_path, "w", encoding="utf-8") as f:
+                for c in comments:
+                    f.write(c.replace('\n', ' ') + '\n')
+            file_path = save_path
+        elif file:
             filename = secure_filename(file.filename)
             save_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
             file.save(save_path)
             file_path = save_path
+            # 统计评论数
+            ext = filename.split('.')[-1].lower()
+            file.seek(0)
+            file_bytes = file.read()
+            detected = chardet.detect(file_bytes)
+            encoding = detected['encoding'] or 'utf-8'
+            try:
+                content = file_bytes.decode(encoding)
+            except Exception:
+                content = file_bytes.decode('utf-8', errors='replace')
+            if ext in ['txt', 'csv']:
+                num_comments = len([line for line in content.splitlines() if line.strip()])
+            elif ext == 'json':
+                import json
+                try:
+                    data_json = json.loads(content)
+                    if isinstance(data_json, list):
+                        num_comments = len(data_json)
+                    elif isinstance(data_json, dict) and 'comments' in data_json:
+                        num_comments = len(data_json['comments'])
+                except Exception:
+                    num_comments = None
+            else:
+                num_comments = None
 
         if not data.get('dataset_name') or not data.get('platform'):
             return jsonify({"message": "Dataset name and platform are required"}), 400
@@ -113,7 +169,8 @@ def save_upload():
             comments=data.get('comments', 'N/A'),
             category=data.get('category', 'N/A'),
             comment_limit=data.get('comment_limit', 'N/A'),
-            status="Processing"
+            status="Processing",
+            num_comments=num_comments
         )
         db.session.add(upload)
         db.session.commit()
@@ -121,6 +178,7 @@ def save_upload():
         return jsonify({"message": "Upload saved successfully", "id": upload.id}), 201
     except Exception as e:
         db.session.rollback()
+        print(e)
         return jsonify({"message": f"Failed to save upload: {str(e)}"}), 500
 
 @main_bp.route('/get_uploads', methods=['GET'])
@@ -131,9 +189,12 @@ def get_uploads():
         "id": upload.id,
         "dataset_name": upload.dataset_name,
         "platform": upload.platform,
-        "upload_type": upload.upload_type,
         "upload_date": upload.upload_date.strftime('%Y-%m-%d %H:%M:%S'),
-        "status": upload.status
+        "status": upload.status,
+        "num_comments": getattr(upload, 'num_comments', None),
+        "file_path": upload.file_path,
+        "comments": upload.comments,
+        "url": upload.url
     } for upload in uploads])
 
 @main_bp.route('/analyze')
