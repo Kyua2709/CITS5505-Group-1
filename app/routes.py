@@ -5,15 +5,24 @@ import json
 import os
 import chardet
 
-# 定义蓝图
+# Define Blueprint
 main_bp = Blueprint('main', __name__)
 
 @main_bp.route('/')
 def index():
-    """主页"""
+    """Home page"""
+    if 'first_name' in session:
+        return render_template('login.html')
     return render_template('index.html')
 
-# authentication routes
+@main_bp.route('/login')
+def logged_in_home():
+    """Logged in home page"""
+    if 'first_name' not in session:
+        return redirect(url_for('main.index'))
+    return render_template('login.html')
+
+# Authentication routes
 @main_bp.route('/register', methods=['POST'])
 def register():
     data = request.form
@@ -33,10 +42,9 @@ def register():
 
     # Auto login
     session['user_id'] = user.id
-    session['user_name'] = user.first_name
+    session['first_name'] = user.first_name
 
     return jsonify({'status': 'success', 'message': f'Welcome, {user.first_name}!'})
-
 
 @main_bp.route('/login', methods=['POST'])
 def login():
@@ -47,7 +55,7 @@ def login():
     user = User.query.filter_by(email=email).first()
     if user and user.check_password(password):
         session['user_id'] = user.id
-        session['user_name'] = user.first_name
+        session['first_name'] = user.first_name
         return jsonify({'status': 'success', 'message': 'Login successful'})
     else:
         return jsonify({'status': 'error', 'message': 'Invalid email or password'}), 401
@@ -58,8 +66,21 @@ def logout():
     flash('Logged out successfully.', 'info')
     return redirect(url_for('main.index'))
 
+@main_bp.route('/dashboard')
+def dashboard():
+    """Dashboard page"""
+    if 'first_name' not in session:
+        flash('Please log in to access this page.', 'danger')
+        return redirect(url_for('main.index'))
+    return render_template('login.html')
+
 @main_bp.route('/upload', methods=['GET', 'POST'])
 def upload():
+    """File upload route"""
+    if 'first_name' not in session:
+        flash('Please log in to access this page.', 'danger')
+        return redirect(url_for('main.index'))
+
     if request.method == 'POST':
         if 'file' not in request.files:
             flash('No file part in the request.', 'danger')
@@ -90,6 +111,10 @@ def upload():
 
 @main_bp.route('/save_upload', methods=['POST'])
 def save_upload():
+    """Save upload details"""
+    if 'first_name' not in session:
+        return jsonify({"message": "Please log in to save uploads"}), 401
+
     try:
         data = request.form
         file = request.files.get('file')
@@ -183,7 +208,10 @@ def save_upload():
 
 @main_bp.route('/get_uploads', methods=['GET'])
 def get_uploads():
-    """获取所有上传记录"""
+    """Get all upload records"""
+    if 'first_name' not in session:
+        return jsonify({"message": "Please log in to view uploads"}), 401
+
     uploads = Upload.query.order_by(Upload.upload_date.desc()).all()
     return jsonify([{
         "id": upload.id,
@@ -199,10 +227,16 @@ def get_uploads():
 
 @main_bp.route('/analyze')
 def analyze():
-    """分析页面"""
+    """Analysis page"""
+    if 'first_name' not in session:
+        flash('Please log in to access this page.', 'danger')
+        return redirect(url_for('main.index'))
     return render_template('analyze.html')
 
 @main_bp.route('/share')
 def share():
-    """分享页面"""
+    """Share page"""
+    if 'first_name' not in session:
+        flash('Please log in to access this page.', 'danger')
+        return redirect(url_for('main.index'))
     return render_template('share.html')

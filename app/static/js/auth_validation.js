@@ -24,8 +24,8 @@ $(document).ready(function () {
             type: 'POST',
             url: '/login',
             data: $form.serialize(),
-            success: function () {
-                location.reload();
+            success: function (response) {
+                window.location.href = '/login';
             },
             error: function (error) {
                 const msg = error.responseJSON?.message || 'Login failed.';
@@ -54,7 +54,7 @@ $(document).ready(function () {
                 $errorBox.html(`<div class="alert alert-success">${response.message}</div>`).show();
                 setTimeout(function () {
                     $('#registerModal').modal('hide');
-                    location.reload();
+                    window.location.href = '/login';
                 }, 1000);
             },
             error: function (error) {
