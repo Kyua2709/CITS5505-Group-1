@@ -243,36 +243,38 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>Product Launch Comments</td>
-                            <td>Instagram</td>
-                            <td>Apr 23, 2025</td>
-                            <td>152 comments</td>
-                            <td><span class="badge bg-success">Completed</span></td>
-                            <td>
-                                <a href="analyze.html" class="btn btn-sm btn-primary">View Analysis</a>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Customer Support Tweets</td>
-                            <td>Twitter</td>
-                            <td>Apr 21, 2025</td>
-                            <td>342 tweets</td>
-                            <td><span class="badge bg-success">Completed</span></td>
-                            <td>
-                                <a href="analyze.html" class="btn btn-sm btn-primary">View Analysis</a>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Brand Campaign Data</td>
-                            <td>Multiple</td>
-                            <td>Apr 18, 2025</td>
-                            <td>583 items</td>
-                            <td><span class="badge bg-success">Completed</span></td>
-                            <td>
-                                <a href="analyze.html" class="btn btn-sm btn-primary">View Analysis</a>
-                            </td>
-                        </tr>
+                        {% if recent_uploads %}
+                            {% for upload in recent_uploads %}
+                            <tr>
+                                <td>{{ upload.dataset_name }}</td>
+                                <td>{{ upload.platform }}</td>
+                                <td>{{ upload.upload_date.strftime('%b %d, %Y') }}</td>
+                                <td>
+                                    {% if upload.file_path %}
+                                        {{ upload.file_path.split('/')[-1] }}
+                                    {% elif upload.comments %}
+                                        {{ upload.comments.count('\n') + 1 }} comments
+                                    {% elif upload.url %}
+                                        URL data
+                                    {% else %}
+                                        N/A
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="badge {% if upload.status == 'Completed' %}bg-success{% elif upload.status == 'Processing' %}bg-warning{% else %}bg-danger{% endif %}">
+                                        {{ upload.status }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="{{ url_for('main.analyze', upload_id=upload.id) }}" class="btn btn-sm btn-primary">View Analysis</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="6" class="text-center">No uploads found</td>
+                            </tr>
+                        {% endif %}
                     </tbody>
                 </table>
             </div>
