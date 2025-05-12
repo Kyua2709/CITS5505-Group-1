@@ -96,7 +96,37 @@ def save_upload():
         file_path = ''
         num_comments = None
 
-        if file:
+        # 平台爬虫自动分发
+        PLATFORM_CRAWLER_MAP = {
+            'reddit': 'reddit_crawler.fetch_reddit_comments',
+            'twitter': 'twitter_crawler.fetch_twitter_comments',
+            'instagram': 'instagram_crawler.fetch_instagram_comments',
+            'facebook': 'facebook_crawler.fetch_facebook_comments',
+            'tiktok': 'tiktok_crawler.fetch_tiktok_comments',
+            'youtube': 'youtube_crawler.fetch_youtube_comments',
+        }
+        platform = data.get('platform', '').lower()
+        if platform in PLATFORM_CRAWLER_MAP and data.get('url'):
+            import importlib
+            func_path = PLATFORM_CRAWLER_MAP[platform]
+            module_name, func_name = func_path.rsplit('.', 1)
+            module = importlib.import_module(f'crawlers.{module_name}')
+            func = getattr(module, func_name)
+            try:
+                comment_limit = int(data.get('comment_limit', 100))
+            except Exception:
+                comment_limit = 100
+            comments = func(data.get('url'), comment_limit)
+            num_comments = len(comments)
+            import datetime
+            ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+            filename = f"{platform}_comments_{ts}.txt"
+            save_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+            with open(save_path, "w", encoding="utf-8") as f:
+                for c in comments:
+                    f.write(c.replace('\n', ' ') + '\n')
+            file_path = save_path
+        elif file:
             filename = secure_filename(file.filename)
             save_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
             file.save(save_path)
