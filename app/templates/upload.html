@@ -9,44 +9,10 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
+    
     <!-- Navigation Bar -->
-    <nav class="navbar navbar-expand-lg navbar-dark">
-        <div class="container">
-            <a class="navbar-brand" href="{{ url_for('main.index') }}">
-                <i class="bi bi-bar-chart-line-fill me-2"></i>SentiSocial
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.endpoint == 'main.index' %}active{% endif %}" href="{{ url_for('main.index') }}">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.endpoint == 'main.upload' %}active{% endif %}" href="{{ url_for('main.upload') }}">Upload Data</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.endpoint == 'main.analyze' %}active{% endif %}" href="{{ url_for('main.analyze') }}">Analysis</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.endpoint == 'main.share' %}active{% endif %}" href="{{ url_for('main.share') }}">Share</a>
-                    </li>
-                </ul>
-                <div class="d-flex align-items-center">
-                    <div class="dropdown me-3">
-                        <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                            <span>Tianyu Li</span>
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                            <li><a class="dropdown-item" href="#"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </nav>
-
+    {% include 'partials/navbar.html' %}
+    
     <!-- Page Header -->
     <header class="bg-light py-5">
         <div class="container">
@@ -66,7 +32,21 @@
             </div>
         </div>
     </header>
-
+    
+    <!-- Feedback Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="container mt-4">
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+    
     <!-- Upload Options Section -->
     <section class="py-5">
         <div class="container">
@@ -100,7 +80,7 @@
                     </div>
                 </div>
             </div>
-
+            
             <!-- Manual Entry Form -->
             <div class="collapse mt-4" id="manualEntryForm">
                 <div class="card">
@@ -111,7 +91,7 @@
                         <form>
                             <div class="mb-3">
                                 <label for="platformSelect" class="form-label">Social Media Platform</label>
-                                <select class="form-select" id="platformSelect" required>
+                                <select class="form-select" id="platformSelect" name="platform" required>
                                     <option value="" selected disabled>Select platform</option>
                                     <option value="instagram">Instagram</option>
                                     <option value="twitter">Twitter</option>
@@ -123,16 +103,20 @@
                                 </select>
                             </div>
                             <div class="mb-3">
+                                <label for="manualDatasetName" class="form-label">Dataset Name</label>
+                                <input type="text" class="form-control" id="manualDatasetName" name="dataset_name" placeholder="Enter a name for this dataset" required>
+                            </div>
+                            <div class="mb-3">
                                 <label for="commentSource" class="form-label">Source Description (e.g., Post URL, Account Name)</label>
-                                <input type="text" class="form-control" id="commentSource" placeholder="Enter source information">
+                                <input type="text" class="form-control" id="commentSource" name="source" placeholder="Enter source information">
                             </div>
                             <div class="mb-3">
                                 <label for="commentCategory" class="form-label">Category (Optional)</label>
-                                <input type="text" class="form-control" id="commentCategory" placeholder="E.g., Product Feedback, Customer Service">
+                                <input type="text" class="form-control" id="commentCategory" name="category" placeholder="E.g., Product Feedback, Customer Service">
                             </div>
                             <div class="mb-3">
-                                <label for="commentsTextarea" class="form-label">Comments/Posts (One per line)</label>
-                                <textarea class="form-control" id="commentsTextarea" rows="10" placeholder="Paste or type comments here, one per line" required></textarea>
+                                <label for="commentsTextArea" class="form-label">Comments/Posts (One per line)</label>
+                                <textarea class="form-control" id="commentsTextArea" name="comments" rows="10" placeholder="Paste or type comments here, one per line" required></textarea>
                             </div>
                             <div class="text-end">
                                 <button type="button" class="btn btn-outline-secondary me-2" data-bs-toggle="collapse" data-bs-target="#manualEntryForm">Cancel</button>
@@ -142,7 +126,7 @@
                     </div>
                 </div>
             </div>
-
+            
             <!-- File Upload Form -->
             <div class="collapse mt-4" id="fileUploadForm">
                 <div class="card">
@@ -153,7 +137,7 @@
                         <form>
                             <div class="mb-3">
                                 <label for="platformSelect2" class="form-label">Social Media Platform</label>
-                                <select class="form-select" id="platformSelect2" required>
+                                <select class="form-select" id="platformSelect2" name="platform" required>
                                     <option value="" selected disabled>Select platform</option>
                                     <option value="instagram">Instagram</option>
                                     <option value="twitter">Twitter</option>
@@ -167,19 +151,19 @@
                             </div>
                             <div class="mb-3">
                                 <label for="datasetName" class="form-label">Dataset Name</label>
-                                <input type="text" class="form-control" id="datasetName" placeholder="Enter a name for this dataset" required>
+                                <input type="text" class="form-control" id="datasetName" name="dataset_name" placeholder="Enter a name for this dataset" required>
                             </div>
                             <div class="mb-3">
                                 <label for="fileUpload" class="form-label">Upload File</label>
-                                <input class="form-control" type="file" id="fileUpload" accept=".csv, .xlsx, .json, .txt" required>
+                                <input class="form-control" type="file" id="fileUpload" name="file" accept=".csv, .xlsx, .json, .txt" required>
                                 <div class="form-text">Accepted formats: CSV, Excel, JSON, TXT (max 10MB)</div>
                             </div>
                             <div class="mb-3">
                                 <label for="dateRangeSelect" class="form-label">Date Range (Optional)</label>
                                 <div class="input-group">
-                                    <input type="date" class="form-control" id="startDate">
+                                    <input type="date" class="form-control" id="startDate" name="start_date">
                                     <span class="input-group-text">to</span>
-                                    <input type="date" class="form-control" id="endDate">
+                                    <input type="date" class="form-control" id="endDate" name="end_date">
                                 </div>
                             </div>
                             <div class="text-end">
@@ -190,7 +174,7 @@
                     </div>
                 </div>
             </div>
-
+            
             <!-- URL Entry Form -->
             <div class="collapse mt-4" id="urlEntryForm">
                 <div class="card">
@@ -201,7 +185,7 @@
                         <form>
                             <div class="mb-3">
                                 <label for="platformSelect3" class="form-label">Social Media Platform</label>
-                                <select class="form-select" id="platformSelect3" required>
+                                <select class="form-select" id="platformSelect3" name="platform" required>
                                     <option value="" selected disabled>Select platform</option>
                                     <option value="instagram">Instagram</option>
                                     <option value="twitter">Twitter</option>
@@ -212,8 +196,12 @@
                                 </select>
                             </div>
                             <div class="mb-3">
+                                <label for="urlDatasetName" class="form-label">Dataset Name</label>
+                                <input type="text" class="form-control" id="urlDatasetName" name="dataset_name" placeholder="Enter a name for this dataset" required>
+                            </div>
+                            <div class="mb-3">
                                 <label for="urlType" class="form-label">URL Type</label>
-                                <select class="form-select" id="urlType" required>
+                                <select class="form-select" id="urlType" name="url_type" required>
                                     <option value="" selected disabled>Select URL type</option>
                                     <option value="post">Single Post</option>
                                     <option value="profile">Profile/Account</option>
@@ -222,11 +210,11 @@
                             </div>
                             <div class="mb-3">
                                 <label for="urlInput" class="form-label">URL or Identifier</label>
-                                <input type="url" class="form-control" id="urlInput" placeholder="Paste URL or enter identifier" required>
+                                <input type="url" class="form-control" id="urlInput" name="url" placeholder="Paste URL or enter identifier" required>
                             </div>
                             <div class="mb-3">
                                 <label for="commentLimit" class="form-label">Comment Limit</label>
-                                <select class="form-select" id="commentLimit">
+                                <select class="form-select" id="commentLimit" name="comment_limit">
                                     <option value="50">50 comments</option>
                                     <option value="100" selected>100 comments</option>
                                     <option value="200">200 comments</option>
@@ -244,8 +232,8 @@
             </div>
         </div>
     </section>
-
-
+    
+    
     <!-- Recent Uploads Section -->
     <section class="py-5 bg-light">
         <div class="container">
@@ -263,113 +251,72 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>Product Launch Comments</td>
-                            <td>Instagram</td>
-                            <td>Apr 23, 2025</td>
-                            <td>152 comments</td>
-                            <td><span class="badge bg-success">Completed</span></td>
-                            <td>
-                                <a href="analyze.html" class="btn btn-sm btn-primary">View Analysis</a>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Customer Support Tweets</td>
-                            <td>Twitter</td>
-                            <td>Apr 21, 2025</td>
-                            <td>342 tweets</td>
-                            <td><span class="badge bg-success">Completed</span></td>
-                            <td>
-                                <a href="analyze.html" class="btn btn-sm btn-primary">View Analysis</a>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Brand Campaign Data</td>
-                            <td>Multiple</td>
-                            <td>Apr 18, 2025</td>
-                            <td>583 items</td>
-                            <td><span class="badge bg-success">Completed</span></td>
-                            <td>
-                                <a href="analyze.html" class="btn btn-sm btn-primary">View Analysis</a>
-                            </td>
-                        </tr>
+                        {% if recent_uploads %}
+                            {% for upload in recent_uploads %}
+                            <tr>
+                                <td>{{ upload.dataset_name }}</td>
+                                <td>{{ upload.platform }}</td>
+                                <td>{{ upload.upload_date.strftime('%b %d, %Y') }}</td>
+                                <td>
+                                    {% if upload.file_path %}
+                                        {{ upload.file_path.split('/')[-1] }}
+                                    {% elif upload.comments %}
+                                        {{ upload.comments.count('\n') + 1 }} comments
+                                    {% elif upload.url %}
+                                        URL data
+                                    {% else %}
+                                        N/A
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="badge {% if upload.status == 'Completed' %}bg-success{% elif upload.status == 'Processing' %}bg-warning{% else %}bg-danger{% endif %}">
+                                        {{ upload.status }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="{{ url_for('main.analyze', upload_id=upload.id) }}" class="btn btn-sm btn-primary">View Analysis</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="6" class="text-center">No uploads found</td>
+                            </tr>
+                        {% endif %}
                     </tbody>
                 </table>
             </div>
         </div>
     </section>
-
-    <!-- Footer -->
-    <footer class="footer py-4">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-6 mb-4 mb-md-0">
-                    <h5><i class="bi bi-bar-chart-line-fill me-2"></i>SentiSocial</h5>
-                    <p class="text-muted">A powerful platform for analyzing sentiment in social media comments.</p>
+    
+    <!-- Success Modal -->
+    <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="successModalLabel">Upload Successful</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="col-md-3 mb-4 mb-md-0">
-                    <h5>Quick Links</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="{{ url_for('main.index') }}">Home</a></li>
-                        <li><a href="{{ url_for('main.upload') }}">Upload Data</a></li>
-                        <li><a href="{{ url_for('main.analyze') }}">Analysis</a></li>
-                        <li><a href="{{ url_for('main.share') }}">Share</a></li>
-                    </ul>
+                <div class="modal-body">
+                    Your data has been uploaded successfully!
                 </div>
-                <div class="col-md-3 mb-4 mb-md-0">
-                    <h5>Follow Us</h5>
-                    <div class="social-icons mt-3">
-                        <a href="#" class="me-2 text-decoration-none">
-                            <i class="bi bi-facebook fs-4"></i>
-                        </a>
-                        <a href="#" class="me-2 text-decoration-none">
-                            <i class="bi bi-twitter fs-4"></i>
-                        </a>
-                        <a href="#" class="me-2 text-decoration-none">
-                            <i class="bi bi-linkedin fs-4"></i>
-                        </a>
-                        <a href="#" class="me-2 text-decoration-none">
-                            <i class="bi bi-instagram fs-4"></i>
-                        </a>
-                    </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="window.location.href='{{ url_for('main.upload') }}'">Return to Upload</button>
                 </div>
-            </div>
-            <hr>
-            <div class="text-center text-muted">
-                <small>&copy; 2025 SentiSocial. All rights reserved.</small>
             </div>
         </div>
-    </footer>
-
+    </div>
+    
+    <!-- JQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
-            e.preventDefault(); // 阻止表单默认提交行为
-
-            const datasetName = document.getElementById('datasetName').value;
-            const platform = document.getElementById('platform').value;
-            const uploadType = document.getElementById('uploadType').value;
-            const comments = document.getElementById('comments').value;
-
-            const response = await fetch('/save_upload', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    dataset_name: datasetName,
-                    platform: platform,
-                    upload_type: uploadType,
-                    comments: comments
-                })
-            });
-
-            if (response.ok) {
-                alert('Upload saved successfully!');
-                document.getElementById('uploadForm').reset();
-            } else {
-                alert('Failed to save upload.');
-            }
-        });
-    </script>
+    
+    {% include 'partials/footer.html' %}
+    {% include 'partials/login_modal.html' %}
+    {% include 'partials/register_modal.html' %}
+    
+    <script src="{{ url_for('static', filename='js/file_upload.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/auth_validation.js') }}"></script>
 </body>
 </html>
