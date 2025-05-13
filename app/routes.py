@@ -76,12 +76,10 @@ def dashboard():
 
 @main_bp.route('/upload', methods=['GET', 'POST'])
 def upload():
-    """File upload route"""
+    """Render upload page and handle file POST if needed."""
     if 'first_name' not in session:
         flash('Please log in to access this page.', 'danger')
         return redirect(url_for('main.index'))
-    
-    user_id = session.get('user_id')
 
     if request.method == 'POST':
         if 'file' not in request.files:
@@ -95,25 +93,18 @@ def upload():
 
         try:
             file_contents = file.read().decode('utf-8')
-            lines = file_contents.split('\n')
-            lines = [line.strip() for line in lines if line.strip()]
-
+            lines = [line.strip() for line in file_contents.split('\n') if line.strip()]
             results = predict_batch_text(lines)
-            
-            # Get recent uploads
-            recent_uploads = Upload.query.filter_by(user_id=user_id)\
-                                         .order_by(Upload.upload_date.desc())\
-                                         .limit(10).all()
-            return render_template('upload.html', results=results, recent_uploads=recent_uploads)
+
+            flash('File uploaded and processed successfully.', 'success')
+            return redirect(url_for('main.upload'))
+
         except Exception as e:
             flash(f'Error processing file: {e}', 'danger')
             return redirect(url_for('main.upload'))
 
-    # Get recent uploads for GET request
-    recent_uploads = Upload.query.filter_by(user_id=user_id)\
-                                 .order_by(Upload.upload_date.desc())\
-                                 .limit(10).all()
-    return render_template('upload.html', recent_uploads=recent_uploads)
+    # For GET requests: just render the template, JS will load data via AJAX
+    return render_template('upload.html')
 
 @main_bp.route('/save_upload', methods=['POST'])
 def save_upload():
@@ -218,11 +209,18 @@ def get_uploads():
     """Get all upload records"""
     if 'first_name' not in session:
         return jsonify({"message": "Please log in to view uploads"}), 401
+    
+    page = request.args.get('page', 1, type=int)
+    per_page = 3
 
     user_id = session.get('user_id')
-    uploads = Upload.query.filter_by(user_id=user_id).order_by(Upload.upload_date.desc()).all()
+    uploads = Upload.query\
+                    .filter_by(user_id=user_id)\
+                    .order_by(Upload.upload_date.desc())\
+                    .paginate(page=page, per_page=per_page, error_out=False)
 
-    return jsonify([{
+    return jsonify({
+    "items": [{
         "id": upload.id,
         "dataset_name": upload.dataset_name,
         "platform": upload.platform,
@@ -232,7 +230,11 @@ def get_uploads():
         "file_path": upload.file_path,
         "comments": upload.comments,
         "url": upload.url
-    } for upload in uploads])
+    } for upload in uploads.items],
+    "page": uploads.page,
+    "pages": uploads.pages,
+    "total": uploads.total
+})
 
 @main_bp.route('/analyze')
 def analyze():
