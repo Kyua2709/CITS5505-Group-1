@@ -172,6 +172,10 @@ body {
     margin-bottom: 15px;
 }
 
+.h-0 {
+    height: 0;
+}
+
 /* Responsive Adjustments */
 @media (max-width: 768px) {
     .hero-section {

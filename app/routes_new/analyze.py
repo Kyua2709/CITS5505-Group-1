@@ -115,5 +115,8 @@ def home():
         flask.flash('Please log in to access this page.', 'danger')
         return flask.redirect(flask.url_for('main.index'))
 
+    order = Upload.timestamp.desc()
+    uploads = db.session.query(Upload).order_by(order)
+
     # Render the HTML page for viewing analysis results
-    return flask.render_template("analyze.html")
+    return flask.render_template("analyze.html", uploads=uploads)
