@@ -37,6 +37,9 @@ class Upload(db.Model):
     upload_date = db.Column(db.DateTime, default=datetime.utcnow)
     status = db.Column(db.String(50), default="Pending")
     num_comments = db.Column(db.Integer, nullable=True)
+    
+    user_id = db.Column(db.String(36), db.ForeignKey('user.id'), nullable=False)
+    user = db.relationship('User', backref=db.backref('uploads', lazy=True))
 
     def __repr__(self):
         return f'<Upload {self.dataset_name} - {self.platform}>'
@@ -53,7 +56,10 @@ class Upload(db.Model):
             'source': self.source,
             'category': self.category,
             'upload_date': self.upload_date.isoformat() if self.upload_date else None,
-            'status': self.status
+            'status': self.status,
+            'user_id': self.user_id,
+            'num_comments': self.num_comments,
+            'comments': self.comments
         }
 
 # 文本预测功能

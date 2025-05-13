@@ -1,8 +1,10 @@
 from flask import Flask
+from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 import os
 
 db = SQLAlchemy()
+migrate = Migrate()
 
 def create_app():
     app = Flask(
@@ -18,6 +20,7 @@ def create_app():
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     
     db.init_app(app)
+    migrate.init_app(app, db)
     
     from .models import User, Upload
 

@@ -80,6 +80,8 @@ def upload():
     if 'first_name' not in session:
         flash('Please log in to access this page.', 'danger')
         return redirect(url_for('main.index'))
+    
+    user_id = session.get('user_id')
 
     if request.method == 'POST':
         if 'file' not in request.files:
@@ -99,14 +101,18 @@ def upload():
             results = predict_batch_text(lines)
             
             # Get recent uploads
-            recent_uploads = Upload.query.order_by(Upload.upload_date.desc()).limit(10).all()
+            recent_uploads = Upload.query.filter_by(user_id=user_id)\
+                                         .order_by(Upload.upload_date.desc())\
+                                         .limit(10).all()
             return render_template('upload.html', results=results, recent_uploads=recent_uploads)
         except Exception as e:
             flash(f'Error processing file: {e}', 'danger')
             return redirect(url_for('main.upload'))
 
     # Get recent uploads for GET request
-    recent_uploads = Upload.query.order_by(Upload.upload_date.desc()).limit(10).all()
+    recent_uploads = Upload.query.filter_by(user_id=user_id)\
+                                 .order_by(Upload.upload_date.desc())\
+                                 .limit(10).all()
     return render_template('upload.html', recent_uploads=recent_uploads)
 
 @main_bp.route('/save_upload', methods=['POST'])
@@ -195,7 +201,8 @@ def save_upload():
             category=data.get('category', 'N/A'),
             comment_limit=data.get('comment_limit', 'N/A'),
             status="Processing",
-            num_comments=num_comments
+            num_comments=num_comments,
+            user_id=session.get('user_id')
         )
         db.session.add(upload)
         db.session.commit()
@@ -212,7 +219,9 @@ def get_uploads():
     if 'first_name' not in session:
         return jsonify({"message": "Please log in to view uploads"}), 401
 
-    uploads = Upload.query.order_by(Upload.upload_date.desc()).all()
+    user_id = session.get('user_id')
+    uploads = Upload.query.filter_by(user_id=user_id).order_by(Upload.upload_date.desc()).all()
+
     return jsonify([{
         "id": upload.id,
         "dataset_name": upload.dataset_name,
