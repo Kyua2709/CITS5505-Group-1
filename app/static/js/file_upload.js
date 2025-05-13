@@ -1,52 +1,84 @@
-$(document).ready(function () {
-    // Function to refresh uploads list
-    function refreshUploadsList() {
-        $.ajax({
-            url: '/get_uploads',
-            method: 'GET',
-            success: function(response) {
-                const tbody = $('table tbody');
-                tbody.empty();
-                
-                if (response.length === 0) {
-                    tbody.append('<tr><td colspan="6" class="text-center">No uploads found</td></tr>');
-                    return;
-                }
-                
-                response.forEach(function(upload) {
-                    const sizeDisplay =
-                        (upload.num_comments !== null && upload.num_comments !== undefined)
-                            ? `${upload.num_comments} comments`
-                        : (upload.file_path
-                            ? upload.file_path.split('/').pop()
-                            : (upload.comments
-                                ? `${upload.comments.split('\n').length} comments`
-                                : (upload.url ? 'URL data' : 'N/A')));
-                    const row = `
-                        <tr>
-                            <td>${upload.dataset_name}</td>
-                            <td>${upload.platform}</td>
-                            <td>${new Date(upload.upload_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</td>
-                            <td>${sizeDisplay}</td>
-                            <td>
-                                <span class="badge ${upload.status === 'Completed' ? 'bg-success' : upload.status === 'Processing' ? 'bg-warning' : 'bg-danger'}">
-                                    ${upload.status}
-                                </span>
-                            </td>
-                            <td>
-                                <a href="/analyze/${upload.id}" class="btn btn-sm btn-primary">View Analysis</a>
-                            </td>
-                        </tr>
-                    `;
-                    tbody.append(row);
-                });
-            },
-            error: function(error) {
-                console.error('Failed to refresh uploads list:', error);
+let currentPage = 1;
+const itemsPerPage = 3;
+
+function refreshUploadsList(page = 1) {
+    currentPage = page;
+
+    $.ajax({
+        url: `/get_uploads?page=${page}&limit=${itemsPerPage}`,
+        method: 'GET',
+        success: function (response) {
+            const tbody = $('table tbody');
+            tbody.empty();
+
+            if (!response.items || response.items.length === 0) {
+                tbody.append('<tr><td colspan="6" class="text-center">No uploads found</td></tr>');
+                return;
             }
-        });
+
+            response.items.forEach(function (upload) {
+                const sizeDisplay = (upload.num_comments !== null && upload.num_comments !== undefined)
+                    ? `${upload.num_comments} comments`
+                    : (upload.file_path
+                        ? upload.file_path.split('/').pop()
+                        : (upload.comments
+                            ? `${upload.comments.split('\n').length} comments`
+                            : (upload.url ? 'URL data' : 'N/A')));
+
+                const row = `
+                    <tr>
+                        <td>${upload.dataset_name}</td>
+                        <td>${upload.platform}</td>
+                        <td>${new Date(upload.upload_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</td>
+                        <td>${sizeDisplay}</td>
+                        <td>
+                            <span class="badge ${upload.status === 'Completed' ? 'bg-success' : upload.status === 'Processing' ? 'bg-warning' : 'bg-danger'}">
+                                ${upload.status}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="/analyze/${upload.id}" class="btn btn-sm btn-primary">View Analysis</a>
+                        </td>
+                    </tr>
+                `;
+                tbody.append(row);
+            });
+
+            renderPagination(response.page, response.pages);
+        },
+        error: function (err) {
+            console.error("Failed to fetch uploads:", err);
+        }
+    });
+}
+
+function renderPagination(current, total) {
+    const container = $('#paginationControls');
+    container.empty();
+
+    if (total <= 1) return;
+
+    let html = '<nav><ul class="pagination justify-content-center">';
+
+    for (let i = 1; i <= total; i++) {
+        html += `
+            <li class="page-item ${i === current ? 'active' : ''}">
+                <a class="page-link" href="#" data-page="${i}">${i}</a>
+            </li>
+        `;
     }
 
+    html += '</ul></nav>';
+    container.html(html);
+
+    container.find('a.page-link').on('click', function (e) {
+        e.preventDefault();
+        const page = $(this).data('page');
+        refreshUploadsList(page);
+    });
+}
+
+$(document).ready(function () {
     // Upload manual form
     $('#manualEntryForm form').submit(function (e) {
         e.preventDefault();
@@ -73,7 +105,7 @@ $(document).ready(function () {
             success: function () {
                 const successModal = new bootstrap.Modal(document.getElementById('successModal'));
                 successModal.show();
-                refreshUploadsList();
+                // refreshUploadsList();
             },
             error: function (error) {
                 const msg = error.responseJSON?.message || 'Upload failed.';
@@ -114,7 +146,7 @@ $(document).ready(function () {
             success: function () {
                 const successModal = new bootstrap.Modal(document.getElementById('successModal'));
                 successModal.show();
-                refreshUploadsList();
+                // refreshUploadsList();
             },
             error: function (error) {
                 const msg = error.responseJSON?.error || 'File upload failed.';
@@ -149,7 +181,7 @@ $(document).ready(function () {
             success: function () {
                 const successModal = new bootstrap.Modal(document.getElementById('successModal'));
                 successModal.show();
-                refreshUploadsList();
+                // refreshUploadsList();
             },
             error: function (error) {
                 const msg = error.responseJSON?.message || 'Upload failed.';

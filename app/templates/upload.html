@@ -252,7 +252,7 @@
                     </thead>
                     <tbody>
                         {% if recent_uploads %}
-                            {% for upload in recent_uploads %}
+                            {% for upload in recent_uploads.items %}
                             <tr>
                                 <td>{{ upload.dataset_name }}</td>
                                 <td>{{ upload.platform }}</td>
@@ -285,6 +285,7 @@
                         {% endif %}
                     </tbody>
                 </table>
+                <div id="paginationControls" class="mt-3"></div>
             </div>
         </div>
     </section>
