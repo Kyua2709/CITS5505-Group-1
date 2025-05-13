@@ -13,10 +13,10 @@
                     <a class="nav-link {% if request.endpoint == 'main.login' %}active{% endif %}" href="{{ url_for('main.login') }}">Home</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {% if request.endpoint == 'main.upload' %}active{% endif %}" href="{{ url_for('main.upload') }}">Upload Data</a>
+                    <a class="nav-link {% if request.endpoint == 'upload.home' %}active{% endif %}" href="{{ url_for('upload.home') }}">Upload Data</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {% if request.endpoint == 'main.analyze' %}active{% endif %}" href="{{ url_for('main.analyze') }}">Analysis</a>
+                    <a class="nav-link {% if request.endpoint == 'analyze.home' %}active{% endif %}" href="{{ url_for('analyze.home') }}">Analysis</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link {% if request.endpoint == 'main.share' %}active{% endif %}" href="{{ url_for('main.share') }}">Share</a>

@@ -1,4 +1,16 @@
 Flask>=2.0
-# 后续添加：
-# snownlp
-# matplotlib
+Flask-SQLAlchemy>=3.1.1
+flask_migrate
+
+# For packages.sentiment_analysis
+torch>=2.7.0
+transformers>=4.51.3
+
+# For packages.crawler
+bs4
+facebook_scraper
+lxml_html_clean
+instaloader
+TikTokApi
+snscrape
+google-api-python-client

@@ -1,7 +1,5 @@
 from app import db
 from datetime import datetime
-from bert_model import predict_sentiment
-from preprocessing import clean_text
 import uuid
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -25,28 +23,23 @@ class User(db.Model):
 # 数据库模型
 class Upload(db.Model):
     id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    dataset_name = db.Column(db.String(255), nullable=False)
+    timestamp = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+
+    title = db.Column(db.String(255), nullable=False)
+    description = db.Column(db.Text, nullable=False)
     platform = db.Column(db.String(50), nullable=False)
-    file_path = db.Column(db.String(255), nullable=True)
-    url = db.Column(db.String(255), nullable=True)
-    url_type = db.Column(db.String(50), nullable=True)
-    comment_limit = db.Column(db.String(50), nullable=True),
-    source = db.Column(db.String(50), nullable=True)
-    comments = db.Column(db.Text, nullable=True)
-    category = db.Column(db.String(50), nullable=True)
-    upload_date = db.Column(db.DateTime, default=datetime.utcnow)
-    status = db.Column(db.String(50), default="Processing")
+    size = db.Column(db.Integer, nullable=True)
+    status = db.Column(db.String(50), nullable=False, default="Processing")
 
-# 文本预测功能
-def predict_single_text(text):
-    cleaned = clean_text(text)
-    prediction = predict_sentiment(cleaned)
-    return prediction
+    user_id = db.Column(db.String(36), db.ForeignKey('user.id'), nullable=False)
+    user = db.relationship('User', backref=db.backref('uploads', lazy=True))
+    comments = db.relationship('Comment', backref='upload', lazy=True)
 
-def predict_batch_text(text_list):
-    results = []
-    for text in text_list:
-        cleaned = clean_text(text)
-        pred = predict_sentiment(cleaned)
-        results.append((text, pred))
-    return results
+class Comment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+
+    content = db.Column(db.Text, nullable=False)
+    score = db.Column(db.Integer, nullable=False)
+
+    upload_id =  db.Column(db.Integer, db.ForeignKey('upload.id') , nullable=False)
+
