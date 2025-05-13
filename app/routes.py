@@ -60,11 +60,3 @@ def login():
 def logout():
     session.clear()
     return redirect(url_for('main.index'))
-
-@main_bp.route('/share')
-def share():
-    """Share page"""
-    if 'user_id' not in session:
-        flash('Please log in to access this page.', 'danger')
-        return redirect(url_for('main.index'))
-    return render_template('share.html')
