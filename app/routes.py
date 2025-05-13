@@ -62,16 +62,7 @@ def login():
 @main_bp.route('/logout')
 def logout():
     session.clear()
-    flash('Logged out successfully.', 'info')
     return redirect(url_for('main.index'))
-
-@main_bp.route('/dashboard')
-def dashboard():
-    """Dashboard page"""
-    if 'first_name' not in session:
-        flash('Please log in to access this page.', 'danger')
-        return redirect(url_for('main.index'))
-    return render_template('login.html')
 
 @main_bp.route('/upload', methods=['GET', 'POST'])
 def upload():
