@@ -1,0 +1,135 @@
+import threading
+import uuid
+from os import path
+
+import flask
+import requests
+
+from app import db
+from app.models import Upload
+
+# Create a Flask blueprint for upload-related routes
+upload_bp = flask.Blueprint(
+    "upload",
+    __name__,
+    url_prefix="/upload",
+)
+
+def handle_upload(source):
+    user_id = flask.session.get('user_id')
+    if not user_id:
+        return flask.jsonify({"message": "Please log in to save uploads"}), 401
+
+    # Extract basic metadata from the form
+    form = flask.request.form
+    files = flask.request.files
+    title = form.get("title")
+    platform = form.get("platform")
+    description = form.get("description")
+
+    # Validate required fields
+    if not title or not platform:
+        return flask.jsonify({"message": "Title and Platform are required"}), 400
+
+    # Generate a unique ID for the upload and construct the local file path
+    upload_id = str(uuid.uuid4())
+    upload_folder = flask.current_app.config["UPLOAD_FOLDER"]
+    file_path = path.join(upload_folder, upload_id)
+
+    # Initialize optional fields
+    url, url_type, limit = None, None, None
+
+    # Handle upload based on source type
+    if source == "url":
+        # Case 1: Upload source is a URL
+        url = form.get("url")
+        url_type = form.get("url_type")
+        limit = form.get("comment_limit", type=int, default=100)
+        if not url:
+            return flask.jsonify({"message": "URL missing"}), 400
+    elif source == "file":
+        # Case 2: Upload source is a file
+        file = files.get("file")
+        if not file:
+            return flask.jsonify({"message": "File missing"}), 400
+        file.save(file_path)
+    else:
+        # Case 3: Upload source is text input
+        comments = form.get("comments")
+        if not comments:
+            return flask.jsonify({"message": "Comments missing"}), 400
+        with open(file_path, "w") as f:
+            f.write(comments)
+
+    # Store metadata in the database
+    upload = Upload(
+        id=upload_id,
+        title=title,
+        platform=platform,
+        description=description,
+        user_id=user_id,
+    )
+    db.session.add(upload)
+    db.session.commit()
+
+    # Kick off asynchronous sentiment analysis via HTTP POST request
+    # NOTE: db.session cannot be safely used in threads due to lack of thread-safety
+    # So, we trigger an API call to perform the processing asynchronously
+    analysis_url = "http://localhost:5000/analyze/run"  # TODO: replace hardcoded hostname
+    thread = threading.Thread(
+        target=requests.post,
+        args=(
+            analysis_url,
+            {
+                "upload_id": upload_id,
+                "file_path": file_path,
+                "platform": platform,
+                "url": url,
+                "url_type": url_type,
+                "limit": limit,
+            },
+        ),
+    )
+    thread.daemon = True  # Ensure thread exits with main process
+    thread.start()
+
+    return flask.jsonify({"message": "Upload saved successfully", "id": upload_id}), 201
+
+# Route to handle text uploads
+@upload_bp.route("/text", methods=["POST"])
+def upload_by_text():
+    return handle_upload("text")
+
+# Route to handle file uploads
+@upload_bp.route("/file", methods=["POST"])
+def upload_by_file():
+    return handle_upload("file")
+
+# Route to handle uploads via external URL
+@upload_bp.route("/url", methods=["POST"])
+def upload_by_url():
+    return handle_upload("url")
+
+# Route to render the HTML form for uploads
+@upload_bp.route('/', methods=['GET'])
+def home():
+    if 'user_id' not in flask.session:
+        flask.flash('Please log in to access this page.', 'danger')
+        return flask.redirect(flask.url_for('main.index'))
+
+    args = flask.request.args
+    partial = args.get('partial')
+    page = args.get('page', type=int, default=1)
+    per_page = args.get('per_page', type=int, default=3)
+
+    # Return metadata for all uploads, ordered by most recent
+    order = Upload.timestamp.desc()
+    uploads = db.session.query(Upload).order_by(order)
+    uploads = uploads.paginate(page=page, per_page=per_page, error_out=False)
+
+    # Return only partial if requested
+    if partial:
+        return flask.render_template('partials/upload_list.html', uploads=uploads)
+
+    # Return full page
+    return flask.render_template('upload.html', uploads=uploads)
