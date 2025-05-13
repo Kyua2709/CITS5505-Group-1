@@ -1,7 +1,5 @@
 from app import db
 from datetime import datetime
-from bert_model import predict_sentiment
-from preprocessing import clean_text
 import uuid
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -25,53 +23,23 @@ class User(db.Model):
 # 数据库模型
 class Upload(db.Model):
     id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    dataset_name = db.Column(db.String(255), nullable=False, default='Manual Entry')
+    timestamp = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+
+    title = db.Column(db.String(255), nullable=False)
+    description = db.Column(db.Text, nullable=False)
     platform = db.Column(db.String(50), nullable=False)
-    file_path = db.Column(db.String(255), nullable=True)
-    url = db.Column(db.String(255), nullable=True)
-    url_type = db.Column(db.String(50), nullable=True, default='N/A')
-    comment_limit = db.Column(db.String(50), nullable=True)
-    source = db.Column(db.String(50), nullable=True, default='N/A')
-    comments = db.Column(db.Text, nullable=True)
-    category = db.Column(db.String(50), nullable=True, default='N/A')
-    upload_date = db.Column(db.DateTime, default=datetime.utcnow)
-    status = db.Column(db.String(50), default="Pending")
-    num_comments = db.Column(db.Integer, nullable=True)
-    
+    size = db.Column(db.Integer, nullable=True)
+    status = db.Column(db.String(50), nullable=False, default="Processing")
+
     user_id = db.Column(db.String(36), db.ForeignKey('user.id'), nullable=False)
     user = db.relationship('User', backref=db.backref('uploads', lazy=True))
+    comments = db.relationship('Comment', backref='upload', lazy=True)
 
-    def __repr__(self):
-        return f'<Upload {self.dataset_name} - {self.platform}>'
+class Comment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
 
-    def to_dict(self):
-        return {
-            'id': self.id,
-            'dataset_name': self.dataset_name,
-            'platform': self.platform,
-            'file_path': self.file_path,
-            'url': self.url,
-            'url_type': self.url_type,
-            'comment_limit': self.comment_limit,
-            'source': self.source,
-            'category': self.category,
-            'upload_date': self.upload_date.isoformat() if self.upload_date else None,
-            'status': self.status,
-            'user_id': self.user_id,
-            'num_comments': self.num_comments,
-            'comments': self.comments
-        }
+    content = db.Column(db.Text, nullable=False)
+    score = db.Column(db.Integer, nullable=False)
 
-# 文本预测功能
-def predict_single_text(text):
-    cleaned = clean_text(text)
-    prediction = predict_sentiment(cleaned)
-    return prediction
+    upload_id =  db.Column(db.Integer, db.ForeignKey('upload.id') , nullable=False)
 
-def predict_batch_text(text_list):
-    results = []
-    for text in text_list:
-        cleaned = clean_text(text)
-        pred = predict_sentiment(cleaned)
-        results.append((text, pred))
-    return results

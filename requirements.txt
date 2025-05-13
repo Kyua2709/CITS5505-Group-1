@@ -1,4 +1,6 @@
 Flask>=2.0
-# 后续添加：
-# snownlp
-# matplotlib
+Flask-SQLAlchemy>=3.1.1
+torch>=2.7.0
+transformers>=4.51.3
+bs4
+flask_migrate

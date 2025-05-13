@@ -1,111 +1,71 @@
-let currentPage = 1;
-const itemsPerPage = 3;
+$(document).ready(function () {
+    let interval = undefined;
 
-function refreshUploadsList(page = 1) {
-    currentPage = page;
+    function switchPage(e) {
+        e.preventDefault();
 
-    $.ajax({
-        url: `/get_uploads?page=${page}&limit=${itemsPerPage}`,
-        method: 'GET',
-        success: function (response) {
-            const tbody = $('table tbody');
-            tbody.empty();
+        // Prevent automatic refresh
+        // Technically not required, but we want to avoid consecutive calls to refreshUploadsList
+        clearInterval(interval);
 
-            if (!response.items || response.items.length === 0) {
-                tbody.append('<tr><td colspan="6" class="text-center">No uploads found</td></tr>');
-                return;
-            }
+        let params = new URLSearchParams(window.location.search)
+        const page = $(e.target).data('page');
+        params.set('page', page);
 
-            response.items.forEach(function (upload) {
-                const sizeDisplay = (upload.num_comments !== null && upload.num_comments !== undefined)
-                    ? `${upload.num_comments} comments`
-                    : (upload.file_path
-                        ? upload.file_path.split('/').pop()
-                        : (upload.comments
-                            ? `${upload.comments.split('\n').length} comments`
-                            : (upload.url ? 'URL data' : 'N/A')));
+        const newUrl = `${window.location.pathname}?${params.toString()}`;
+        window.history.replaceState({}, '', newUrl);
 
-                const row = `
-                    <tr>
-                        <td>${upload.dataset_name}</td>
-                        <td>${upload.platform}</td>
-                        <td>${new Date(upload.upload_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</td>
-                        <td>${sizeDisplay}</td>
-                        <td>
-                            <span class="badge ${upload.status === 'Completed' ? 'bg-success' : upload.status === 'Processing' ? 'bg-warning' : 'bg-danger'}">
-                                ${upload.status}
-                            </span>
-                        </td>
-                        <td>
-                            <a href="/analyze/${upload.id}" class="btn btn-sm btn-primary">View Analysis</a>
-                        </td>
-                    </tr>
-                `;
-                tbody.append(row);
-            });
+        // force auto refresh
+        refreshUploadsList();
 
-            renderPagination(response.page, response.pages);
-        },
-        error: function (err) {
-            console.error("Failed to fetch uploads:", err);
-        }
-    });
-}
-
-function renderPagination(current, total) {
-    const container = $('#paginationControls');
-    container.empty();
-
-    if (total <= 1) return;
-
-    let html = '<nav><ul class="pagination justify-content-center">';
-
-    for (let i = 1; i <= total; i++) {
-        html += `
-            <li class="page-item ${i === current ? 'active' : ''}">
-                <a class="page-link" href="#" data-page="${i}">${i}</a>
-            </li>
-        `;
+        // enable auto refresh again
+        interval = setInterval(refreshUploadsList, 2500)
     }
 
-    html += '</ul></nav>';
-    container.html(html);
+    function refreshUploadsList() {
+        let params = new URLSearchParams(window.location.search)
+        let refreshedPage = params.get('page') || '1';
+        let url = `/upload?partial=1&page=${refreshedPage}`;
 
-    container.find('a.page-link').on('click', function (e) {
-        e.preventDefault();
-        const page = $(this).data('page');
-        refreshUploadsList(page);
-    });
-}
+        $.get(url, function (data) {
+            // there is a chance that we have switched the page before a old page refresh is completed
+            // we need to prevent this old page refresh from overriding new page
+            let params = new URLSearchParams(window.location.search)
+            let currentpage = params.get('page') || '1';
+            if (refreshedPage != currentpage) return;
 
-$(document).ready(function () {
+            const container = $('#upload-list-container')
+            container.html(data);
+            container.find('a.page-link').on('click', switchPage);
+        });
+    }
+
+    // initial load
+    refreshUploadsList();
+
+    // The initial uploads list is rendered by the backend when the page loads.
+    // This fetches partial updates at regular intervals to keep the list fresh.
+    interval = setInterval(refreshUploadsList, 2500);
+
     // Upload manual form
     $('#manualEntryForm form').submit(function (e) {
         e.preventDefault();
 
-        const platform = $('#platformSelect').val();
-        const source = $('#commentSource').val();
-        const category = $('#commentCategory').val();
-        const comments = $('#commentsTextArea').val();
-        const datasetName = $('#manualDatasetName').val();
-
-        const formData = new FormData();
-        formData.append('dataset_name', datasetName);
-        formData.append('platform', platform);
-        formData.append('source', source);
-        formData.append('category', category);
-        formData.append('comments', comments);
+        const formData = new FormData(e.target);
+        const description = formData.get('description');
+        if (!description) {
+            formData.set('description', "Text Input");
+        }
 
         $.ajax({
             type: 'POST',
-            url: '/save_upload',
+            url: '/upload/text',
             data: formData,
             contentType: false,
             processData: false,
             success: function () {
                 const successModal = new bootstrap.Modal(document.getElementById('successModal'));
                 successModal.show();
-                // refreshUploadsList();
             },
             error: function (error) {
                 const msg = error.responseJSON?.message || 'Upload failed.';
@@ -118,27 +78,15 @@ $(document).ready(function () {
     $('#fileUploadForm form').submit(function (e) {
         e.preventDefault();
 
-        const datasetName = $('#datasetName').val();
-        const platform = $('#platformSelect2').val();
-        const fileInput = $('#fileUpload')[0].files[0];
-        const startDate = $('#startDate').val();
-        const endDate = $('#endDate').val();
-
-        if (!datasetName || !platform || !fileInput) {
-            alert('Please fill out all required fields.');
-            return;
+        const formData = new FormData(e.target);
+        const description = formData.get('description');
+        const file = formData.get('file');
+        if (!description) {
+            formData.set('description', `File: ${file.name}`);
         }
 
-        const formData = new FormData();
-        formData.append('dataset_name', datasetName);
-        formData.append('platform', platform);
-        formData.append('file', fileInput);
-        formData.append('start_date', startDate);
-        formData.append('end_date', endDate);
-        formData.append('source', 'file');
-
         $.ajax({
-            url: '/save_upload',
+            url: '/upload/file',
             method: 'POST',
             data: formData,
             contentType: false,
@@ -146,10 +94,9 @@ $(document).ready(function () {
             success: function () {
                 const successModal = new bootstrap.Modal(document.getElementById('successModal'));
                 successModal.show();
-                // refreshUploadsList();
             },
             error: function (error) {
-                const msg = error.responseJSON?.error || 'File upload failed.';
+                const msg = error.responseJSON?.error || 'Upload failed.';
                 alert(msg);
             }
         });
@@ -159,29 +106,22 @@ $(document).ready(function () {
     $('#urlEntryForm form').submit(function (e) {
         e.preventDefault();
 
-        const platform = $('#platformSelect3').val();
-        const datasetName = $('#urlDatasetName').val();
-        const urlType = $('#urlType').val();
-        const url = $('#urlInput').val();
-        const commentLimit = $('#commentLimit').val();
-
-        const formData = new FormData();
-        formData.append('dataset_name', datasetName);
-        formData.append('platform', platform);
-        formData.append('url', url);
-        formData.append('url_type', urlType);
-        formData.append('comment_limit', commentLimit);
+        const formData = new FormData(e.target);
+        const description = formData.get('description');
+        const url = formData.get('url');
+        if (!description) {
+            formData.set('description', `URL: ${url}`);
+        }
 
         $.ajax({
             type: 'POST',
-            url: '/save_upload',
+            url: '/upload/url',
             data: formData,
             contentType: false,
             processData: false,
             success: function () {
                 const successModal = new bootstrap.Modal(document.getElementById('successModal'));
                 successModal.show();
-                // refreshUploadsList();
             },
             error: function (error) {
                 const msg = error.responseJSON?.message || 'Upload failed.';
@@ -189,7 +129,4 @@ $(document).ready(function () {
             }
         });
     });
-
-    // Initial load of uploads list
-    refreshUploadsList();
 });
