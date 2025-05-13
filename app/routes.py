@@ -196,8 +196,6 @@ def save_upload():
             status="Processing",
             num_comments=num_comments,
             user_id=session.get('user_id')
-            num_comments=num_comments,
-            user_id=session.get('user_id')
         )
         db.session.add(upload)
         db.session.commit()
