@@ -34,16 +34,16 @@ def handle_upload(source):
     # Generate a unique ID for the upload and construct the local file path
     upload_id = str(uuid.uuid4())
     upload_folder = flask.current_app.config["UPLOAD_FOLDER"]
+    secret = flask.current_app.config["SECRET_KEY"]
     file_path = path.join(upload_folder, upload_id)
 
     # Initialize optional fields
-    url, url_type, limit = None, None, None
+    url, limit = None, None
 
     # Handle upload based on source type
     if source == "url":
         # Case 1: Upload source is a URL
         url = form.get("url")
-        url_type = form.get("url_type")
         limit = form.get("comment_limit", type=int, default=100)
         if not url:
             return flask.jsonify({"message": "URL missing"}), 400
@@ -81,11 +81,11 @@ def handle_upload(source):
         args=(
             analysis_url,
             {
+                "secret": secret,
                 "upload_id": upload_id,
                 "file_path": file_path,
                 "platform": platform,
                 "url": url,
-                "url_type": url_type,
                 "limit": limit,
             },
         ),

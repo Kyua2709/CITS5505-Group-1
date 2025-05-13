@@ -2,6 +2,7 @@ import importlib
 import time
 
 import flask
+from packages import crawler
 from packages import sentiment_analysis
 
 from app import db
@@ -14,54 +15,33 @@ analyze_bp = flask.Blueprint(
     url_prefix="/analyze",
 )
 
-# Use a web crawler to save content from the URL into file_path
-def craw_comments(file_path: str, platform: str, url: str, url_type: str, limit: int):
-    print(url, limit)
-
-    PLATFORM_CRAWLER_MAP = {
-        'reddit': 'reddit_crawler.fetch_reddit_comments',
-        'twitter': 'twitter_crawler.fetch_twitter_comments',
-        'instagram': 'instagram_crawler.fetch_instagram_comments',
-        'facebook': 'facebook_crawler.fetch_facebook_comments',
-        'tiktok': 'tiktok_crawler.fetch_tiktok_comments',
-        'youtube': 'youtube_crawler.fetch_youtube_comments',
-    }
-
-    if platform not in PLATFORM_CRAWLER_MAP:
-        raise RuntimeError(f"Platform {platform} is not supported")
-
-    func_path = PLATFORM_CRAWLER_MAP[platform]
-    module_name, func_name = func_path.rsplit('.', 1)
-    module = importlib.import_module(f'crawlers.{module_name}')
-    func = getattr(module, func_name)
-
-    comments = func(url, limit)
-    with open(file_path, "w", encoding="utf-8") as f:
-        for c in comments:
-            f.write(c.replace('\n', ' ') + '\n')
-
 @analyze_bp.route("/run", methods=["POST"])
 def run_analyze_job():
-    # TODO: Secure this internal interface with secret token, so user cannot access it directly
-
-    # Simulate a time-consuming task (e.g., crawling, analyzing) with a sleep
-    time.sleep(10)
-
     session = db.session
     form = flask.request.form
+
+    # This is an internal interface - only legitimate requests with the correct secret should access it
+    # Abort with a fake 404 if the secret does not match
+    secret = form.get("secret")
+    expected = flask.current_app.config["SECRET_KEY"]
+    if not secret or secret != expected:
+        flask.abort(404)
 
     # Extract job metadata from the request
     upload_id = form.get("upload_id")
     file_path = form.get("file_path")
-    platform = form.get('platform')
+    platform = form.get("platform")
     url = form.get("url")
-    url_type = form.get("url_type")
     limit = form.get("limit", type=int)
 
     try:
         # If the source was a URL, retrieve content and save to file_path
         if url:
-            craw_comments(file_path, platform, url, url_type, limit)
+            comments = crawler.fetch_comments(platform, url, limit)
+            comments_by_line = map(lambda c: c.replace("\n", " "), comments)
+            output = "\n".join(comments_by_line)
+            with open(file_path, "w") as f:
+                f.write(output)
 
         # Load the file and perform sentiment analysis line-by-line
         with open(file_path) as file:
@@ -82,6 +62,7 @@ def run_analyze_job():
         upload.size = count
         upload.status = "Completed"
         session.commit()
+
     except Exception as e:
         # Roll back on error and update status to 'Error'
         session.rollback()
@@ -129,7 +110,7 @@ def result(upload_id):
     return flask.jsonify(upload_to_dict(upload, True))
 
 @analyze_bp.route("/")
-def home():    
+def home():
     if 'user_id' not in flask.session:
         flask.flash('Please log in to access this page.', 'danger')
         return flask.redirect(flask.url_for('main.index'))
