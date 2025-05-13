@@ -80,6 +80,8 @@ def upload():
     if 'first_name' not in session:
         flash('Please log in to access this page.', 'danger')
         return redirect(url_for('main.index'))
+    
+    user_id = session.get('user_id')
 
     if request.method == 'POST':
         if 'file' not in request.files:
@@ -192,6 +194,8 @@ def save_upload():
             category=data.get('category', 'N/A'),
             comment_limit=data.get('comment_limit', 'N/A'),
             status="Processing",
+            num_comments=num_comments,
+            user_id=session.get('user_id')
             num_comments=num_comments,
             user_id=session.get('user_id')
         )
