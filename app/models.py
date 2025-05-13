@@ -22,7 +22,7 @@ class User(db.Model):
 
 # 数据库模型
 class Upload(db.Model):
-    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    id = db.Column(db.String(36), primary_key=True)
     timestamp = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
     title = db.Column(db.String(255), nullable=False)
