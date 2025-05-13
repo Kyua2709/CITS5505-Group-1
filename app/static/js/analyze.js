@@ -64,16 +64,16 @@ $(document).ready(function () {
         return;
       }
 
+      container.removeClass("bg-light");
+      let width = container.width();
+      let height = container.height();
+      const fill = d3.scale.category20();
+
       let max = data[0].size;
       data = data.map(function (d) {
         d.size = 10 + (d.size / max) * (height / 3);
         return d;
       });
-
-      container.removeClass("bg-light");
-      let width = container.width();
-      let height = container.height();
-      const fill = d3.scale.category20();
 
       d3.layout
         .cloud()
@@ -116,8 +116,10 @@ $(document).ready(function () {
     result.addClass(classes);
 
     renderAnalysis(e.target.value)
-      .then(() => info.empty())
-      .catch(() => info.html("Failed to load!"))
-      .finally(() => result.removeClass(classes));
+      .then(() => {
+        info.empty();
+        result.removeClass(classes);
+      })
+      .catch((e) => info.html(`Failed to load: ${e}`));
   });
 });
