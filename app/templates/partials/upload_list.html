@@ -19,8 +19,8 @@
         {% for upload in uploads %}
         <tr>
             <td>{{ upload.timestamp.strftime('%b %d, %Y') }}</td>
-            <td>{{ upload.title }}</td>
-            <td>{{ upload.description }}</td>
+            <td class="text-truncate" style="max-width: 12vw">{{ upload.title }}</td>
+            <td class="text-truncate" style="max-width: 25vw">{{ upload.description }}</td>
             <td>{{ upload.platform }}</td>
             <td>{{ upload.size or 'N/A' }}</td>
             <td>
@@ -38,7 +38,7 @@
             </td>
             <td>
                 {% if upload.status == 'Completed' %}
-                <a href="{{ url_for('analyze.result', upload_id=upload.id) }}" class="btn btn-sm btn-primary">
+                <a href="{{ url_for('analyze.home', upload_id=upload.id) }}" class="btn btn-sm btn-primary">
                     View&nbsp;Analysis
                 </a>
                 {% else %}

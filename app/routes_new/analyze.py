@@ -1,6 +1,3 @@
-import importlib
-import time
-
 import flask
 from packages import crawler
 from packages import sentiment_analysis
@@ -67,55 +64,87 @@ def run_analyze_job():
         # Roll back on error and update status to 'Error'
         session.rollback()
         upload = session.query(Upload).get(upload_id)
-        upload.status = f"Error: {e}"
+        upload.status = "Error"
         session.commit()
 
     # Internal endpoint; response content is not used
     return flask.jsonify()
 
-def upload_to_dict(upload: Upload, comments=False) -> dict:
-    """
-    Converts an Upload SQLAlchemy object into a serializable dictionary.
-    Optionally includes associated comments.
-    """
-    result = {
-        "id": upload.id,
-        "timestamp": upload.timestamp.strftime("%Y-%m-%d %H:%M:%S"),
-        "title": upload.title,
-        "description": upload.description,
-        "platform": upload.platform,
-        "size": upload.size,
-        "status": upload.status,
-        "user_id": upload.user_id,
-    }
+@analyze_bp.route("/export/<upload_id>", methods=["GET"])
+def export(upload_id):
+    upload_folder = flask.current_app.config["UPLOAD_FOLDER"]
+    return flask.send_from_directory(upload_folder, upload_id )
 
-    # Include comments in the result if requested
-    if comments:
-        result["comments"] = [
-            {
-                "id": comment.id,
-                "content": comment.content,
-                "score": comment.score,
-            }
-            for comment in upload.comments
-        ]
-
-    return result
+def percentage(x, y):
+    r = x / max(y, 1)
+    return round(100 * r)
 
 @analyze_bp.route("/result/<upload_id>", methods=["GET"])
 def result(upload_id):
-    # TODO: Render data and add security check
-    # Return full upload data, including analyzed comments
+    if 'user_id' not in flask.session:
+        return flask.redirect(flask.url_for('main.index'))
+
+    # TODO: Add extra security check, the page should only be visible to owner and shared people
+    pass
+
+    # TODO: For now, the analysis is performed at the frontend due to its complexity
+    # In the future, some of the calculation can be moved to the backend
+    # So we do not need to send all comments to frontend
     upload = db.session.query(Upload).get(upload_id)
-    return flask.jsonify(upload_to_dict(upload, True))
+    comments = db.session.query(Comment).filter(Comment.upload_id == upload.id).order_by(Comment.id)
+
+    if flask.request.args.get("partial"):
+        search = flask.request.args.get('search')
+        if search:
+            for keyword in search.split():
+                comments = comments.filter(Comment.content.ilike(f"%{keyword}%"))
+        page = flask.request.args.get("page", type=int, default=1)
+        per_page = 5
+        comments = comments.paginate(page=page, per_page=per_page, error_out=False)
+        return flask.render_template(
+            "partials/comment_list.html",
+            comments=comments,
+        )
+
+    comments = list(comments)
+    comments_positive = list(filter(lambda comment: comment.rating > 0, comments))
+    comments_negative = list(filter(lambda comment: comment.rating < 0, comments))
+
+    count_all = len(comments)
+    count_positive = len(comments_positive)
+    count_negative = len(comments_negative)
+    count_neutral = count_all - count_positive - count_negative
+
+    percentage_positive = percentage(count_positive, count_all)
+    percentage_neutral = percentage(count_neutral, count_all)
+    percentage_negative = percentage(count_negative, count_all)
+
+    # Convert to dict outside html because Jinja2 does not support for ... in syntax
+    comments_positive = [comment.to_dict() for comment in comments_positive]
+    comments_negative = [comment.to_dict() for comment in comments_negative]
+
+    return flask.render_template(
+        "partials/analyze_result.html",
+        upload=upload,
+        percentage_positive=percentage_positive,
+        percentage_neutral=percentage_neutral,
+        percentage_negative=percentage_negative,
+        comments_positive=comments_positive,
+        comments_negative=comments_negative,
+    )
 
 @analyze_bp.route("/")
 def home():
     if 'user_id' not in flask.session:
         return flask.redirect(flask.url_for('main.index'))
 
+    user_id = flask.session.get('user_id')
     order = Upload.timestamp.desc()
-    uploads = db.session.query(Upload).order_by(order)
+    uploads = db.session.query(Upload).filter_by(user_id=user_id).order_by(order)
+
+    # Current selected upload id
+    upload_id = flask.request.args.get('upload_id')
+    selected_upload = db.session.query(Upload).get(upload_id)
 
     # Render the HTML page for viewing analysis results
-    return flask.render_template("analyze.html", uploads=uploads)
+    return flask.render_template("analyze.html", uploads=uploads, selected_upload=selected_upload)
