@@ -25,7 +25,7 @@ def create_app():
     app.config['UPLOAD_FOLDER'] = upload_folder
     app.config['DEBUG'] = os.getenv('FLASK_DEBUG', '1') == '1'
     
-    app.config['SECRET_KEY'] = os.getenv('SQLITE_SECRET') or os.urandom(24).hex()
+    app.config['SECRET_KEY'] = os.getenv('SQLITE_SECRET')
     
     app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{sqlite_db}"
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
