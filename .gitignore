@@ -7,7 +7,7 @@ __pycache__/
 .venv/
 venv/
 
-instance/uploads.db
+instance/database.db
 uploads/
 
 # IDE
