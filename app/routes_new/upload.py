@@ -10,6 +10,7 @@ from bs4 import BeautifulSoup
 from app import db
 from app.models import Upload
 from packages.crawler.reddit_crawler import fetch_reddit_comments
+from packages.crawler.youtube_crawler import fetch_youtube_comments
 
 # Create a Flask blueprint for upload-related routes
 upload_bp = flask.Blueprint(
@@ -42,7 +43,7 @@ def handle_upload(source):
 
     # Initialize optional fields
     url, limit = None, None
-    comment_count = 0  # 初始化评论数量
+    comment_count = 0
 
     # Handle upload based on source type
     if source == "url":
@@ -60,6 +61,18 @@ def handle_upload(source):
                 comments = fetch_reddit_comments(url, limit)
                 comment_count = len(comments)
                 flask.current_app.logger.info(f"Found {comment_count} Reddit comments")
+                
+                # 保存评论内容到文件
+                with open(file_path, 'w', encoding='utf-8') as f:
+                    for comment in comments:
+                        f.write(comment + '\n')
+                
+            elif platform.lower() == 'youtube':
+                # 使用专门的YouTube爬虫
+                flask.current_app.logger.info(f"Fetching YouTube comments from: {url}")
+                comments = fetch_youtube_comments(url, limit)
+                comment_count = len(comments)
+                flask.current_app.logger.info(f"Found {comment_count} YouTube comments")
                 
                 # 保存评论内容到文件
                 with open(file_path, 'w', encoding='utf-8') as f:
@@ -93,13 +106,6 @@ def handle_upload(source):
                     total_comments = len(comments)
                     comment_count = min(total_comments, limit)
                     flask.current_app.logger.info(f"Found {total_comments} Twitter comments, limited to {comment_count}")
-                    
-                elif platform.lower() == 'youtube':
-                    # YouTube评论通常在ytd-comment-thread-renderer中
-                    comments = soup.find_all('ytd-comment-thread-renderer')
-                    total_comments = len(comments)
-                    comment_count = min(total_comments, limit)
-                    flask.current_app.logger.info(f"Found {total_comments} YouTube comments, limited to {comment_count}")
                     
                 else:
                     # 通用评论查找（查找常见的评论容器）
@@ -181,7 +187,7 @@ def handle_upload(source):
     # Kick off asynchronous sentiment analysis via HTTP POST request
     # NOTE: db.session cannot be safely used in threads due to lack of thread-safety
     # So, we trigger an API call to perform the processing asynchronously
-    analysis_url = "http://localhost:5000/analyze/run"  # TODO: replace hardcoded hostname
+    analysis_url = "http://localhost:5000/analyze/run"
     thread = threading.Thread(
         target=requests.post,
         args=(
