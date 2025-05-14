@@ -6,7 +6,7 @@ def fetch_instagram_comments(url, limit):
     # L.login('your_username', 'your_password')  # 可选，部分内容需登录
     m = re.search(r'/p/([A-Za-z0-9_-]+)/', url)
     if not m:
-        return ValueError("URL does not contain post ID")
+        raise ValueError("URL does not contain post ID")
 
     shortcode = m.group(1)
     comments = []

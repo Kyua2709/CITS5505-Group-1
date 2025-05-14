@@ -4,7 +4,7 @@ import re
 def fetch_tiktok_comments(url, limit):
     m = re.search(r'/video/(\d+)', url)
     if not m:
-        return ValueError("URL does not contain video ID")
+        raise ValueError("URL does not contain video ID")
 
     video_id = m.group(1)
     comments = []

@@ -18,7 +18,7 @@ def fetch_youtube_comments(url, limit):
             video_id = match.group(1)
 
     if not video_id:
-        return ValueError("URL does not contain video ID")
+        raise ValueError("URL does not contain video ID")
 
     try:
         print(f"Fetching comments for video ID: {video_id}")

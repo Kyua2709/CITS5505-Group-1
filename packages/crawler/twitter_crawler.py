@@ -10,7 +10,7 @@ def fetch_twitter_comments(tweet_url, limit):
             tweet_id = match.group(1)
 
     if not tweet_id:
-        return ValueError("URL does not contain post ID")
+        raise ValueError("URL does not contain post ID")
 
     print(f"Fetching comments for tweet ID: {tweet_id}")
     comments = []

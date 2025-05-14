@@ -4,7 +4,7 @@ import re
 def fetch_facebook_comments(url, limit):
     m = re.search(r'posts/(\d+)', url)
     if not m:
-        return ValueError("URL does not contain post ID")
+        raise ValueError("URL does not contain post ID")
 
     post_id = m.group(1)
     comments = []
