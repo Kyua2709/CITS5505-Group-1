@@ -35,11 +35,41 @@ class Upload(db.Model):
     user = db.relationship('User', backref=db.backref('uploads', lazy=True))
     comments = db.relationship('Comment', backref='upload', lazy=True)
 
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "timestamp": self.timestamp.strftime("%Y-%m-%d %H:%M:%S") if self.timestamp else None,
+            "title": self.title,
+            "description": self.description,
+            "platform": self.platform,
+            "size": self.size,
+            "status": self.status,
+            "user_id": self.user_id,
+        }
+
 class Comment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-
     content = db.Column(db.Text, nullable=False)
     score = db.Column(db.Integer, nullable=False)
 
     upload_id = db.Column(db.String(36), db.ForeignKey('upload.id'), nullable=False)
 
+    @property
+    def rating(self):
+        # Empirical values for threshold
+        SCORE_NEGATIVE = 38
+        SCORE_POSITIVE = 54
+        return (
+            -1 if self.score < SCORE_NEGATIVE
+            else 1 if self.score > SCORE_POSITIVE
+            else 0
+        )
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "content": self.content,
+            "score": self.score,
+            "rating": self.rating,
+            # Do not include upload_id because it is not used anywhere
+        }

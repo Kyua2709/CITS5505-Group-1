@@ -117,6 +117,7 @@ def home():
     if 'user_id' not in flask.session:
         return flask.redirect(flask.url_for('main.index'))
 
+    user_id = flask.session.get('user_id')
     args = flask.request.args
     partial = args.get('partial')
     page = args.get('page', type=int, default=1)
@@ -124,7 +125,7 @@ def home():
 
     # Return metadata for all uploads, ordered by most recent
     order = Upload.timestamp.desc()
-    uploads = db.session.query(Upload).order_by(order)
+    uploads = db.session.query(Upload).filter_by(user_id=user_id).order_by(order)
     uploads = uploads.paginate(page=page, per_page=per_page, error_out=False)
 
     # Return only partial if requested

@@ -1,0 +1,78 @@
+<div class="table-responsive">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Comment</th>
+        <th>Sentiment</th>
+        <th>Score</th>
+        <th>Date</th>
+      </tr>
+    </thead>
+    <tbody>
+        {% if not (comments.total > 0) %}
+        <tr>
+            <td colspan="6" class="text-center">No comments found</td>
+        </tr>
+        {% else %}
+      {% for comment in comments %}
+      <tr>
+        <td>{{ comment.content }}</td>
+        <td>
+          {% if comment.rating > 0 %}
+          <span class="badge bg-success">Positive</span>
+          {% elif comment.rating < 0 %}
+          <span class="badge bg-danger">Negative</span>
+          {% else %}
+          <span class="badge bg-warning">Neutral</span>
+          {% endif %}
+        </td>
+        <td>{{ comment.score }}</td>
+        <td>N/A</td>
+      </tr>
+      {% endfor %}
+      {% endif %}
+    </tbody>
+  </table>
+</div>
+
+{% if comments.pages > 1 %}
+<nav>
+  <ul class="pagination justify-content-center">
+    {% set total_pages = comments.pages %}
+    {% set current_page = comments.page %}
+    {% set window = 2 %}
+    
+    {# First page #}
+    <li class="page-item {% if current_page == 1 %}active{% endif %}">
+      <a class="page-link" href="#" data-page="1">1</a>
+    </li>
+
+    {# Ellipsis if needed before current page window #}
+    {% if current_page - window > 2 %}
+      <li class="page-item disabled"><span class="page-link">…</span></li>
+    {% endif %}
+
+    {# Pages around the current page #}
+    {% for i in range(current_page - window, current_page + window + 1) %}
+      {% if i > 1 and i < total_pages %}
+        <li class="page-item {% if i == current_page %}active{% endif %}">
+          <a class="page-link" href="#" data-page="{{ i }}">{{ i }}</a>
+        </li>
+      {% endif %}
+    {% endfor %}
+
+    {# Ellipsis if needed after current page window #}
+    {% if current_page + window < total_pages - 1 %}
+      <li class="page-item disabled"><span class="page-link">…</span></li>
+    {% endif %}
+
+    {# Last page #}
+    {% if total_pages > 1 %}
+      <li class="page-item {% if current_page == total_pages %}active{% endif %}">
+        <a class="page-link" href="#" data-page="{{ total_pages }}">{{ total_pages }}</a>
+      </li>
+    {% endif %}
+  </ul>
+</nav>
+{% endif %}
+
