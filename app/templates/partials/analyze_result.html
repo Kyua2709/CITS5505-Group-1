@@ -21,7 +21,7 @@
           <div class="text-secondary">{{ upload.description }}</div>
         </div>
         <div class="col-md-6 text-md-end mt-3 mt-md-0">
-          <a href="{{ url_for('main.share', upload_id=upload.id) }}" class="btn btn-primary">
+          <a href="javascript:parent.location.href='{{ url_for('share.home', upload_id=upload.id) }}'" class="btn btn-primary">
             <i class="bi bi-share me-1"></i>
             Share Analysis
           </a>
@@ -142,8 +142,7 @@
             <input id="comment-search" type="text" autocomplete="off" class="form-control" placeholder="Search comments" />
           </div>
         </div>
-        <div class="dashboard-card-body" id="comment-list-container">
-        </div>
+        <div class="dashboard-card-body" id="comment-list-container"></div>
       </div>
     </div>
 

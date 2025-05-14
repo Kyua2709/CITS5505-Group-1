@@ -38,11 +38,13 @@ def create_app():
         db.create_all()
     
     # Register route blueprints
-    from .routes import main_bp
-    from .routes_new.analyze import analyze_bp
-    from .routes_new.upload import upload_bp
+    from .routes.main import main_bp
+    from .routes.analyze import analyze_bp
+    from .routes.upload import upload_bp
+    from .routes.share import share_bp
     app.register_blueprint(main_bp)
     app.register_blueprint(analyze_bp)
     app.register_blueprint(upload_bp)
+    app.register_blueprint(share_bp)
     
     return app

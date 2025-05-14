@@ -20,7 +20,7 @@
                         <a class="nav-link {% if request.endpoint == 'analyze.home' %}active{% endif %}" href="{{ url_for('analyze.home') }}">Analysis</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {% if request.endpoint == 'main.share' %}active{% endif %}" href="{{ url_for('main.share') }}">Share</a>
+                        <a class="nav-link {% if request.endpoint == 'share.home' %}active{% endif %}" href="{{ url_for('share.home') }}">Share</a>
                     </li>
                 {% else %}
                     <li class="nav-item">

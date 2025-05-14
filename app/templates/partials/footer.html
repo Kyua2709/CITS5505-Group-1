@@ -13,7 +13,7 @@
                     {% if session.get('first_name') %}
                         <li><a href="{{ url_for('upload.home') }}">Upload Data</a></li>
                         <li><a href="{{ url_for('analyze.home') }}">Analysis</a></li>
-                        <li><a href="{{ url_for('main.share') }}">Share</a></li>
+                        <li><a href="{{ url_for('share.home') }}">Share</a></li>
                     {% else %}
                         <li><a href="#" onclick="alert('Please log in to access this page.'); return false;">Upload Data</a></li>
                         <li><a href="#" onclick="alert('Please log in to access this page.'); return false;">Analysis</a></li>
