@@ -7,9 +7,6 @@ __pycache__/
 .venv/
 venv/
 
-instance/database.db
-uploads/
-
 # IDE
 .vscode/
 .idea/
