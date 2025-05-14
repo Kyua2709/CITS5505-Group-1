@@ -12,7 +12,7 @@ def index():
     return render_template('index.html')
 
 @main_bp.route('/login')
-def logged_in_home():
+def home():
     """Logged in home page"""
     if 'user_id' not in session:
         return redirect(url_for('main.index'))
@@ -59,21 +59,11 @@ def login():
 @main_bp.route('/logout')
 def logout():
     session.clear()
-    flash('Logged out successfully.', 'info')
     return redirect(url_for('main.index'))
-
-@main_bp.route('/dashboard')
-def dashboard():
-    """Dashboard page"""
-    if 'user_id' not in session:
-        flash('Please log in to access this page.', 'danger')
-        return redirect(url_for('main.index'))
-    return render_template('login.html')
 
 @main_bp.route('/share')
 def share():
     """Share page"""
     if 'user_id' not in session:
-        flash('Please log in to access this page.', 'danger')
         return redirect(url_for('main.index'))
     return render_template('share.html')

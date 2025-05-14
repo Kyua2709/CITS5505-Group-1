@@ -112,7 +112,6 @@ def result(upload_id):
 @analyze_bp.route("/")
 def home():
     if 'user_id' not in flask.session:
-        flask.flash('Please log in to access this page.', 'danger')
         return flask.redirect(flask.url_for('main.index'))
 
     order = Upload.timestamp.desc()
