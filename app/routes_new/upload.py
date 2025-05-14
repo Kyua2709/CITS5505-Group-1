@@ -114,7 +114,6 @@ def upload_by_url():
 @upload_bp.route('/', methods=['GET'])
 def home():
     if 'user_id' not in flask.session:
-        flask.flash('Please log in to access this page.', 'danger')
         return flask.redirect(flask.url_for('main.index'))
 
     args = flask.request.args

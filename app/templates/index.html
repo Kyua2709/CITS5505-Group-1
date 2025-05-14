@@ -11,27 +11,7 @@
 <body>
     
     <!-- Navigation Bar -->
-    <nav class="navbar navbar-expand-lg navbar-dark">
-        <div class="container">
-            <a class="navbar-brand" href="{{ url_for('main.index') }}">
-                <i class="bi bi-bar-chart-line-fill me-2"></i>SentiSocial
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link active" href="{{ url_for('main.index') }}">Home</a>
-                    </li>
-                </ul>
-                <div class="d-flex align-items-center">
-                    <button class="btn btn-outline-light me-2" data-bs-toggle="modal" data-bs-target="#loginModal">Login</button>
-                    <button class="btn btn-light" data-bs-toggle="modal" data-bs-target="#registerModal">Sign Up</button>
-                </div>
-            </div>
-        </div>
-    </nav>
+     {% include 'partials/navbar.html' %}
     
     <!-- Hero Section -->
     <header class="hero-section text-white text-center">
@@ -125,28 +105,36 @@
             <div class="row g-4">
                 <div class="col-md-6 col-lg-3">
                     <div class="use-case-card h-100">
-                        <img src="https://via.placeholder.com/80" alt="Marketing" class="mb-3">
+                        <div class="icon-wrapper mb-3">
+                            <i class="bi bi-bullseye fs-1 text-primary"></i>
+                        </div>
                         <h4>Marketing Teams</h4>
                         <p>Monitor campaign performance and audience reactions in real-time</p>
                     </div>
                 </div>
                 <div class="col-md-6 col-lg-3">
                     <div class="use-case-card h-100">
-                        <img src="https://via.placeholder.com/80" alt="Brand" class="mb-3">
+                        <div class="icon-wrapper mb-3">
+                            <i class="bi bi-award fs-1 text-primary"></i>
+                        </div>
                         <h4>Brand Managers</h4>
                         <p>Track brand perception and identify potential PR issues early</p>
                     </div>
                 </div>
                 <div class="col-md-6 col-lg-3">
                     <div class="use-case-card h-100">
-                        <img src="https://via.placeholder.com/80" alt="Research" class="mb-3">
+                        <div class="icon-wrapper mb-3">
+                            <i class="bi bi-search fs-1 text-primary"></i>
+                        </div>
                         <h4>Market Researchers</h4>
                         <p>Gather authentic customer feedback without traditional surveys</p>
                     </div>
                 </div>
                 <div class="col-md-6 col-lg-3">
                     <div class="use-case-card h-100">
-                        <img src="https://via.placeholder.com/80" alt="Product" class="mb-3">
+                        <div class="icon-wrapper mb-3">
+                            <i class="bi bi-tools fs-1 text-primary"></i>
+                        </div>
                         <h4>Product Teams</h4>
                         <p>Understand user reactions to new features or products</p>
                     </div>
