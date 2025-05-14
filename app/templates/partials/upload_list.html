@@ -22,7 +22,7 @@
             <td>{{ upload.title }}</td>
             <td>{{ upload.description }}</td>
             <td>{{ upload.platform }}</td>
-            <td>{{ upload.size or 'N/A' }}</td>
+            <td>{{ upload.size or 0 }}</td>
             <td>
                 <span class="badge
                     {% if upload.status == 'Completed' %}

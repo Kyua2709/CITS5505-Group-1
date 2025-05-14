@@ -41,5 +41,5 @@ class Comment(db.Model):
     content = db.Column(db.Text, nullable=False)
     score = db.Column(db.Integer, nullable=False)
 
-    upload_id =  db.Column(db.Integer, db.ForeignKey('upload.id') , nullable=False)
+    upload_id = db.Column(db.String(36), db.ForeignKey('upload.id'), nullable=False)
 

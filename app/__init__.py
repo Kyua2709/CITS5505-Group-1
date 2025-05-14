@@ -2,6 +2,9 @@ from flask import Flask
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 import os
+from dotenv import load_dotenv
+
+load_dotenv()  # 加载 .flaskenv 文件
 
 db = SQLAlchemy()
 migrate = Migrate()
@@ -21,7 +24,7 @@ def create_app():
 
     app.config['UPLOAD_FOLDER'] = upload_folder
     app.config['DEBUG'] = os.getenv('FLASK_DEBUG', '1') == '1'
-    app.config['SECRET_KEY'] = os.getenv('SQLITE_SECRET')
+    app.config['SECRET_KEY'] = os.getenv('SQLITE_SECRET', 'dev-secret-key-123')
     app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{sqlite_db}"
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
