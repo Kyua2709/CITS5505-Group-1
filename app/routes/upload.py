@@ -7,7 +7,7 @@ import requests
 
 from app import db
 from app.models import Upload
-from .utils import require_csrf_token
+from .utils import require_csrf_token, require_login
 
 # Create a Flask blueprint for upload-related routes
 upload_bp = flask.Blueprint(
@@ -18,8 +18,6 @@ upload_bp = flask.Blueprint(
 
 def handle_upload(source):
     user_id = flask.session.get('user_id')
-    if not user_id:
-        return flask.jsonify({"message": "Please log in to save uploads"}), 401
 
     # Extract basic metadata from the form
     form = flask.request.form
@@ -99,28 +97,29 @@ def handle_upload(source):
 
 # Route to handle text uploads
 @upload_bp.route("/text", methods=["POST"])
+@require_login
 @require_csrf_token
 def upload_by_text():
     return handle_upload("text")
 
 # Route to handle file uploads
 @upload_bp.route("/file", methods=["POST"])
+@require_login
 @require_csrf_token
 def upload_by_file():
     return handle_upload("file")
 
 # Route to handle uploads via external URL
 @upload_bp.route("/url", methods=["POST"])
+@require_login
 @require_csrf_token
 def upload_by_url():
     return handle_upload("url")
 
 # Route to render the HTML form for uploads
 @upload_bp.route('/', methods=['GET'])
+@require_login
 def home():
-    if 'user_id' not in flask.session:
-        return flask.redirect(flask.url_for('main.home'))
-
     user_id = flask.session.get('user_id')
     args = flask.request.args
     partial = args.get('partial')
