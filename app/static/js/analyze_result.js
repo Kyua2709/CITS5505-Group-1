@@ -15,76 +15,66 @@ $(document).ready(async function () {
     return;
   }
 
+  const ctxHistogram = document.getElementById("intensityHistogram").getContext("2d");
 
-  // =============================
-  // Sentiment Trend Line Chart
-  // =============================
-  const ctxTrend = document.getElementById('trendChart').getContext('2d');
-  new Chart(ctxTrend, {
-    type: 'line',
+  new Chart(ctxHistogram, {
+    type: "bar",
     data: {
-      labels: TREND_DATA.labels,
+      labels: HISTOGRAM_DATA.labels,
       datasets: [
         {
-          label: 'Positive',
-          data: TREND_DATA.positive,
-          borderColor: 'green',
-          backgroundColor: 'rgba(0, 128, 0, 0.1)',
-          fill: true,
-          tension: 0.3
+          label: "Positive",
+          data: HISTOGRAM_DATA.positive,
+          backgroundColor: "rgba(0, 128, 0, 0.5)",
+          stack: "sentiment"
         },
         {
-          label: 'Neutral',
-          data: TREND_DATA.neutral,
-          borderColor: 'orange',
-          backgroundColor: 'rgba(255, 165, 0, 0.1)',
-          fill: true,
-          tension: 0.3
+          label: "Neutral",
+          data: HISTOGRAM_DATA.neutral,
+          backgroundColor: "rgba(255, 165, 0, 0.5)",
+          stack: "sentiment"
         },
         {
-          label: 'Negative',
-          data: TREND_DATA.negative,
-          borderColor: 'red',
-          backgroundColor: 'rgba(255, 0, 0, 0.1)',
-          fill: true,
-          tension: 0.3
+          label: "Negative",
+          data: HISTOGRAM_DATA.negative,
+          backgroundColor: "rgba(255, 0, 0, 0.5)",
+          stack: "sentiment"
         }
       ]
     },
     options: {
       responsive: true,
       plugins: {
-        legend: { position: 'top' },
-        title: { display: true, text: 'Sentiment Trend Over Time' }
+        legend: { position: "top" },
+        title: {
+          display: true,
+          text: "Emotion Intensity Distribution by Sentiment"
+        },
+        tooltip: {
+          callbacks: {
+            afterBody: function (tooltipItems) {
+              const item = tooltipItems[0];
+              const label = item.label;
+              const sentiment = item.dataset.label.toLowerCase();
+              const examples = HISTOGRAM_DATA.samples[label]?.[sentiment] || [];
+              return examples.length
+                ? [`e.g.: ${examples.slice(0, 2).join(" / ")}`]
+                : [];
+            }
+          }
+        }
       },
       scales: {
         y: {
           beginAtZero: true,
-          ticks: { precision: 0 }
+          stacked: true
+        },
+        x: {
+          stacked: true
         }
       }
     }
   });
-
-  // function renderSentimentHighlights() {
-  //   let mostPositive = comments_positive.reduce(
-  //     (a, b) => (a.score > b.score ? a : b),
-  //     { score: 0, content: "N/A" }
-  //   );
-
-  //   let mostNegative = comments_negative.reduce(
-  //     (a, b) => (a.score < b.score ? a : b),
-  //     { score: 100, content: "N/A" }
-  //   );
-
-  //   $("#highlight-positive-text").text(mostPositive.content);
-  //   $("#highlight-positive-score").text(mostPositive.score);
-  //   $("#highlight-negative-text").text(mostNegative.content);
-  //   $("#highlight-negative-score").text(mostNegative.score);
-  // }
-
-  // renderSentimentHighlights();
-
 
   // ================================
   // Sentiment Distribution Pie Chart

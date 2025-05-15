@@ -117,40 +117,23 @@ def result(upload_id):
         "negative": count_negative,
     }
 
-    # Sentiment trend over time (compute rating from score)
-    trend_query = (
-        db.session.query(
-            func.date(Comment.created_at).label('date'),
-            Comment.score,
-            func.count(Comment.id).label('count')
-        )
-        .filter(Comment.upload_id == upload_id)
-        .group_by(func.date(Comment.created_at), Comment.score)
-        .order_by(func.date(Comment.created_at))
-        .all()
-    )
+    # Emotion Intensity Histogram
+    def get_bucket(score):
+        return (score // 10) * 10
 
-    from collections import defaultdict
+    histogram_data = defaultdict(lambda: {"Positive": 0, "Neutral": 0, "Negative": 0})
 
-    def get_rating(score):
-        return -1 if score < 38 else 1 if score > 54 else 0
+    for c in comments:
+        bucket = f"{get_bucket(c.score)}-{get_bucket(c.score) + 9}"
+        sentiment = "Positive" if c.rating > 0 else "Negative" if c.rating < 0 else "Neutral"
+        histogram_data[bucket][sentiment] += 1
 
-    trend_data = defaultdict(lambda: {"positive": 0, "neutral": 0, "negative": 0})
-    for row in trend_query:
-        date_str = row.date
-        rating = get_rating(row.score)
-        if rating == 1:
-            trend_data[date_str]["positive"] += row.count
-        elif rating == 0:
-            trend_data[date_str]["neutral"] += row.count
-        else:
-            trend_data[date_str]["negative"] += row.count
-
-    trend_chart_data = {
-        "labels": list(trend_data.keys()),
-        "positive": [v["positive"] for v in trend_data.values()],
-        "neutral": [v["neutral"] for v in trend_data.values()],
-        "negative": [v["negative"] for v in trend_data.values()],
+    all_buckets = [f"{i}-{i + 9}" for i in range(0, 100, 10)]
+    emotion_histogram_data = {
+        "labels": all_buckets,
+        "positive": [histogram_data[b]["Positive"] for b in all_buckets],
+        "neutral": [histogram_data[b]["Neutral"] for b in all_buckets],
+        "negative": [histogram_data[b]["Negative"] for b in all_buckets],
     }
 
     return flask.render_template(
@@ -162,7 +145,7 @@ def result(upload_id):
         comments_positive=comments_positive,
         comments_negative=comments_negative,
         distribution_data=distribution_data,
-        trend_chart_data=trend_chart_data,
+        emotion_histogram_data=emotion_histogram_data
     )
 
 @analyze_bp.route("/")
