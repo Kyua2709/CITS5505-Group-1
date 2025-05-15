@@ -70,5 +70,5 @@ class Comment(db.Model):
             "content": self.content,
             "score": self.score,
             "rating": self.rating,
-            # created_at not needed in frontend for now
+            "created_at": self.created_at.strftime("%b %d, %Y %I:%M %p") if self.created_at else "N/A"
         }
