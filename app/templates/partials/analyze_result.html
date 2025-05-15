@@ -26,15 +26,15 @@
         <h2 class="mb-4">{{ upload.title }}</h2>
         <div class="text-secondary">{{ upload.description }}</div>
       </div>
-      <div class="col-md-6 text-md-end mt-3 mt-md-0">
+      <div class="col-md-6 text-md-end mt-3 mt-md-0" id="action-buttons">
         <a href="javascript:parent.location.href='{{ url_for('share.home', upload_id=upload.id) }}'" class="btn btn-primary">
           <i class="bi bi-share me-1"></i>
           Share Analysis
         </a>
-        <a href="javascript:void(0);" class="btn btn-outline-primary me-2" id="export-pdf">
+        <button class="btn btn-outline-primary me-2" id="export-pdf">
           <i class="bi bi-download me-1"></i>
           Export PDF
-        </a>
+        </button>
       </div>
     </div>
   </div>
@@ -126,7 +126,7 @@
     </div>
     
     <!-- Comments Table with Sentiment Analysis -->
-    <div class="card dashboard-card">
+    <div class="card dashboard-card" id="comment-list-for-view">
       <div class="dashboard-card-header d-flex justify-content-between align-items-center">
         <h5 class="mb-0">Comment Analysis</h5>
         <div class="input-group" style="max-width: 300px">
@@ -135,6 +135,10 @@
         </div>
       </div>
       <div class="dashboard-card-body" id="comment-list-container"></div>
+    </div>
+
+    <!-- Placeholder for all comments, used by export -->
+    <div class="card dashboard-card d-none" id="comment-list-for-export">
     </div>
   </div>
   

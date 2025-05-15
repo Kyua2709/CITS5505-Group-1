@@ -220,61 +220,72 @@ $(document).ready(async function () {
     new MutationObserver(sendHeight).observe(document.body, { childList: true, subtree: true });
   }
 
-  // ====== 新增：加载全部评论函数 ======
+  // ========== Export PDF ========== //
+
   async function loadAllComments() {
     return new Promise((resolve, reject) => {
-      $.get(`${location.pathname}?partial=1&all_comments=1&search=`, function (data) {
+      $.get(`${location.pathname}?partial=1&per_page=-1`, function (data) {
         resolve(data);
       }).fail(() => reject("Failed to load all comments"));
     });
   }
 
-  // ========== Export PDF ========== //
-  document.getElementById("export-pdf")?.addEventListener("click", async function () {
-    const container = $("#comment-list-container");
+  function getDPI() {
+    const div = document.createElement("div");
+    div.style.width = "1in";
+    div.style.height = "1in";
+    div.style.position = "absolute";
+    div.style.top = "-100%";
+    document.body.appendChild(div);
+    const dpi = div.offsetWidth;
+    document.body.removeChild(div);
+    return dpi;
+  }
 
-    // Hide search input box and search icon
-    $("#comment-search").hide();
-    $(".input-group-text").hide();
-
-    // Backup current comments content
-    const backupComments = container.html();
+  $("#export-pdf").on("click", async function () {
+    const hideOnExport = $("#action-buttons, #comment-list-for-view");
+    const showOnExport = $("#comment-list-for-export");
 
     try {
       // Load all comments (without pagination)
       const allCommentsHtml = await loadAllComments();
-      container.html(allCommentsHtml);
+      showOnExport.html(allCommentsHtml);
+
+      // Hide and show elements
+      hideOnExport.addClass("d-none");
+      showOnExport.removeClass("d-none");
 
       // Delay to let DOM render
-      setTimeout(() => {
-        const element = document.body;
-        const opt = {
-          margin: 0.5,
-          filename: `${upload?.title || "analysis_result"}.pdf`,
+      await new Promise(requestAnimationFrame);
+
+      const element = document.body;
+      const dpi = getDPI();
+      const pxToInch = (px) => px / dpi;
+
+      const margin = 0.5;
+      const widthInInch = pxToInch(element.scrollWidth);
+      // reserve a larger space for bottom to prevent page break
+      const heightInInch = pxToInch(element.scrollHeight) + 3 * margin;
+
+      await html2pdf()
+        .set({
+          margin: [margin, 0, 0, 0],
+          filename: `${upload.title || "analysis_result"}.pdf`,
           image: { type: "jpeg", quality: 0.98 },
           html2canvas: { scale: 2 },
-          jsPDF: { unit: "in", format: "a4", orientation: "portrait" },
-        };
-
-        html2pdf()
-          .set(opt)
-          .from(element)
-          .save()
-          .then(() => {
-            // Restore original content and search box
-            container.html(backupComments);
-            $("#comment-search").show();
-            $(".input-group-text").show();
-
-            // Rebind pagination events
-            container.find("a.page-link").on("click", switchPage);
-          });
-      }, 300);
+          jsPDF: {
+            unit: "in",
+            format: [widthInInch, heightInInch], // WYSIWYG
+          },
+        })
+        .from(element)
+        .save();
     } catch (error) {
       alert("Failed to load all comments when exporting. Please try again later.");
-      // Restore search box display
-      $("#comment-search").show();
-      $(".input-group-text").show();
     }
+
+    hideOnExport.removeClass("d-none");
+    showOnExport.addClass("d-none");
+    window.dispatchEvent(new Event("resize")); // force refresh iframe height for parent
   });
 });

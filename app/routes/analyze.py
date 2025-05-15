@@ -90,7 +90,8 @@ def result(upload_id):
             for keyword in search.split():
                 comments_query = comments_query.filter(Comment.content.ilike(f"%{keyword}%"))
         page = flask.request.args.get("page", type=int, default=1)
-        per_page = 5
+        per_page = flask.request.args.get("per_page", type=int, default=5)
+        if per_page < 0: per_page = comments_query.count()
         comments = comments_query.paginate(page=page, per_page=per_page, error_out=False)
         return flask.render_template("partials/comment_list.html", comments=comments)
 
