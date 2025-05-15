@@ -25,5 +25,7 @@ black .
 # Format all HTML files recursively
 echo "✅ Formatting HTML files..."
 npx prettier "**/*.html" --write
+npx prettier "**/*.js" --write
+npx prettier "**/*.css" --write
 
 echo "✅ Code formatting complete."
