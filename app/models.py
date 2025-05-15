@@ -73,3 +73,5 @@ class Comment(db.Model):
             "rating": self.rating,
             # Do not include upload_id because it is not used anywhere
         }
+
+

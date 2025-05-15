@@ -5,21 +5,20 @@ $(document).ready(async function () {
 
   if (upload.status === "Processing") {
     if (parent) {
-      // Send iframe ready message
       parent.postMessage({ type: "ready", info: "The dataset is still being processed, please try again later" }, "*");
     }
     return;
   } else if (upload.status !== "Completed") {
     if (parent) {
-      // Send iframe ready message
-      parent.postMessage({ type: "ready", info: `There was an error when processing the dataset, please contact administrator for assistance` }, "*");
+      parent.postMessage({ type: "ready", info: "There was an error when processing the dataset, please contact administrator for assistance" }, "*");
     }
     return;
   }
 
   /* Fill in word cloud */
 
-  const blacklist = new Set(`i|me|my|myself|we|us|our|ours|ourselves|you|your|yours|yourself|yourselves|he|him|his|himself|she|her|hers|herself|it|its|itself|they|them|their|theirs|themselves|what|which|who|whom|whose|this|that|these|those|am|is|are|was|were|be|been|being|have|has|had|having|do|does|did|doing|will|would|should|can|could|ought|cannot|a|an|the|and|but|if|or|because|as|until|while|of|at|by|for|with|about|against|between|into|through|during|before|after|above|below|to|from|up|upon|down|in|out|on|off|over|under|again|further|then|once|here|there|when|where|why|how|all|any|both|each|few|more|most|other|some|such|no|nor|not|only|own|same|so|than|too|very|say|says|said|shall`.split("|"));
+  const blacklist = new Set("i|me|my|myself|we|us|our|ours|ourselves|you|your|yours|yourself|yourselves|he|him|his|himself|she|her|hers|herself|it|its|itself|they|them|their|theirs|themselves|what|which|who|whom|whose|this|that|these|those|am|is|are|was|were|be|been|being|have|has|had|having|do|does|did|doing|will|would|should|can|could|ought|cannot|a|an|the|and|but|if|or|because|as|until|while|of|at|by|for|with|about|against|between|into|through|during|before|after|above|below|to|from|up|upon|down|in|out|on|off|over|under|again|further|then|once|here|there|when|where|why|how|all|any|both|each|few|more|most|other|some|such|no|nor|not|only|own|same|so|than|too|very|say|says|said|shall".split("|"));
+
   const getWords = (content) =>
     (content.match(/\b[a-zA-Z']+\b/g) || [])
       .filter((word) => word.length > 1)
@@ -121,24 +120,74 @@ $(document).ready(async function () {
   /* Ready! */
 
   if (parent) {
-    // Send iframe ready message
     parent.postMessage({ type: "ready", info: "" }, "*");
 
-    // Send message to parent, so parent can adjust the iframe height accordingly
     const sendHeight = () => parent.postMessage({ type: "height", height: document.body.scrollHeight }, "*");
     sendHeight();
 
-    // Add event listener to update height on window resize
     window.addEventListener("resize", () => {
-      if (!window.innerHeight) {
-        // If innerHeight is 0, it is set by parent to hide the iframe
-        // In this case, do not send height so the height set by parent will not be overridden
-        return;
-      }
+      if (!window.innerHeight) return;
       sendHeight();
     });
 
-    // Add event listener to update height on content change
     new MutationObserver(sendHeight).observe(document.body, { childList: true, subtree: true });
   }
+
+  // ====== 新增：加载全部评论函数 ======
+  async function loadAllComments() {
+    return new Promise((resolve, reject) => {
+      $.get(`${location.pathname}?partial=1&all_comments=1&search=`, function (data) {
+        resolve(data);
+      }).fail(() => reject("Failed to load all comments"));
+    });
+  }
+
+  // ========== Export PDF ========== //
+  document.getElementById("export-pdf")?.addEventListener("click", async function () {
+    const container = $("#comment-list-container");
+
+    // Hide search input box and search icon
+    $("#comment-search").hide();
+    $(".input-group-text").hide();
+
+    // Backup current comments content
+    const backupComments = container.html();
+
+    try {
+      // Load all comments (without pagination)
+      const allCommentsHtml = await loadAllComments();
+      container.html(allCommentsHtml);
+
+      // Delay to let DOM render
+      setTimeout(() => {
+        const element = document.body;
+        const opt = {
+          margin: 0.5,
+          filename: `${upload?.title || "analysis_result"}.pdf`,
+          image: { type: "jpeg", quality: 0.98 },
+          html2canvas: { scale: 2 },
+          jsPDF: { unit: "in", format: "a4", orientation: "portrait" },
+        };
+
+        html2pdf()
+          .set(opt)
+          .from(element)
+          .save()
+          .then(() => {
+            // Restore original content and search box
+            container.html(backupComments);
+            $("#comment-search").show();
+            $(".input-group-text").show();
+
+            // Rebind pagination events
+            container.find("a.page-link").on("click", switchPage);
+          });
+      }, 300);
+    } catch (error) {
+      alert("Failed to load all comments when exporting. Please try again later.");
+      // Restore search box display
+      $("#comment-search").show();
+      $(".input-group-text").show();
+    }
+  });
 });
