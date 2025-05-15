@@ -15,6 +15,7 @@ $(document).ready(async function () {
     return;
   }
 
+
   // =============================
   // Sentiment Trend Line Chart
   // =============================
@@ -64,6 +65,26 @@ $(document).ready(async function () {
       }
     }
   });
+
+  // function renderSentimentHighlights() {
+  //   let mostPositive = comments_positive.reduce(
+  //     (a, b) => (a.score > b.score ? a : b),
+  //     { score: 0, content: "N/A" }
+  //   );
+
+  //   let mostNegative = comments_negative.reduce(
+  //     (a, b) => (a.score < b.score ? a : b),
+  //     { score: 100, content: "N/A" }
+  //   );
+
+  //   $("#highlight-positive-text").text(mostPositive.content);
+  //   $("#highlight-positive-score").text(mostPositive.score);
+  //   $("#highlight-negative-text").text(mostNegative.content);
+  //   $("#highlight-negative-score").text(mostNegative.score);
+  // }
+
+  // renderSentimentHighlights();
+
 
   // ================================
   // Sentiment Distribution Pie Chart
