@@ -3,6 +3,7 @@ Flask-SQLAlchemy>=3.1.1
 flask_migrate
 python-dotenv
 werkzeug
+pytest>=7.0.0
 
 # For packages.sentiment_analysis
 torch>=2.7.0
@@ -15,4 +16,11 @@ lxml_html_clean
 instaloader
 TikTokApi
 snscrape
-selenium
+
+# Added from the code block
+pytest==8.0.2
+webdriver-manager==4.0.1
+flask==3.0.2
+flask-sqlalchemy==3.1.1
+flask-migrate==4.0.5
+werkzeug==3.0.1
