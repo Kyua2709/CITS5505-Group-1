@@ -84,7 +84,6 @@ def result(upload_id):
     user_id = flask.session.get('user_id')
     upload = db.session.query(Upload).get(upload_id)
     
-    # 检查权限 - 用户只能访问自己的或共享给自己的分析
     if upload.user_id != user_id and not is_shared_with_user(upload_id, user_id):
         flask.abort(403)
         
@@ -143,7 +142,6 @@ def result(upload_id):
         "negative": [histogram_data[b]["Negative"] for b in all_buckets],
     }
     
-    # 检查是否需要自动导出PDF
     auto_export_pdf = flask.request.args.get('export_pdf') == 'true'
 
     return flask.render_template(
@@ -160,7 +158,6 @@ def result(upload_id):
     )
 
 def is_shared_with_user(upload_id, user_id):
-    """检查分析是否被共享给指定用户"""
     from app.models import Share
     share = db.session.query(Share).filter_by(
         upload_id=upload_id, 
