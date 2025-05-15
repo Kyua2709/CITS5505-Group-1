@@ -79,7 +79,7 @@ def percentage(x, y):
 @analyze_bp.route("/result/<upload_id>", methods=["GET"])
 def result(upload_id):
     if 'user_id' not in flask.session:
-        return flask.redirect(flask.url_for('main.index'))
+        return flask.redirect(flask.url_for('main.home'))
 
     upload = db.session.query(Upload).get(upload_id)
     comments_query = db.session.query(Comment).filter(Comment.upload_id == upload.id).order_by(Comment.id)
@@ -152,7 +152,7 @@ def result(upload_id):
 @analyze_bp.route("/")
 def home():
     if 'user_id' not in flask.session:
-        return flask.redirect(flask.url_for('main.index'))
+        return flask.redirect(flask.url_for('main.home'))
 
     user_id = flask.session.get('user_id')
     order = Upload.timestamp.desc()

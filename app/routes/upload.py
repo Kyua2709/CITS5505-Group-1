@@ -119,7 +119,7 @@ def upload_by_url():
 @upload_bp.route('/', methods=['GET'])
 def home():
     if 'user_id' not in flask.session:
-        return flask.redirect(flask.url_for('main.index'))
+        return flask.redirect(flask.url_for('main.home'))
 
     user_id = flask.session.get('user_id')
     args = flask.request.args

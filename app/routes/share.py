@@ -14,7 +14,7 @@ share_bp = flask.Blueprint(
 @require_csrf_token
 def home():
     if 'user_id' not in session:
-        return redirect(url_for('main.index'))
+        return redirect(url_for('main.home'))
 
     user_id = session['user_id']
 

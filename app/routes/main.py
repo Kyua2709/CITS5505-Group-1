@@ -6,18 +6,11 @@ from .utils import require_csrf_token
 main_bp = Blueprint('main', __name__)
 
 @main_bp.route('/')
-def index():
+def home():
     """Home page"""
     if 'user_id' in session:
         return render_template('login.html')
     return render_template('index.html')
-
-@main_bp.route('/login')
-def home():
-    """Logged in home page"""
-    if 'user_id' not in session:
-        return redirect(url_for('main.index'))
-    return render_template('login.html')
 
 # Authentication routes
 @main_bp.route('/register', methods=['POST'])
@@ -63,4 +56,4 @@ def login():
 @require_csrf_token
 def logout():
     session.clear()
-    return redirect(url_for('main.index'))
+    return redirect(url_for('main.home'))
