@@ -80,8 +80,14 @@ def percentage(x, y):
 def result(upload_id):
     if 'user_id' not in flask.session:
         return flask.redirect(flask.url_for('main.index'))
-
+        
+    user_id = flask.session.get('user_id')
     upload = db.session.query(Upload).get(upload_id)
+    
+    # 检查权限 - 用户只能访问自己的或共享给自己的分析
+    if upload.user_id != user_id and not is_shared_with_user(upload_id, user_id):
+        flask.abort(403)
+        
     comments_query = db.session.query(Comment).filter(Comment.upload_id == upload.id).order_by(Comment.id)
 
     if flask.request.args.get("partial"):
@@ -136,6 +142,9 @@ def result(upload_id):
         "neutral": [histogram_data[b]["Neutral"] for b in all_buckets],
         "negative": [histogram_data[b]["Negative"] for b in all_buckets],
     }
+    
+    # 检查是否需要自动导出PDF
+    auto_export_pdf = flask.request.args.get('export_pdf') == 'true'
 
     return flask.render_template(
         "partials/analyze_result.html",
@@ -146,8 +155,18 @@ def result(upload_id):
         comments_positive=comments_positive,
         comments_negative=comments_negative,
         distribution_data=distribution_data,
-        emotion_histogram_data=emotion_histogram_data
+        emotion_histogram_data=emotion_histogram_data,
+        auto_export_pdf=auto_export_pdf
     )
+
+def is_shared_with_user(upload_id, user_id):
+    """检查分析是否被共享给指定用户"""
+    from app.models import Share
+    share = db.session.query(Share).filter_by(
+        upload_id=upload_id, 
+        recipient_id=user_id
+    ).first()
+    return share is not None
 
 @analyze_bp.route("/")
 def home():

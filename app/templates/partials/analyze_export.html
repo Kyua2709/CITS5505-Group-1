@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ upload.title }} - Analysis Report</title>
+  <style>
+    /* PDF-specific styling */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+    }
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 15px;
+    }
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      margin: 0 -15px;
+    }
+    .col-md-3, .col-lg-4, .col-lg-6, .col-lg-8 {
+      padding: 0 15px;
+      margin-bottom: 20px;
+    }
+    .col-md-3 { width: 25%; }
+    .col-lg-4 { width: 33.333%; }
+    .col-lg-6 { width: 50%; }
+    .col-lg-8 { width: 66.666%; }
+    
+    .card {
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      background-color: #fff;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .card-header {
+      background-color: #f8f9fa;
+      padding: 15px;
+      border-bottom: 1px solid #ddd;
+      font-weight: bold;
+    }
+    .card-body {
+      padding: 15px;
+    }
+    
+    .text-center { text-align: center; }
+    .text-muted { color: #6c757d; }
+    .mb-0 { margin-bottom: 0; }
+    .mb-4 { margin-bottom: 20px; }
+    
+    .display-4 {
+      font-size: 3.5rem;
+      font-weight: bold;
+      line-height: 1.2;
+    }
+    
+    .text-primary { color: #007bff; }
+    .text-success { color: #28a745; }
+    .text-warning { color: #ffc107; }
+    .text-danger { color: #dc3545; }
+    
+    .badge {
+      display: inline-block;
+      padding: 0.25em 0.4em;
+      font-size: 75%;
+      font-weight: 700;
+      line-height: 1;
+      text-align: center;
+      white-space: nowrap;
+      vertical-align: baseline;
+      border-radius: 0.25rem;
+    }
+    .badge-success { background-color: #28a745; color: white; }
+    .badge-warning { background-color: #ffc107; color: black; }
+    .badge-danger { background-color: #dc3545; color: white; }
+    
+    .table {
+      width: 100%;
+      margin-bottom: 1rem;
+      color: #212529;
+      border-collapse: collapse;
+    }
+    .table th, .table td {
+      padding: 0.75rem;
+      vertical-align: top;
+      border-top: 1px solid #dee2e6;
+    }
+    .table thead th {
+      vertical-align: bottom;
+      border-bottom: 2px solid #dee2e6;
+      text-align: left;
+    }
+    
+    /* Charts placeholder styles */
+    .chart-placeholder {
+      height: 300px;
+      background-color: #f8f9fa;
+      border: 1px dashed #ccc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+    
+    /* Page break utilities */
+    .page-break { page-break-after: always; }
+    .avoid-break { page-break-inside: avoid; }
+    
+    /* Header and title */
+    .report-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .report-title {
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    .report-subtitle {
+      font-size: 16px;
+      color: #666;
+      margin-bottom: 20px;
+    }
+    .report-date {
+      font-size: 14px;
+      color: #888;
+    }
+    
+    /* Comments table styling */
+    .comment-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    .comment-table th,
+    .comment-table td {
+      border: 1px solid #ddd;
+      padding: 8px;
+    }
+    .comment-table th {
+      background-color: #f2f2f2;
+      font-weight: bold;
+      text-align: left;
+    }
+    .comment-table tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+    .sentiment-positive {
+      color: #28a745;
+    }
+    .sentiment-neutral {
+      color: #ffc107;
+    }
+    .sentiment-negative {
+      color: #dc3545;
+    }
+  </style>
+</head>
+<body>
+  <!-- Report Header -->
+  <div class="report-header">
+    <div class="report-title">{{ upload.title }}</div>
+    <div class="report-subtitle">{{ upload.description }}</div>
+    <div class="report-date">Generated on {{ now.strftime('%B %d, %Y') }}</div>
+  </div>
+  
+  <div class="container">
+    <!-- Summary Cards -->
+    <div class="row avoid-break">
+      <div class="col-md-3">
+        <div class="card">
+          <div class="card-body text-center">
+            <div class="display-4 text-primary">{{ upload.size }}</div>
+            <p class="text-muted mb-0">Total Comments</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card">
+          <div class="card-body text-center">
+            <div class="display-4 text-success">{{ percentage_positive }}%</div>
+            <p class="text-muted mb-0">Positive Sentiment</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card">
+          <div class="card-body text-center">
+            <div class="display-4 text-warning">{{ percentage_neutral }}%</div>
+            <p class="text-muted mb-0">Neutral Sentiment</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card">
+          <div class="card-body text-center">
+            <div class="display-4 text-danger">{{ percentage_negative }}%</div>
+            <p class="text-muted mb-0">Negative Sentiment</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Data Visualization Section (Static Images for PDF) -->
+    <div class="row avoid-break">
+      <div class="col-lg-8">
+        <div class="card">
+          <div class="card-header">
+            <h5 class="mb-0">Emotion Intensity Distribution</h5>
+          </div>
+          <div class="card-body">
+            <!-- For PDF, we'll use static images of charts -->
+            <img src="{{ histogram_chart_url }}" alt="Emotion Intensity Distribution" style="width: 100%; max-height: 300px;">
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-4">
+        <div class="card">
+          <div class="card-header">
+            <h5 class="mb-0">Sentiment Distribution</h5>
+          </div>
+          <div class="card-body">
+            <img src="{{ distribution_chart_url }}" alt="Sentiment Distribution" style="width: 100%; max-height: 300px;">
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Key Findings Section -->
+    <div class="avoid-break">
+      <h3>Key Findings</h3>
+      <div class="card">
+        <div class="card-body">
+          <p>This analysis of {{ upload.size }} comments reveals that {{ percentage_positive }}% express positive sentiment, 
+             {{ percentage_neutral }}% are neutral, and {{ percentage_negative }}% convey negative sentiment.</p>
+          
+          {% if percentage_positive > percentage_negative %}
+          <p>The overall sentiment is predominantly positive, with users expressing satisfaction 
+             with various aspects of the {{ upload.title }}.</p>
+          {% elif percentage_negative > percentage_positive %}
+          <p>The overall sentiment leans negative, indicating potential areas for improvement 
+             in relation to {{ upload.title }}.</p>
+          {% else %}
+          <p>The sentiment is evenly balanced between positive and negative reactions 
+             to {{ upload.title }}.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    
+    <!-- Common Themes Section -->
+    <div class="avoid-break page-break">
+      <h3>Common Themes</h3>
+      <div class="row">
+        <div class="col-lg-6">
+          <div class="card">
+            <div class="card-header">
+              <h5 class="mb-0">Positive Themes</h5>
+            </div>
+            <div class="card-body">
+              {% if comments_positive %}
+                <ul>
+                {% for theme in positive_themes %}
+                  <li>{{ theme }}</li>
+                {% else %}
+                  <li>Easy to use interface</li>
+                  <li>Helpful customer support</li>
+                  <li>Valuable insights provided</li>
+                {% endfor %}
+                </ul>
+              {% else %}
+                <p class="text-muted">No positive comments found in this analysis.</p>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <div class="card">
+            <div class="card-header">
+              <h5 class="mb-0">Negative Themes</h5>
+            </div>
+            <div class="card-body">
+              {% if comments_negative %}
+                <ul>
+                {% for theme in negative_themes %}
+                  <li>{{ theme }}</li>
+                {% else %}
+                  <li>Technical issues reported</li>
+                  <li>Difficulty with specific features</li>
+                  <li>Response time concerns</li>
+                {% endfor %}
+                </ul>
+              {% else %}
+                <p class="text-muted">No negative comments found in this analysis.</p>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Comment Samples -->
+    <div class="avoid-break">
+      <h3>Sample Comments</h3>
+      
+      <!-- Positive Comments -->
+      <div class="card mb-4">
+        <div class="card-header">
+          <h5 class="mb-0">Positive Comments</h5>
+        </div>
+        <div class="card-body">
+          {% if comments_positive %}
+            <table class="comment-table">
+              <thead>
+                <tr>
+                  <th>Comment</th>
+                  <th>Source</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for comment in comments_positive[:5] %}
+                <tr>
+                  <td>{{ comment.content }}</td>
+                  <td>{{ comment.source }}</td>
+                  <td>{{ comment.timestamp.strftime('%Y-%m-%d') }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          {% else %}
+            <p class="text-muted">No positive comments found.</p>
+          {% endif %}
+        </div>
+      </div>
+      
+      <!-- Negative Comments -->
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0">Negative Comments</h5>
+        </div>
+        <div class="card-body">
+          {% if comments_negative %}
+            <table class="comment-table">
+              <thead>
+                <tr>
+                  <th>Comment</th>
+                  <th>Source</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for comment in comments_negative[:5] %}
+                <tr>
+                  <td>{{ comment.content }}</td>
+                  <td>{{ comment.source }}</td>
+                  <td>{{ comment.timestamp.strftime('%Y-%m-%d') }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          {% else %}
+            <p class="text-muted">No negative comments found.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    
+    <!-- All Comments Table (Paginated in PDF) -->
+    <div class="page-break">
+      <h3>All Comments</h3>
+      <table class="comment-table">
+        <thead>
+          <tr>
+            <th>Comment</th>
+            <th>Sentiment</th>
+            <th>Source</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for comment in comments %}
+          <tr>
+            <td>{{ comment.content }}</td>
+            <td class="sentiment-{{ 'positive' if comment.rating == 1 else 'neutral' if comment.rating == 0 else 'negative' }}">
+              {{ 'Positive' if comment.rating == 1 else 'Neutral' if comment.rating == 0 else 'Negative' }}
+            </td>
+            <td>{{ comment.source }}</td>
+            <td>{{ comment.timestamp.strftime('%Y-%m-%d') }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    
+    <!-- Footer -->
+    <div class="report-footer">
+      <p class="text-muted text-center">
+        Generated by SentiSocial | {{ now.strftime('%B %d, %Y at %H:%M') }}
+      </p>
+    </div>
+  </div>
+</body>
+</html>

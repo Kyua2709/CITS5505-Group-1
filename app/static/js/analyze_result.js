@@ -15,6 +15,7 @@ $(document).ready(async function () {
     return;
   }
 
+  // 创建情感强度直方图
   const ctxHistogram = document.getElementById("intensityHistogram").getContext("2d");
 
   new Chart(ctxHistogram, {
@@ -76,9 +77,7 @@ $(document).ready(async function () {
     }
   });
 
-  // ================================
-  // Sentiment Distribution Pie Chart
-  // ================================
+  // 情感分布饼图
   const ctxDist = document.getElementById('distributionChart').getContext('2d');
   new Chart(ctxDist, {
     type: 'pie',
@@ -104,7 +103,7 @@ $(document).ready(async function () {
   });
 
   /* ===========================
-    Word Clouds
+    词云 Word Clouds
   ============================ */
   const blacklist = new Set(`i|me|my|myself|we|us|our|ours|ourselves|you|your|yours|yourself|yourselves|he|him|his|himself|she|her|hers|herself|it|its|itself|they|them|their|theirs|themselves|what|which|who|whom|whose|this|that|these|those|am|is|are|was|were|be|been|being|have|has|had|having|do|does|did|doing|will|would|should|can|could|ought|cannot|a|an|the|and|but|if|or|because|as|until|while|of|at|by|for|with|about|against|between|into|through|during|before|after|above|below|to|from|up|upon|down|in|out|on|off|over|under|again|further|then|once|here|there|when|where|why|how|all|any|both|each|few|more|most|other|some|such|no|nor|not|only|own|same|so|than|too|very|say|says|said|shall`.split("|"));
   const getWords = (content) =>
@@ -177,7 +176,7 @@ $(document).ready(async function () {
   displayWordCloud(comments_negative, "#words-negative");
 
   // ===========================
-  // Comment List & Search
+  // 评论列表和搜索 Comment List & Search
   // ===========================
   const search = $("#comment-search");
 
@@ -204,7 +203,7 @@ $(document).ready(async function () {
   });
 
   // ===========================
-  // Resize & Ready for iframe
+  // Iframe调整尺寸 Resize & Ready for iframe
   // ===========================
   if (parent) {
     parent.postMessage({ type: "ready", info: "" }, "*");
@@ -220,7 +219,7 @@ $(document).ready(async function () {
     new MutationObserver(sendHeight).observe(document.body, { childList: true, subtree: true });
   }
 
-  // ========== Export PDF ========== //
+  // ========== 导出PDF Export PDF ========== //
 
   async function loadAllComments() {
     return new Promise((resolve, reject) => {
@@ -247,27 +246,27 @@ $(document).ready(async function () {
     const showOnExport = $("#comment-list-for-export");
 
     try {
-      // Load all comments (without pagination)
+      // 加载所有评论（无分页）
       const allCommentsHtml = await loadAllComments();
       showOnExport.html(allCommentsHtml);
 
-      // Hide and show elements
+      // 隐藏和显示元素
       hideOnExport.addClass("d-none");
       showOnExport.removeClass("d-none");
 
-      // Delay to let DOM render
+      // 延迟以让DOM渲染
       await new Promise(requestAnimationFrame);
 
       const element = document.body;
       const dpi = getDPI();
       const pxToInch = (px) => px / dpi;
 
-      // Calculate horizontal margin based on page and content widths
+      // 计算水平边距
       const pageWidthInInch = pxToInch(element.offsetWidth);
       const contentWidthInInch = pxToInch(showOnExport.width());
       const margin = (pageWidthInInch - contentWidthInInch) / 2;
 
-      // Use the same margin value for vertical
+      // 使用相同的边距值进行垂直处理
       const pageHeightInInch = Math.ceil(pxToInch(element.offsetHeight) + 2 * margin);
 
       await html2pdf()
@@ -289,6 +288,15 @@ $(document).ready(async function () {
 
     hideOnExport.removeClass("d-none");
     showOnExport.addClass("d-none");
-    window.dispatchEvent(new Event("resize")); // force refresh iframe height for parent
+    window.dispatchEvent(new Event("resize")); // 强制刷新iframe的高度
   });
+  
+  // 检查URL参数，如果需要自动导出PDF
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('export_pdf') === 'true') {
+    // 延迟一点时间确保页面完全渲染
+    setTimeout(function() {
+      $("#export-pdf").click();
+    }, 1000);
+  }
 });

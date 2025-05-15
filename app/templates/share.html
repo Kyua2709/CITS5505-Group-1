@@ -51,6 +51,7 @@
                                 aria-current="{% if loop.first %}true{% endif %}"
                                 data-title="{{ upload.title }}"
                                 data-platform="{{ upload.platform }}"
+                                data-id="{{ upload.id }}"
                                 onclick="selectAnalysis(this)">
                                     <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1">{{ upload.title }} - {{ upload.platform }}</h6>
@@ -71,7 +72,7 @@
                                 {% endfor %}
                             </div>
                             <div class="d-grid">
-                                <button class="btn btn-primary">
+                                <button class="btn btn-primary" id="exportPdfBtn">
                                     <i class="bi bi-file-earmark-pdf me-2"></i>Export as Report
                                 </button>
                             </div>
