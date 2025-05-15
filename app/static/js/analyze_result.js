@@ -272,7 +272,7 @@ $(document).ready(async function () {
           margin: [margin, 0, 0, 0],
           filename: `${upload.title || "analysis_result"}.pdf`,
           image: { type: "jpeg", quality: 0.98 },
-          html2canvas: { scale: 2 },
+          html2canvas: { scale: 4 },
           jsPDF: {
             unit: "in",
             format: [widthInInch, heightInInch], // WYSIWYG
