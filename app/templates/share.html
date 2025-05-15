@@ -45,27 +45,30 @@
                         </div>
                         <div class="dashboard-card-body">
                             <div class="list-group mb-4">
-                                <a href="#" class="list-group-item list-group-item-action active" aria-current="true" id="analysis1">
+                                {% for upload in uploads %}
+                                <a href="#" 
+                                class="list-group-item list-group-item-action {% if loop.first %}active{% endif %}" 
+                                aria-current="{% if loop.first %}true{% endif %}"
+                                data-title="{{ upload.title }}"
+                                data-platform="{{ upload.platform }}"
+                                onclick="selectAnalysis(this)">
                                     <div class="d-flex w-100 justify-content-between">
-                                        <h6 class="mb-1">Product Launch Comments - Instagram</h6>
-                                        <small>Apr 23</small>
+                                        <h6 class="mb-1">{{ upload.title }} - {{ upload.platform }}</h6>
+                                        <small>{{ upload.timestamp.strftime('%b %d') }}</small>
                                     </div>
-                                    <p class="mb-1 small">152 comments, 72% positive sentiment</p>
+                                    <p class="mb-1 small">
+                                        {{ upload.comments|length }} comments, 
+                                        {% set positive_count = upload.comments|selectattr("rating", "equalto", 1)|list|length %}
+                                        {% if upload.comments|length > 0 %}
+                                            {{ (positive_count / upload.comments|length * 100) | round(0) }}% positive sentiment
+                                        {% else %}
+                                            No comments yet
+                                        {% endif %}
+                                    </p>
                                 </a>
-                                <a href="#" class="list-group-item list-group-item-action" id="analysis2">
-                                    <div class="d-flex w-100 justify-content-between">
-                                        <h6 class="mb-1">Customer Support Tweets - Twitter</h6>
-                                        <small>Apr 21</small>
-                                    </div>
-                                    <p class="mb-1 small">342 tweets, 45% positive sentiment</p>
-                                </a>
-                                <a href="#" class="list-group-item list-group-item-action" id="analysis3">
-                                    <div class="d-flex w-100 justify-content-between">
-                                        <h6 class="mb-1">Brand Campaign Data - Multiple</h6>
-                                        <small>Apr 18</small>
-                                    </div>
-                                    <p class="mb-1 small">583 items, 68% positive sentiment</p>
-                                </a>
+                                {% else %}
+                                <p class="text-muted">No analyses found.</p>
+                                {% endfor %}
                             </div>
                             <div class="d-grid">
                                 <button class="btn btn-primary">
@@ -81,7 +84,7 @@
                     <div class="card dashboard-card mb-4">
                         <div class="dashboard-card-header d-flex justify-content-between align-items-center">
                             <h5 class="mb-0">Share with Collaborators</h5>
-                            <span class="badge bg-success" id="selectedAnalysis">Product Launch Comments - Instagram</span>
+                            <span class="badge bg-success" id="selectedAnalysis"></span>
                         </div>
                         <div class="dashboard-card-body">
                             <form id="shareForm">
@@ -217,5 +220,6 @@
     {% include 'partials/footer.html' %}
 
     <script src="{{ url_for('static', filename='js/auth_validation.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/share.js') }}"></script>
 </body>
 </html>

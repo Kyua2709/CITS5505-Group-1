@@ -72,3 +72,5 @@ class Comment(db.Model):
             "rating": self.rating,
             "created_at": self.created_at.strftime("%b %d, %Y %I:%M %p") if self.created_at else "N/A"
         }
+
+
