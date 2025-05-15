@@ -262,10 +262,13 @@ $(document).ready(async function () {
       const dpi = getDPI();
       const pxToInch = (px) => px / dpi;
 
-      const margin = 0.5;
-      const widthInInch = pxToInch(element.scrollWidth);
-      // reserve a larger space for bottom to prevent page break
-      const heightInInch = pxToInch(element.scrollHeight) + 3 * margin;
+      // Calculate horizontal margin based on page and content widths
+      const pageWidthInInch = pxToInch(element.offsetWidth);
+      const contentWidthInInch = pxToInch(showOnExport.width());
+      const margin = (pageWidthInInch - contentWidthInInch) / 2;
+
+      // Use the same margin value for vertical
+      const pageHeightInInch = Math.ceil(pxToInch(element.offsetHeight) + 2 * margin);
 
       await html2pdf()
         .set({
@@ -275,7 +278,7 @@ $(document).ready(async function () {
           html2canvas: { scale: 4 },
           jsPDF: {
             unit: "in",
-            format: [widthInInch, heightInInch], // WYSIWYG
+            format: [pageWidthInInch, pageHeightInInch], // WYSIWYG
           },
         })
         .from(element)
