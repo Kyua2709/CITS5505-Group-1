@@ -76,7 +76,7 @@ def handle_upload(source):
     # Kick off asynchronous sentiment analysis via HTTP POST request
     # NOTE: db.session cannot be safely used in threads due to lack of thread-safety
     # So, we trigger an API call to perform the processing asynchronously
-    analysis_url = "http://localhost:5000/analyze/run"  # TODO: replace hardcoded hostname
+    analysis_url = "http://127.0.0.1:5000/analyze/run"  # TODO: replace hardcoded hostname
     thread = threading.Thread(
         target=requests.post,
         args=(
