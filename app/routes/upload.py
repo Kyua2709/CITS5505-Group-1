@@ -7,6 +7,7 @@ import requests
 
 from app import db
 from app.models import Upload
+from .utils import require_csrf_token
 
 # Create a Flask blueprint for upload-related routes
 upload_bp = flask.Blueprint(
@@ -98,16 +99,19 @@ def handle_upload(source):
 
 # Route to handle text uploads
 @upload_bp.route("/text", methods=["POST"])
+@require_csrf_token
 def upload_by_text():
     return handle_upload("text")
 
 # Route to handle file uploads
 @upload_bp.route("/file", methods=["POST"])
+@require_csrf_token
 def upload_by_file():
     return handle_upload("file")
 
 # Route to handle uploads via external URL
 @upload_bp.route("/url", methods=["POST"])
+@require_csrf_token
 def upload_by_url():
     return handle_upload("url")
 

@@ -1,6 +1,7 @@
 import flask
 from flask import Blueprint, session, redirect, url_for, render_template
 from app.models import Upload
+from .utils import require_csrf_token
 
 # Blueprint setup
 share_bp = flask.Blueprint(
@@ -10,6 +11,7 @@ share_bp = flask.Blueprint(
 )
 
 @share_bp.route('/')
+@require_csrf_token
 def home():
     if 'user_id' not in session:
         return redirect(url_for('main.index'))
