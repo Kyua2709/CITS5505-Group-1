@@ -5,20 +5,96 @@ $(document).ready(async function () {
 
   if (upload.status === "Processing") {
     if (parent) {
-      // Send iframe ready message
       parent.postMessage({ type: "ready", info: "The dataset is still being processed, please try again later" }, "*");
     }
     return;
   } else if (upload.status !== "Completed") {
     if (parent) {
-      // Send iframe ready message
       parent.postMessage({ type: "ready", info: `There was an error when processing the dataset, please contact administrator for assistance` }, "*");
     }
     return;
   }
 
-  /* Fill in word cloud */
+  // =============================
+  // Sentiment Trend Line Chart
+  // =============================
+  const ctxTrend = document.getElementById('trendChart').getContext('2d');
+  new Chart(ctxTrend, {
+    type: 'line',
+    data: {
+      labels: TREND_DATA.labels,
+      datasets: [
+        {
+          label: 'Positive',
+          data: TREND_DATA.positive,
+          borderColor: 'green',
+          backgroundColor: 'rgba(0, 128, 0, 0.1)',
+          fill: true,
+          tension: 0.3
+        },
+        {
+          label: 'Neutral',
+          data: TREND_DATA.neutral,
+          borderColor: 'orange',
+          backgroundColor: 'rgba(255, 165, 0, 0.1)',
+          fill: true,
+          tension: 0.3
+        },
+        {
+          label: 'Negative',
+          data: TREND_DATA.negative,
+          borderColor: 'red',
+          backgroundColor: 'rgba(255, 0, 0, 0.1)',
+          fill: true,
+          tension: 0.3
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { position: 'top' },
+        title: { display: true, text: 'Sentiment Trend Over Time' }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: { precision: 0 }
+        }
+      }
+    }
+  });
 
+  // ================================
+  // Sentiment Distribution Pie Chart
+  // ================================
+  const ctxDist = document.getElementById('distributionChart').getContext('2d');
+  new Chart(ctxDist, {
+    type: 'pie',
+    data: {
+      labels: ['Positive', 'Neutral', 'Negative'],
+      datasets: [{
+        data: [
+          DISTRIBUTION_DATA.positive,
+          DISTRIBUTION_DATA.neutral,
+          DISTRIBUTION_DATA.negative
+        ],
+        backgroundColor: ['green', 'orange', 'red'],
+        hoverOffset: 10
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { position: 'bottom' },
+        title: { display: true, text: 'Sentiment Distribution' }
+      }
+    }
+  });
+
+  /* ===========================
+    Word Clouds
+  ============================ */
   const blacklist = new Set(`i|me|my|myself|we|us|our|ours|ourselves|you|your|yours|yourself|yourselves|he|him|his|himself|she|her|hers|herself|it|its|itself|they|them|their|theirs|themselves|what|which|who|whom|whose|this|that|these|those|am|is|are|was|were|be|been|being|have|has|had|having|do|does|did|doing|will|would|should|can|could|ought|cannot|a|an|the|and|but|if|or|because|as|until|while|of|at|by|for|with|about|against|between|into|through|during|before|after|above|below|to|from|up|upon|down|in|out|on|off|over|under|again|further|then|once|here|there|when|where|why|how|all|any|both|each|few|more|most|other|some|such|no|nor|not|only|own|same|so|than|too|very|say|says|said|shall`.split("|"));
   const getWords = (content) =>
     (content.match(/\b[a-zA-Z']+\b/g) || [])
@@ -37,7 +113,7 @@ $(document).ready(async function () {
 
     let data = Array.from(wordCounts, ([text, size]) => ({ text, size }))
       .sort((a, b) => b.size - a.size)
-      .slice(0, 50); // top 50 words
+      .slice(0, 50);
 
     let container = $(selector);
     container.empty();
@@ -65,7 +141,7 @@ $(document).ready(async function () {
       .words(data)
       .padding(5)
       .fontSize((d) => d.size)
-      .rotate(() => 0) // do not rotate words
+      .rotate(() => 0)
       .on("end", function (words) {
         d3.select(selector)
           .append("svg")
@@ -89,8 +165,9 @@ $(document).ready(async function () {
   displayWordCloud(comments_positive, "#words-positive");
   displayWordCloud(comments_negative, "#words-negative");
 
-  /* Init comment list */
-
+  // ===========================
+  // Comment List & Search
+  // ===========================
   const search = $("#comment-search");
 
   function switchPage(e) {
@@ -108,37 +185,27 @@ $(document).ready(async function () {
     });
   }
 
-  // initial load
   loadPage(1);
-
-  // Initiate search on ENTER
   search.on("keydown", function (e) {
     if (e.key === "Enter" || e.keyCode === 13) {
       loadPage(1);
     }
   });
 
-  /* Ready! */
-
+  // ===========================
+  // Resize & Ready for iframe
+  // ===========================
   if (parent) {
-    // Send iframe ready message
     parent.postMessage({ type: "ready", info: "" }, "*");
 
-    // Send message to parent, so parent can adjust the iframe height accordingly
     const sendHeight = () => parent.postMessage({ type: "height", height: document.body.scrollHeight }, "*");
     sendHeight();
 
-    // Add event listener to update height on window resize
     window.addEventListener("resize", () => {
-      if (!window.innerHeight) {
-        // If innerHeight is 0, it is set by parent to hide the iframe
-        // In this case, do not send height so the height set by parent will not be overridden
-        return;
-      }
+      if (!window.innerHeight) return;
       sendHeight();
     });
 
-    // Add event listener to update height on content change
     new MutationObserver(sendHeight).observe(document.body, { childList: true, subtree: true });
   }
 });
