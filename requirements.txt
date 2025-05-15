@@ -16,6 +16,7 @@ lxml_html_clean
 instaloader
 TikTokApi
 snscrape
+selenium
 
 # Added from the code block
 pytest==8.0.2
