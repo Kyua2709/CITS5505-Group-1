@@ -7,9 +7,6 @@ main_bp = Blueprint('main', __name__)
 
 @main_bp.route('/')
 def home():
-    """Home page"""
-    if 'user_id' in session:
-        return render_template('login.html')
     return render_template('index.html')
 
 # Authentication routes
