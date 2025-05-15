@@ -8,6 +8,7 @@
             </div>
             <div class="modal-body">
                 <form>
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <div id="registerError" style="display:none;"></div>
                     <div class="row">
                         <div class="col-md-6 mb-3">

@@ -1,29 +1,38 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% include 'partials/head.html' %}
+    {% if 'user_id' not in session %}
     <title>SentiSocial - Social Media Sentiment Analysis Platform</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    {% else %}
+    <title>SentiSocial - Dashboard</title>
+    {% endif %}
 </head>
 <body>
     
     <!-- Navigation Bar -->
-     {% include 'partials/navbar.html' %}
+    {% include 'partials/navbar.html' %}
     
     <!-- Hero Section -->
     <header class="hero-section text-white text-center">
         <div class="container">
             <div class="row justify-content-center">
                 <div class="col-lg-8">
+                    {% if 'user_id' not in session %}
                     <h1 class="display-4 fw-bold mb-4">Decode Sentiment Trends in Social Media</h1>
                     <p class="lead mb-5">Upload social media comments, get deep sentiment analysis, discover hidden insights, and easily share your findings</p>
                     <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
                         <button class="btn btn-primary btn-lg px-4 gap-3" data-bs-toggle="modal" data-bs-target="#registerModal">Get Started Free</button>
                         <a href="#features" class="btn btn-outline-light btn-lg px-4">Learn More</a>
                     </div>
+                    {% else %}
+                    <h1 class="display-4 fw-bold mb-4">Welcome to SentiSocial</h1>
+                    <p class="lead mb-5">Your gateway to understanding social media sentiment</p>
+                    <p class="display-6 fw-bold mb-4">Hi, {{ session['first_name'] }}!</p>
+                    <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+                        <a href="{{ url_for('upload.home') }}" class="btn btn-light btn-lg px-4">Start Analyzing</a>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -142,7 +151,8 @@
             </div>
         </div>
     </section>
-    
+
+    {% if 'user_id' not in session %}
     <!-- Call to Action -->
     <section class="cta py-5 text-white text-center">
         <div class="container">
@@ -150,16 +160,15 @@
             <button class="btn btn-light btn-lg" data-bs-toggle="modal" data-bs-target="#registerModal">Create Free Account</button>
         </div>
     </section>
-    
-    <!-- JQuery -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-    
+    {% endif %}
+
     {% include 'partials/footer.html' %}
+
+    {% if 'user_id' not in session %}
     {% include 'partials/login_modal.html' %}
     {% include 'partials/register_modal.html' %}
-    
+
     <script src="{{ url_for('static', filename='js/auth_validation.js') }}"></script>
+    {% endif %}
 </body>
 </html>
