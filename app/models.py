@@ -51,12 +51,11 @@ class Comment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.Text, nullable=False)
     score = db.Column(db.Integer, nullable=False)
-
     upload_id = db.Column(db.String(36), db.ForeignKey('upload.id'), nullable=False)
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
     @property
     def rating(self):
-        # Empirical values for threshold
         SCORE_NEGATIVE = 38
         SCORE_POSITIVE = 54
         return (
@@ -71,5 +70,5 @@ class Comment(db.Model):
             "content": self.content,
             "score": self.score,
             "rating": self.rating,
-            # Do not include upload_id because it is not used anywhere
+            "created_at": self.created_at.strftime("%b %d, %Y %I:%M %p") if self.created_at else "N/A"
         }

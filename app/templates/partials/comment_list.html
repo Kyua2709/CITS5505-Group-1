@@ -27,7 +27,7 @@
           {% endif %}
         </td>
         <td>{{ comment.score }}</td>
-        <td>N/A</td>
+        <td>{{ comment.created_at.strftime("%b %d, %Y %I:%M %p") if comment.created_at else "N/A" }}</td>
       </tr>
       {% endfor %}
       {% endif %}

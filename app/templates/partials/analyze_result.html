@@ -3,15 +3,21 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Analysis Result - SentiSocial</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css" />
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   </head>
   <body>
     <script>
       const UPLOAD = {{ upload.to_dict() | tojson }};
       const COMMENTS_POSITIVE = {{ comments_positive | tojson }};
       const COMMENTS_NEGATIVE = {{ comments_negative | tojson }};
+      const TREND_DATA = {{ trend_chart_data | tojson }};
+      const DISTRIBUTION_DATA = {{ distribution_data | tojson }};
     </script>
 
     <div class="container">
@@ -87,10 +93,7 @@
               </div>
             </div>
             <div class="dashboard-card-body">
-              <!-- Placeholder for Chart - In a real implementation, this would use Chart.js or similar -->
-              <div style="height: 300px; background-color: #f8f9fa; display: flex; align-items: center; justify-content: center">
-                <img src="https://via.placeholder.com/800x300?text=Sentiment+Trend+Chart" alt="Sentiment Trend Chart" style="max-width: 100%; max-height: 100%" />
-              </div>
+              <canvas id="trendChart" style="height: 300px;"></canvas>
             </div>
           </div>
         </div>
@@ -100,10 +103,7 @@
               <h5 class="mb-0">Sentiment Distribution</h5>
             </div>
             <div class="dashboard-card-body">
-              <!-- Placeholder for Chart - In a real implementation, this would use Chart.js or similar -->
-              <div style="height: 300px; background-color: #f8f9fa; display: flex; align-items: center; justify-content: center">
-                <img src="https://via.placeholder.com/400x300?text=Sentiment+Pie+Chart" alt="Sentiment Distribution Chart" style="max-width: 100%; max-height: 100%" />
-              </div>
+              <canvas id="distributionChart" style="height: 300px;"></canvas>
             </div>
           </div>
         </div>
@@ -146,11 +146,9 @@
       </div>
     </div>
 
-    <!-- JQuery -->
+    <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.js"></script>
     <script src="https://cesine.github.io/d3-cloud/build/d3.layout.cloud.js"></script>
     <script src="{{ url_for('static', filename='js/analyze_result.js') }}"></script>
