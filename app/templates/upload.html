@@ -1,12 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% include 'partials/head.html' %}
     <title>Upload Data - SentiSocial</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
     
@@ -24,7 +20,7 @@
                 <div class="col-lg-4 text-lg-end">
                     <nav aria-label="breadcrumb">
                         <ol class="breadcrumb justify-content-lg-end mb-0">
-                            <li class="breadcrumb-item"><a href="{{ url_for('main.index') }}">Home</a></li>
+                            <li class="breadcrumb-item"><a href="{{ url_for('main.home') }}">Home</a></li>
                             <li class="breadcrumb-item active" aria-current="page">Upload Data</li>
                         </ol>
                     </nav>
@@ -89,6 +85,7 @@
                     </div>
                     <div class="card-body">
                         <form>
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                             <div class="mb-3">
                                 <label class="form-label">Social Media Platform</label>
                                 <select class="form-select" name="platform" required>
@@ -131,6 +128,7 @@
                     </div>
                     <div class="card-body">
                         <form>
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                             <div class="mb-3">
                                 <label class="form-label">Social Media Platform</label>
                                 <select class="form-select" name="platform" required>
@@ -174,6 +172,7 @@
                     </div>
                     <div class="card-body">
                         <form>
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                             <div class="mb-3">
                                 <label class="form-label">Social Media Platform</label>
                                 <select class="form-select" name="platform" required>
@@ -248,14 +247,8 @@
         </div>
     </div>
     
-    <!-- JQuery -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-    
     {% include 'partials/footer.html' %}
     
     <script src="{{ url_for('static', filename='js/file_upload.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/auth_validation.js') }}"></script>
 </body>
 </html>

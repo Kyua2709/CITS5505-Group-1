@@ -2,6 +2,7 @@ from flask import Flask
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from flask_mail import Mail
+from flask_wtf import CSRFProtect
 import os
 from dotenv import load_dotenv
 
@@ -10,6 +11,7 @@ load_dotenv()
 db = SQLAlchemy()
 migrate = Migrate()
 mail = Mail()
+csrf = CSRFProtect()
 
 def create_app():
     app = Flask(
@@ -28,6 +30,7 @@ def create_app():
     app.config['DEBUG'] = os.getenv('FLASK_DEBUG', '1') == '1'
     
     app.config['SECRET_KEY'] = os.getenv('SQLITE_SECRET')
+    app.config['WTF_CSRF_CHECK_DEFAULT'] = False
     
     app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{sqlite_db}"
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -43,6 +46,7 @@ def create_app():
     db.init_app(app)
     migrate.init_app(app, db)
     mail.init_app(app)  # 初始化mail
+    csrf.init_app(app)
     
     from .models import User, Upload, Comment, Share
     with app.app_context():

@@ -2,6 +2,8 @@ import flask
 from flask import Blueprint, session, redirect, url_for, render_template, request, jsonify
 from app.models import Upload, User, Share
 from app import db
+from flask import Blueprint, session, redirect, url_for, render_template
+from .utils import require_csrf_token, require_login
 
 # Blueprint setup
 share_bp = flask.Blueprint(
@@ -11,10 +13,8 @@ share_bp = flask.Blueprint(
 )
 
 @share_bp.route('/')
+@require_login
 def home():
-    if 'user_id' not in session:
-        return redirect(url_for('main.index'))
-
     user_id = session['user_id']
 
     # Get user's uploaded analyses

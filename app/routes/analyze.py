@@ -7,6 +7,7 @@ from collections import defaultdict
 
 from app import db
 from app.models import Comment, Upload
+from .utils import require_login
 
 # Create a Flask blueprint for analysis-related routes
 analyze_bp = flask.Blueprint(
@@ -67,16 +68,12 @@ def run_analyze_job():
 
     return flask.jsonify()
 
-@analyze_bp.route("/export/<upload_id>", methods=["GET"])
-def export(upload_id):
-    upload_folder = flask.current_app.config["UPLOAD_FOLDER"]
-    return flask.send_from_directory(upload_folder, upload_id)
-
 def percentage(x, y):
     r = x / max(y, 1)
     return round(100 * r)
 
 @analyze_bp.route("/result/<upload_id>", methods=["GET"])
+@require_login
 def result(upload_id):
     if 'user_id' not in flask.session:
         return flask.redirect(flask.url_for('main.index'))
@@ -166,10 +163,8 @@ def is_shared_with_user(upload_id, user_id):
     return share is not None
 
 @analyze_bp.route("/")
+@require_login
 def home():
-    if 'user_id' not in flask.session:
-        return flask.redirect(flask.url_for('main.index'))
-
     user_id = flask.session.get('user_id')
     order = Upload.timestamp.desc()
     uploads = db.session.query(Upload).filter_by(user_id=user_id).order_by(order)

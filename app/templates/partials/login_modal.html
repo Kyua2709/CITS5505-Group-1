@@ -8,6 +8,7 @@
             </div>
             <div class="modal-body">
                 <form>
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <div id="loginError" style="display: none;"></div>
                     <div class="mb-3">
                         <label for="loginEmail" class="form-label">Email address</label>

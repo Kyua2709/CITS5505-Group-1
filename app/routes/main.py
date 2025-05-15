@@ -1,25 +1,17 @@
 from flask import Blueprint, render_template, request, jsonify, redirect, session, url_for, flash, current_app
 from app.models import User, db
+from .utils import require_csrf_token
 
 # Define Blueprint
 main_bp = Blueprint('main', __name__)
 
 @main_bp.route('/')
-def index():
-    """Home page"""
-    if 'user_id' in session:
-        return render_template('login.html')
-    return render_template('index.html')
-
-@main_bp.route('/login')
 def home():
-    """Logged in home page"""
-    if 'user_id' not in session:
-        return redirect(url_for('main.index'))
-    return render_template('login.html')
+    return render_template('index.html')
 
 # Authentication routes
 @main_bp.route('/register', methods=['POST'])
+@require_csrf_token
 def register():
     data = request.form
     email = data.get('email')
@@ -43,6 +35,7 @@ def register():
     return jsonify({'status': 'success', 'message': f'Welcome, {user.first_name}!'})
 
 @main_bp.route('/login', methods=['POST'])
+@require_csrf_token
 def login():
     data = request.form
     email = data.get('email')
@@ -57,6 +50,7 @@ def login():
         return jsonify({'status': 'error', 'message': 'Invalid email or password'}), 401
 
 @main_bp.route('/logout')
+@require_csrf_token
 def logout():
     session.clear()
-    return redirect(url_for('main.index'))
+    return redirect(url_for('main.home'))
