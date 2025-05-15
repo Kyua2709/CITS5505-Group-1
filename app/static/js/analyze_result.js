@@ -10,7 +10,7 @@ $(document).ready(async function () {
     return;
   } else if (upload.status !== "Completed") {
     if (parent) {
-      parent.postMessage({ type: "ready", info: `There was an error when processing the dataset, please contact administrator for assistance` }, "*");
+      parent.postMessage({ type: "ready", info: "There was an error when processing the dataset, please contact administrator for assistance" }, "*");
     }
     return;
   }
@@ -219,4 +219,62 @@ $(document).ready(async function () {
 
     new MutationObserver(sendHeight).observe(document.body, { childList: true, subtree: true });
   }
+
+  // ====== 新增：加载全部评论函数 ======
+  async function loadAllComments() {
+    return new Promise((resolve, reject) => {
+      $.get(`${location.pathname}?partial=1&all_comments=1&search=`, function (data) {
+        resolve(data);
+      }).fail(() => reject("Failed to load all comments"));
+    });
+  }
+
+  // ========== Export PDF ========== //
+  document.getElementById("export-pdf")?.addEventListener("click", async function () {
+    const container = $("#comment-list-container");
+
+    // Hide search input box and search icon
+    $("#comment-search").hide();
+    $(".input-group-text").hide();
+
+    // Backup current comments content
+    const backupComments = container.html();
+
+    try {
+      // Load all comments (without pagination)
+      const allCommentsHtml = await loadAllComments();
+      container.html(allCommentsHtml);
+
+      // Delay to let DOM render
+      setTimeout(() => {
+        const element = document.body;
+        const opt = {
+          margin: 0.5,
+          filename: `${upload?.title || "analysis_result"}.pdf`,
+          image: { type: "jpeg", quality: 0.98 },
+          html2canvas: { scale: 2 },
+          jsPDF: { unit: "in", format: "a4", orientation: "portrait" },
+        };
+
+        html2pdf()
+          .set(opt)
+          .from(element)
+          .save()
+          .then(() => {
+            // Restore original content and search box
+            container.html(backupComments);
+            $("#comment-search").show();
+            $(".input-group-text").show();
+
+            // Rebind pagination events
+            container.find("a.page-link").on("click", switchPage);
+          });
+      }, 300);
+    } catch (error) {
+      alert("Failed to load all comments when exporting. Please try again later.");
+      // Restore search box display
+      $("#comment-search").show();
+      $(".input-group-text").show();
+    }
+  });
 });
