@@ -15,6 +15,7 @@ $(document).ready(async function () {
     return;
   }
 
+  // Create sentiment intensity histogram
   const ctxHistogram = document.getElementById("intensityHistogram").getContext("2d");
 
   new Chart(ctxHistogram, {
@@ -76,9 +77,7 @@ $(document).ready(async function () {
     }
   });
 
-  // ================================
-  // Sentiment Distribution Pie Chart
-  // ================================
+  // Sentiment distribution pie chart
   const ctxDist = document.getElementById('distributionChart').getContext('2d');
   new Chart(ctxDist, {
     type: 'pie',
@@ -255,19 +254,19 @@ $(document).ready(async function () {
       hideOnExport.addClass("d-none");
       showOnExport.removeClass("d-none");
 
-      // Delay to let DOM render
+      // Delay to allow DOM rendering
       await new Promise(requestAnimationFrame);
 
       const element = document.body;
       const dpi = getDPI();
       const pxToInch = (px) => px / dpi;
 
-      // Calculate horizontal margin based on page and content widths
+      // Calculate horizontal margins
       const pageWidthInInch = pxToInch(element.offsetWidth);
       const contentWidthInInch = pxToInch(showOnExport.width());
       const margin = (pageWidthInInch - contentWidthInInch) / 2;
 
-      // Use the same margin value for vertical
+      // Use the same margin value for vertical handling
       const pageHeightInInch = Math.ceil(pxToInch(element.offsetHeight) + 2 * margin);
 
       await html2pdf()
@@ -289,6 +288,15 @@ $(document).ready(async function () {
 
     hideOnExport.removeClass("d-none");
     showOnExport.addClass("d-none");
-    window.dispatchEvent(new Event("resize")); // force refresh iframe height for parent
+    window.dispatchEvent(new Event("resize")); // Force refresh of iframe height
   });
+  
+  // Check URL parameters, automatically export PDF if needed
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('export_pdf') === 'true') {
+    // Add a small delay to ensure page is fully rendered
+    setTimeout(function() {
+      $("#export-pdf").click();
+    }, 1000);
+  }
 });

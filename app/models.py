@@ -20,7 +20,7 @@ class User(db.Model):
     def __repr__(self):
         return f'<User {self.email}>'
 
-# 数据库模型
+# Database Model
 class Upload(db.Model):
     id = db.Column(db.String(36), primary_key=True)
     timestamp = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
@@ -73,4 +73,18 @@ class Comment(db.Model):
             "created_at": self.created_at.strftime("%b %d, %Y %I:%M %p") if self.created_at else "N/A"
         }
 
-
+class Share(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    upload_id = db.Column(db.String(36), db.ForeignKey('upload.id'), nullable=False)
+    sender_id = db.Column(db.String(36), db.ForeignKey('user.id'), nullable=False)
+    recipient_id = db.Column(db.String(36), db.ForeignKey('user.id'), nullable=True)
+    recipient_email = db.Column(db.String(120), nullable=True)
+    message = db.Column(db.Text)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    sender = db.relationship('User', foreign_keys=[sender_id])
+    recipient = db.relationship('User', foreign_keys=[recipient_id])
+    upload = db.relationship('Upload')
+    
+    def __repr__(self):
+        return f"Share(From: {self.sender_id}, To: {self.recipient_id or self.recipient_email}, Upload: {self.upload_id})"
