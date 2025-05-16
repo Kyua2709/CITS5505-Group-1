@@ -23,7 +23,7 @@ def fetch_youtube_comments(url, limit):
     
     try:
         print(f"Fetching comments for video ID: {video_id}")
-        comments = []
+        comments = set()
         
         # Set Chrome options
         chrome_options = Options()
@@ -36,59 +36,51 @@ def fetch_youtube_comments(url, limit):
         
         # Initialize browser
         driver = webdriver.Chrome(options=chrome_options)
-        wait = WebDriverWait(driver, 10)
+        wait = WebDriverWait(driver, 15)
         
         try:
             # Navigate to video page
             video_url = f'https://www.youtube.com/watch?v={video_id}'
             driver.get(video_url)
-            time.sleep(3)  # Wait for page to load
+            time.sleep(5)  # Allow full page to load
             
-            # Wait for comments section to load
+            # Wait for comments section
             wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, 'ytd-comments')))
-            
-            # Scroll to comments section
-            comments_section = driver.find_element(By.CSS_SELECTOR, 'ytd-comments')
-            driver.execute_script("arguments[0].scrollIntoView();", comments_section)
-            time.sleep(2)  # Wait for comments to load
-            
-            last_height = driver.execute_script("return document.documentElement.scrollHeight")
-            
-            while len(comments) < limit:
-                # Find all comment elements
-                comment_elements = driver.find_elements(By.CSS_SELECTOR, 'ytd-comment-thread-renderer')
-                
-                # Extract comment content
-                for element in comment_elements:
-                    try:
-                        # Get comment text
-                        text_element = element.find_element(By.CSS_SELECTOR, '#content-text')
-                        if text_element:
-                            comment_text = text_element.text
-                            if comment_text and comment_text not in comments:
-                                comments.append(comment_text)
-                                print(f"Found comment {len(comments)}: {comment_text[:50]}...")
-                                if len(comments) >= limit:
-                                    break
-                    except Exception as e:
-                        print(f"Error extracting comment: {e}")
-                        continue
-                
-                # Scroll to bottom of page
+            driver.execute_script("window.scrollTo(0, 500);")  # Initial scroll to activate comments
+            time.sleep(3)
+
+            last_count = 0
+            attempts = 0
+
+            while len(comments) < limit and attempts < 20:
+                # Scroll to load more comments
                 driver.execute_script("window.scrollTo(0, document.documentElement.scrollHeight);")
-                time.sleep(2)  # Wait for new content to load
-                
-                # Check if reached bottom of page
-                new_height = driver.execute_script("return document.documentElement.scrollHeight")
-                if new_height == last_height:
-                    break
-                last_height = new_height
-            
-            print(f"Found {len(comments)} YouTube comments")
-            return comments
-        
+                time.sleep(3)
+
+                # Extract all visible comments
+                comment_elements = driver.find_elements(By.CSS_SELECTOR, 'ytd-comment-thread-renderer #content-text')
+
+                for element in comment_elements:
+                    comment_text = element.text.strip()
+                    if comment_text:
+                        comments.add(comment_text)
+                    if len(comments) >= limit:
+                        break
+
+                # Check if we are stuck
+                if len(comments) == last_count:
+                    attempts += 1
+                else:
+                    attempts = 0  # Reset if new comments were found
+                    last_count = len(comments)
+
+            final_comments = list(comments)[:limit]
+            print(f"✅ Fetched {len(final_comments)} comments.")
+            return final_comments
+
         finally:
             driver.quit()
-    
+
     except Exception as e:
+        print(f"❌ Error fetching comments: {e}")
         raise
