@@ -9,139 +9,119 @@ This project aims to create a platform where users can upload social media comme
 ## ✨ Features
 
 ### Data Collection & Processing
-- Multiple data input methods:
-  - Manual entry of specific comments or post links
-  - CSV/JSON file upload for batch processing
-  - API keyword search functionality (if viable)
-- Support for multiple social media platforms (Weibo, TikTok, Instagram, etc.)
-- Data tagging and categorization (by topic, date, source, etc.)
 
-### Sentiment Analysis
-- AI-powered sentiment classification (positive, negative, neutral)
-- Emotion intensity analysis
-- Keyword extraction and visualization
-- Comment volume analysis
-- Influence analysis (comment engagement, user impact, etc.)
+- **Flexible data input options**:
+
+  - Manually enter specific comments
+  - Upload text files for batch processing
+  - Automatically fetch comments from post URLs
+
+- **Cross-platform support**
+
+  - Compatible with multiple social media platforms, including Reddit and YouTube
+  - Planned expansion to additional platforms
+
+- **AI-powered sentiment analysis**
+
+  - Automatically classifies comments as positive, negative, or neutral
+  - Provides sentiment scores for quantitative analysis
 
 ### Data Visualization
-- Interactive sentiment dashboards
-- Sentiment distribution charts
-- Temporal trend graphs
-- Word clouds for sentiment-specific keywords
-- Detailed comment listing with sentiment classification
+
+- **Interactive dashboards** to explore sentiment trends
+- **Sentiment distribution charts** for visual breakdowns
+- **Word clouds** highlighting keywords by sentiment
+- **Detailed comment listings** with sentiment tags
+- **Search functionality** to filter comments quickly
+- **Report generation** with support for PDF export
 
 ### Sharing & Collaboration
-- Selective sharing of specific analysis results
-- User search functionality
-- Customizable sharing permissions
-- Sharing history management
-- Report generation (PDF export)
+
+- Share specific analysis results selectively
+- Manage sharing history for better oversight
+- Easily view reports that have been shared with you
 
 ## 🛠️ Tech Stack
 
 ### Frontend
+
 - HTML/CSS for structure and styling
 - Bootstrap for responsive design
 - JavaScript for interactive elements
 - Chart.js/D3.js for data visualization
 
 ### Backend
+
 - Flask web framework
 - SQLAlchemy ORM
 - SQLite database (for development)
-- NLTK/TextBlob for sentiment analysis
-- Optional: Integration with advanced NLP services
+- BERT for sentiment analysis
 
 ### Database Schema
-- User table (user information, authentication)
-- Project table (analysis project details)
-- Dataset table (raw comment data)
-- Analysis results table (processed sentiment data)
-- Sharing permissions table (user sharing relationships)
+
+- `User` table (user information, authentication)
+- `Upload` table (dataset metadata)
+- `Comment` table (processed sentiment data)
+- `Share` table (user sharing relationships)
 
 ## 🚀 Getting Started
 
 ### Prerequisites
+
 - Python 3.8+
-- Node.js 14+
 - pip (Python package manager)
-- npm (Node.js package manager)
 
 ### Installation
 
 1. Clone the repository
+
 ```bash
 git clone https://github.com/Kyuan/CITS5505-Group-1.git
 cd CITS5505-Group-1
 ```
 
 2. Set up virtual environment
+
 ```bash
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 ```
 
 3. Install backend dependencies
+
 ```bash
 pip install -r requirements.txt
 ```
 
-4. Install frontend dependencies
-```bash
-npm install
-```
+4. Run the application
 
-5. Set up environment variables
-```bash
-cp .env.example .env
-# Edit .env with your settings
-```
-
-6. Initialize the database
-```bash
-flask db init
-flask db migrate
-flask db upgrade
-```
-
-7. Run the application
 ```bash
 flask run
 ```
 
-8. Access the application at http://localhost:5000
+5. Access the application at http://localhost:5000
 
-## 📊 Usage Examples
+### Testing
 
-### Basic Sentiment Analysis
-1. Upload a CSV file containing social media comments
-2. Select the platform type and configure analysis parameters
-3. View the sentiment distribution and trend analysis
-4. Explore the detailed comment listing with sentiment classification
+This project includes a comprehensive test suite.
 
-### Comparing Sentiment Between Topics
-1. Create two separate analysis projects
-2. Use the comparison feature to view differences in sentiment
-3. Export comparison results as a PDF report
+- Run all **unit tests**:
 
-### Sharing Analysis Results
-1. Select specific visualization panels to share
-2. Set sharing permissions (view-only, allow download, etc.)
-3. Share with specific users or generate a shareable link
+```bash
+py test.py ut
+```
 
-## 🤝 Contributing
+- Run all **system tests**:
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+```bash
+py test.py st
+```
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+## Contributors
 
-## 🙏 Acknowledgements
-
-- [NLTK](https://www.nltk.org/) for natural language processing capabilities
-- [Flask](https://flask.palletsprojects.com/) for the web framework
-- [Chart.js](https://www.chartjs.org/) for data visualization
-- [Bootstrap](https://getbootstrap.com/) for responsive design
+| Name                | UWA Student ID | GitHub Username      |
+| ------------------- | -------------- | -------------------- |
+| Tianyu Li           | 23898365       | @543808706           |
+| Kexing Yuan         | 24443823       | @Kyua2709            |
+| Aashutosh Chapagain | 24661021       | @aashutosh-chapagain |
+| Zhaodong Shen       | 24301655       | @Rockruff            |
