@@ -2,30 +2,65 @@
 
 set -euo pipefail
 
-# Get repo root directory
-REPO=$(git rev-parse --show-toplevel)
-cd "$REPO"
+# Constants for line lengths
+LINE_LENGTH_CODE=120
+LINE_LENGTH_TEMPLATE=180
 
-# Install Python code formatter
+# Get repository root and change to it
+REPO_ROOT=$(git rev-parse --show-toplevel)
+cd "$REPO_ROOT"
+
+# Install Python code formatter (black)
+echo "🔧 Installing Python formatter (black)..."
 if ! pip install --quiet black; then
-  echo "❌ Installation of Python code formatter (black) failed."
+  echo "❌ Failed to install black."
   exit 1
 fi
 
-# Install Jinja2/HTML code formatter
+# Install Prettier and its plugins for formatting HTML, Jinja2, etc.
+echo "🔧 Installing Prettier and plugins..."
 if ! npm install --save-dev prettier prettier-plugin-jinja-template prettier-plugin-organize-attributes; then
-  echo "❌ Installation of Jinja2 code formatter (prettier) failed."
+  echo "❌ Failed to install Prettier or plugins."
   exit 1
 fi
 
-# Format all Python files
-echo "✅ Formatting Python files..."
-black .
+# Format Python files
+echo "✨ Formatting Python files..."
+black --line-length "$LINE_LENGTH_CODE" .
 
-# Format all HTML files recursively
-echo "✅ Formatting HTML files..."
-npx prettier "**/*.html" --write
-npx prettier "**/*.js" --write
-npx prettier "**/*.css" --write
+# Format HTML files using Prettier with custom config
+echo "✨ Formatting HTML files..."
+PRETTIER_CONFIG_HTML=".prettierrc-html.json"
+cat << EOF > "$PRETTIER_CONFIG_HTML"
+{
+  "plugins": ["prettier-plugin-jinja-template", "prettier-plugin-organize-attributes"],
+  "printWidth": $LINE_LENGTH_TEMPLATE,
+  "htmlWhitespaceSensitivity": "ignore",
+  "attributeGroups": ["^id$", "^class$", "\$DEFAULT"],
+  "attributeSort": "ASC",
+  "overrides": [
+    {
+      "files": ["*.html"],
+      "options": {
+        "parser": "jinja-template"
+      }
+    }
+  ]
+}
+EOF
+npx prettier "**/*.html" --write --config "$PRETTIER_CONFIG_HTML"
+rm "$PRETTIER_CONFIG_HTML"
+
+# Format JS and CSS files with basic Prettier config
+echo "✨ Formatting JS and CSS files..."
+PRETTIER_CONFIG_BASIC=".prettierrc-basic.json"
+cat << EOF > "$PRETTIER_CONFIG_BASIC"
+{
+  "printWidth": $LINE_LENGTH_CODE
+}
+EOF
+npx prettier "**/*.js" --write --config "$PRETTIER_CONFIG_BASIC"
+npx prettier "**/*.css" --write --config "$PRETTIER_CONFIG_BASIC"
+rm "$PRETTIER_CONFIG_BASIC"
 
 echo "✅ Code formatting complete."

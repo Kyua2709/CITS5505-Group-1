@@ -4,6 +4,7 @@
   {% include 'partials/head.html' %}
 </head>
 <body>
+  {# prettier-ignore-start #}
   <script>
     const UPLOAD = {{ upload.to_dict() | tojson }};
     const COMMENTS_POSITIVE = {{ comments_positive | tojson }};
@@ -12,6 +13,7 @@
     const DISTRIBUTION_DATA = {{ distribution_data | tojson }};
     const IS_OWNER = {{ is_owner | tojson }};
   </script>
+  {# prettier-ignore-end #}
   
   <div class="container">
     <div class="mb-4 mb-md-5 row align-items-center">
