@@ -4,7 +4,7 @@ import flask
 from flask import request, jsonify
 from app import db
 from app.models import Upload, Share, User
-from .utils import require_login, send_share_notification
+from .utils import require_csrf_token, require_login, send_share_notification
 from datetime import datetime
 
 share_bp = flask.Blueprint("share", __name__, url_prefix="/share")
@@ -49,14 +49,15 @@ def home():
 
 @share_bp.route("/internal", methods=["POST"])
 @require_login
+@require_csrf_token
 def share_internal():
     # This route allows a user to share an upload with another registered user
     user_id = flask.session.get("user_id")
-    data = request.get_json()
+    form = request.form
 
-    upload_id = data.get("upload_id")
-    emails = data.get("emails", "")
-    message = data.get("message", "")
+    upload_id = form.get("upload_id")
+    emails = form.get("emails")
+    message = form.get("message")
 
     if not upload_id or not emails:
         return jsonify(success=False, message="Missing upload ID or emails"), 400

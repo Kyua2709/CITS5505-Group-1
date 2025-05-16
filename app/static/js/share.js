@@ -21,14 +21,9 @@ function shareWithCollaborators(event) {
     alert('Please select an analysis to share.');
     return;
   }
-  // Check if the user has entered at least one email
-  const emails = document.getElementById('collaboratorEmails').value.trim();
-  if (!emails) {
-    alert('Please enter at least one collaborator email.');
-    return;
-  }
 
-  const message = document.getElementById('shareMessage').value.trim();
+  const formData = new FormData(event.target);
+  formData.set("upload_id", window.currentUploadId);
 
   // Validate email format
   const submitBtn = document.querySelector('#shareForm button[type="submit"]');
@@ -38,19 +33,12 @@ function shareWithCollaborators(event) {
 
   fetch('/share/internal', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      upload_id: window.currentUploadId,
-      emails: emails,
-      message: message
-    })
+    body: formData,
   })
     .then(res => res.json())
     .then(data => {
       if (data.success) {
         alert('Analysis shared successfully!');
-        document.getElementById('collaboratorEmails').value = '';
-        document.getElementById('shareMessage').value = '';
         window.location.reload();
       } else {
         alert(data.message || 'Failed to share analysis.');

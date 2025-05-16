@@ -84,17 +84,15 @@
                         </div>
                         <div class="dashboard-card-body">
                             <form id="shareForm">
-                                <div id="shareAlert" class="alert d-none" role="alert"></div>
                                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                <input type="hidden" name="upload_id" id="upload_id">
                                 <div class="mb-4">
-                                    <label for="collaboratorEmails" class="form-label">Email Addresses</label>
-                                    <textarea class="form-control" id="collaboratorEmails" rows="3" placeholder="Enter email addresses (separate multiple emails with commas)"></textarea>
+                                    <label class="form-label">Email Addresses</label>
+                                    <textarea class="form-control" name="emails" rows="3" placeholder="Enter email addresses (separate multiple emails with commas)" required></textarea>
                                     <div class="form-text">Example: colleague@example.com, manager@example.com</div>
                                 </div>
                                 <div class="mb-4">
-                                    <label for="shareMessage" class="form-label">Message (Optional)</label>
-                                    <textarea class="form-control" id="shareMessage" rows="4" placeholder="Add a message to your collaborators"></textarea>
+                                    <label class="form-label">Message (Optional)</label>
+                                    <textarea class="form-control" name="message" rows="4" placeholder="Add a message to your collaborators"></textarea>
                                 </div>
                                 <div class="d-flex justify-content-end">
                                     <button type="submit" class="btn btn-primary">
@@ -111,8 +109,7 @@
                             <h5 class="mb-0">Recently Shared</h5>
                         </div>
                         <div class="dashboard-card-body">
-                            {% if recent_shares %}
-                                {% for share in recent_shares %}
+                            {% for share in recent_shares %}
                                     <div class="user-card">
                                         <div class="flex-grow-1">
                                             <h6 class="mb-0">
@@ -129,14 +126,13 @@
                                             </div>
                                         </div>
                                     </div>
-                                {% endfor %}
                             {% else %}
                                 <div class="user-card">
                                     <div class="flex-grow-1">
                                         <p class="text-muted">You haven't shared any analysis yet.</p>
                                     </div>
                                 </div>
-                            {% endif %}
+                            {% endfor %}
                         </div>
                     </div>
                 </div>
@@ -149,8 +145,7 @@
         <div class="container">
             <h2 class="mb-4">Shared With Me</h2>
             <div class="row g-4">
-                {% if shared_with_me %}
-                    {% for share in shared_with_me %}
+                {% for share in shared_with_me %}
                         <div class="col-md-6 col-lg-4">
                             <div class="card h-100">
                                 <div class="card-body">
@@ -170,12 +165,11 @@
                                 </div>
                             </div>
                         </div>
-                    {% endfor %}
                 {% else %}
                     <div class="col-12">
                         <p class="text-muted">No analysis has been shared with you yet.</p>
                     </div>
-                {% endif %}
+                {% endfor %}
             </div>
         </div>
     </section>
