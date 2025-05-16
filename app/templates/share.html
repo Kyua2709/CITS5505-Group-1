@@ -165,7 +165,7 @@
                                     <p class="card-text">{{ share.message or "No message provided." }}</p>
                                     <div class="d-flex justify-content-between align-items-center">
                                         <span class="badge bg-primary">{{ share.upload.size }} items</span>
-                                        <a href="{{ url_for('analyze.result', upload_id=share.upload_id) }}" class="btn btn-outline-primary btn-sm">View Analysis</a>
+                                        <a href="{{ url_for('analyze.home', upload_id=share.upload_id) }}" class="btn btn-outline-primary btn-sm">View Analysis</a>
                                     </div>
                                 </div>
                             </div>

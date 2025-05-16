@@ -1,13 +1,11 @@
 import flask
 from packages import crawler
 from packages import sentiment_analysis
-from sqlalchemy import func
-from datetime import datetime
 from collections import defaultdict
 
 from app import db
 from app.models import Comment, Upload, Share
-from sqlalchemy import exists
+from sqlalchemy import or_, exists
 from .utils import require_login
 
 # Create a Flask blueprint for analysis-related routes
@@ -171,5 +169,15 @@ def is_shared_with_user(upload_id, user_id):
 def home():
     user_id = flask.session.get('user_id')
     order = Upload.timestamp.desc()
-    uploads = db.session.query(Upload).filter_by(user_id=user_id).order_by(order)
+
+    uploads_owned = db.session.query(Upload.id).filter_by(user_id=user_id)
+    uploads_shared = db.session.query(Share.upload_id).filter_by(recipient_id=user_id)
+
+    uploads = db.session.query(Upload).filter(
+        or_(
+            Upload.id.in_(uploads_owned),
+            Upload.id.in_(uploads_shared)
+        )
+    ).order_by(order)
+
     return flask.render_template("analyze.html", uploads=uploads)
