@@ -1,6 +1,4 @@
 import requests
-from bs4 import BeautifulSoup
-import re
 
 def fetch_reddit_comments(post_url, limit):
     headers = {

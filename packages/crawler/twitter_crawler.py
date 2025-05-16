@@ -1,6 +1,5 @@
 import snscrape.modules.twitter as sntwitter
 import re
-import time
 
 def fetch_twitter_comments(tweet_url, limit):
     tweet_id = None
