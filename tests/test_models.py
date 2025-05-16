@@ -27,13 +27,13 @@ def test_user_password(app):
         )
         user.set_password("password123")
         
-        # 测试正确的密码
+        # Test correct password
         assert user.check_password("password123") == True
         
-        # 测试错误的密码
+        # Test incorrect password
         assert user.check_password("wrongpassword") == False
         
-        # 测试密码哈希是否正确生成
+        # Test if password hash is correctly generated
         assert user.password_hash is not None
         assert user.password_hash != "password123"
 
@@ -45,15 +45,15 @@ def test_comment_rating(app):
     - Ensures rating values are correctly stored and retrieved
     """
     with app.app_context():
-        # 测试负向评分
+        # Test negative rating
         comment_negative = Comment(score=30)
         assert comment_negative.rating == -1
         
-        # 测试中性评分
+        # Test neutral rating
         comment_neutral = Comment(score=45)
         assert comment_neutral.rating == 0
         
-        # 测试正向评分
+        # Test positive rating
         comment_positive = Comment(score=60)
         assert comment_positive.rating == 1
 
@@ -76,7 +76,7 @@ def test_upload_to_dict(app):
         
         data = upload.to_dict()
         
-        # 验证所有字段
+        # Validate all fields
         assert data["id"] == "test-id"
         assert data["title"] == "Test Title"
         assert data["description"] == "Test Description"
@@ -101,12 +101,12 @@ def test_comment_to_dict(app):
         
         data = comment.to_dict()
         
-        # 验证所有字段
+        # Validate all fields
         assert data["content"] == "Test Comment"
         assert data["score"] == 50
         assert "rating" in data
         assert "created_at" in data
-        assert data["rating"] == 0  # 50分应该返回中性评分
+        assert data["rating"] == 0  # Score of 50 should return neutral rating
 
 def test_user_uploads_relationship(app):
     """
@@ -116,7 +116,7 @@ def test_user_uploads_relationship(app):
     - Ensures relationship integrity and data accessibility
     """
     with app.app_context():
-        # 创建测试用户
+        # Create test user
         user = User(
             first_name="Test",
             last_name="User",
@@ -126,7 +126,7 @@ def test_user_uploads_relationship(app):
         db.session.add(user)
         db.session.commit()
         
-        # 创建测试上传
+        # Create test uploads
         upload1 = Upload(
             id="test-upload-1",
             title="Test Upload 1",
@@ -146,9 +146,9 @@ def test_user_uploads_relationship(app):
         db.session.add_all([upload1, upload2])
         db.session.commit()
         
-        # 验证关系
+        # Verify relationship
         assert len(user.uploads) == 2
         assert user.uploads[0].title == "Test Upload 1"
         assert user.uploads[1].title == "Test Upload 2"
         assert user.uploads[0].user_id == user.id
-        assert user.uploads[1].user_id == user.id 
+        assert user.uploads[1].user_id == user.id
