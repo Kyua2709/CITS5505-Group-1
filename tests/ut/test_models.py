@@ -1,16 +1,19 @@
-import sys
-import os
-from pathlib import Path
-
-# Add the project root directory to Python path
-project_root = str(Path(__file__).parent.parent)
-if project_root not in sys.path:
-    sys.path.insert(0, project_root)
-
 import pytest
 from datetime import datetime, timezone
 from app.models import User, Upload, Comment
 from app import create_app, db
+
+@pytest.fixture(scope="module")
+def app():
+    test_config = {
+        'SQLALCHEMY_DATABASE_URI': 'sqlite:///:memory:',
+    }
+    app = create_app(test_config)
+    with app.app_context():
+        db.create_all()
+        yield app
+        db.session.remove()
+        db.drop_all()
 
 def test_user_password(app):
     """
