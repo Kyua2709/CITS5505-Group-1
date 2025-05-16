@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, jsonify, redirect, session, url_for, flash, current_app
+from flask import Blueprint, render_template, request, jsonify, redirect, session, url_for
 from app.models import User, db
 from .utils import require_csrf_token
 

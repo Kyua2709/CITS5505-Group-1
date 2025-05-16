@@ -74,9 +74,6 @@ def percentage(x, y):
 @analyze_bp.route("/result/<upload_id>", methods=["GET"])
 @require_login
 def result(upload_id):
-    if 'user_id' not in flask.session:
-        return flask.redirect(flask.url_for('main.index'))
-        
     user_id = flask.session.get('user_id')
     upload = db.session.query(Upload).get(upload_id)
     is_owner = upload.user_id == user_id
