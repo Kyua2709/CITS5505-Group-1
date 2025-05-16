@@ -6,7 +6,8 @@ from datetime import datetime
 from collections import defaultdict
 
 from app import db
-from app.models import Comment, Upload
+from app.models import Comment, Upload, Share
+from sqlalchemy import exists
 from .utils import require_login
 
 # Create a Flask blueprint for analysis-related routes
@@ -80,6 +81,7 @@ def result(upload_id):
         
     user_id = flask.session.get('user_id')
     upload = db.session.query(Upload).get(upload_id)
+    is_owner = upload.user_id == user_id
     
     if upload.user_id != user_id and not is_shared_with_user(upload_id, user_id):
         flask.abort(403)
@@ -151,16 +153,18 @@ def result(upload_id):
         comments_negative=comments_negative,
         distribution_data=distribution_data,
         emotion_histogram_data=emotion_histogram_data,
-        auto_export_pdf=auto_export_pdf
+        auto_export_pdf=auto_export_pdf,
+        is_owner=is_owner
     )
 
 def is_shared_with_user(upload_id, user_id):
-    from app.models import Share
-    share = db.session.query(Share).filter_by(
-        upload_id=upload_id, 
-        recipient_id=user_id
-    ).first()
-    return share is not None
+    is_shared = db.session.query(
+    exists().where(
+        Share.upload_id == upload_id,
+        Share.recipient_id == user_id
+    )
+    ).scalar()
+    return is_shared
 
 @analyze_bp.route("/")
 @require_login

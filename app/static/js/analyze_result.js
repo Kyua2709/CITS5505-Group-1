@@ -103,7 +103,7 @@ $(document).ready(async function () {
   });
 
   /* ===========================
-    Word Clouds
+  Word Clouds
   ============================ */
   const blacklist = new Set(`i|me|my|myself|we|us|our|ours|ourselves|you|your|yours|yourself|yourselves|he|him|his|himself|she|her|hers|herself|it|its|itself|they|them|their|theirs|themselves|what|which|who|whom|whose|this|that|these|those|am|is|are|was|were|be|been|being|have|has|had|having|do|does|did|doing|will|would|should|can|could|ought|cannot|a|an|the|and|but|if|or|because|as|until|while|of|at|by|for|with|about|against|between|into|through|during|before|after|above|below|to|from|up|upon|down|in|out|on|off|over|under|again|further|then|once|here|there|when|where|why|how|all|any|both|each|few|more|most|other|some|such|no|nor|not|only|own|same|so|than|too|very|say|says|said|shall`.split("|"));
   const getWords = (content) =>
@@ -241,6 +241,11 @@ $(document).ready(async function () {
     return dpi;
   }
 
+  // Check if the user is the owner of the upload
+  if (!IS_OWNER) {
+    $('#export-pdf').hide();
+  }
+
   $("#export-pdf").on("click", async function () {
     const hideOnExport = $("#action-buttons, #comment-list-for-view");
     const showOnExport = $("#comment-list-for-export");
@@ -290,12 +295,12 @@ $(document).ready(async function () {
     showOnExport.addClass("d-none");
     window.dispatchEvent(new Event("resize")); // Force refresh of iframe height
   });
-  
+
   // Check URL parameters, automatically export PDF if needed
   const urlParams = new URLSearchParams(window.location.search);
   if (urlParams.get('export_pdf') === 'true') {
     // Add a small delay to ensure page is fully rendered
-    setTimeout(function() {
+    setTimeout(function () {
       $("#export-pdf").click();
     }, 1000);
   }

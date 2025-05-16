@@ -10,6 +10,7 @@
     const COMMENTS_NEGATIVE = {{ comments_negative | tojson }};
     const HISTOGRAM_DATA = {{ emotion_histogram_data | tojson }};
     const DISTRIBUTION_DATA = {{ distribution_data | tojson }};
+    const IS_OWNER = {{ is_owner | tojson }};
   </script>
   
   <div class="container">
@@ -19,6 +20,7 @@
         <div class="text-secondary">{{ upload.description }}</div>
       </div>
       <div class="col-md-6 text-md-end mt-3 mt-md-0" id="action-buttons">
+        {% if is_owner %}
         <a href="javascript:parent.location.href='{{ url_for('share.home', upload_id=upload.id) }}'" class="btn btn-primary">
           <i class="bi bi-share me-1"></i>
           Share Analysis
@@ -27,6 +29,11 @@
           <i class="bi bi-download me-1"></i>
           Export PDF
         </button>
+        {% else %}
+        <div class="alert alert-info mb-0 p-2 small d-inline-block">
+          <i class="bi bi-info-circle me-1"></i> You are viewing a shared analysis.
+        </div>
+        {% endif %}
       </div>
     </div>
   </div>
@@ -128,7 +135,7 @@
       </div>
       <div class="dashboard-card-body" id="comment-list-container"></div>
     </div>
-
+    
     <!-- Placeholder for all comments, used by export -->
     <div class="card dashboard-card d-none" id="comment-list-for-export">
     </div>

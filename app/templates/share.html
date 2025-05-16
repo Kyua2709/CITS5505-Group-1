@@ -85,7 +85,9 @@
                         </div>
                         <div class="dashboard-card-body">
                             <form id="shareForm">
+                                <div id="shareAlert" class="alert d-none" role="alert"></div>
                                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <input type="hidden" name="upload_id" id="upload_id">
                                 <div class="mb-4">
                                     <label for="collaboratorEmails" class="form-label">Email Addresses</label>
                                     <textarea class="form-control" id="collaboratorEmails" rows="3" placeholder="Enter email addresses (separate multiple emails with commas)"></textarea>
