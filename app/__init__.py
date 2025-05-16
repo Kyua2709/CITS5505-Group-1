@@ -28,20 +28,10 @@ def create_app(test_config=None):
     os.makedirs(upload_folder, exist_ok=True)
 
     app.config['UPLOAD_FOLDER'] = upload_folder
-    app.config['DEBUG'] = os.getenv('FLASK_DEBUG', '1') == '1'
     app.config['SECRET_KEY'] = os.getenv('SQLITE_SECRET')
     app.config['WTF_CSRF_CHECK_DEFAULT'] = False
     
     app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{sqlite_db}"
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    
-    app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER', 'smtp.gmail.com')
-    app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT', 587))
-    app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS', 'True') == 'True'
-    app.config['MAIL_USE_SSL'] = os.getenv('MAIL_USE_SSL', 'False') == 'True'
-    app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
-    app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
-    app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER')
 
     if test_config:
         app.config.update(test_config)

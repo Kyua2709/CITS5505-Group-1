@@ -4,7 +4,7 @@ import flask
 from flask import request, jsonify
 from app import db
 from app.models import Upload, Share, User
-from .utils import require_csrf_token, require_login, send_share_notification
+from .utils import require_csrf_token, require_login
 from datetime import datetime
 
 share_bp = flask.Blueprint("share", __name__, url_prefix="/share")
@@ -90,11 +90,6 @@ def share_internal():
                 timestamp=datetime.utcnow()
             )
             db.session.add(share)
-            try:
-                send_share_notification(user.email, upload.title, message)
-                success_list.append(email)
-            except Exception as e:
-                print(f"Email send failed to {email}: {e}")
 
     db.session.commit()
 
