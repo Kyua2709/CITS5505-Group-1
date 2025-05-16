@@ -16,8 +16,9 @@ upload_bp = flask.Blueprint(
     url_prefix="/upload",
 )
 
+
 def handle_upload(source):
-    user_id = flask.session.get('user_id')
+    user_id = flask.session.get("user_id")
 
     # Extract basic metadata from the form
     form = flask.request.form
@@ -95,12 +96,14 @@ def handle_upload(source):
 
     return flask.jsonify({"message": "Upload saved successfully", "id": upload_id}), 201
 
+
 # Route to handle text uploads
 @upload_bp.route("/text", methods=["POST"])
 @require_login
 @require_csrf_token
 def upload_by_text():
     return handle_upload("text")
+
 
 # Route to handle file uploads
 @upload_bp.route("/file", methods=["POST"])
@@ -109,6 +112,7 @@ def upload_by_text():
 def upload_by_file():
     return handle_upload("file")
 
+
 # Route to handle uploads via external URL
 @upload_bp.route("/url", methods=["POST"])
 @require_login
@@ -116,15 +120,16 @@ def upload_by_file():
 def upload_by_url():
     return handle_upload("url")
 
+
 # Route to render the HTML form for uploads
-@upload_bp.route('/', methods=['GET'])
+@upload_bp.route("/", methods=["GET"])
 @require_login
 def home():
-    user_id = flask.session.get('user_id')
+    user_id = flask.session.get("user_id")
     args = flask.request.args
-    partial = args.get('partial')
-    page = args.get('page', type=int, default=1)
-    per_page = args.get('per_page', type=int, default=3)
+    partial = args.get("partial")
+    page = args.get("page", type=int, default=1)
+    per_page = args.get("per_page", type=int, default=3)
 
     # Return metadata for all uploads, ordered by most recent
     order = Upload.timestamp.desc()
@@ -133,7 +138,7 @@ def home():
 
     # Return only partial if requested
     if partial:
-        return flask.render_template('partials/upload_list.html', uploads=uploads)
+        return flask.render_template("partials/upload_list.html", uploads=uploads)
 
     # Return full page
-    return flask.render_template('upload.html', uploads=uploads)
+    return flask.render_template("upload.html", uploads=uploads)

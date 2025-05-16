@@ -1,10 +1,11 @@
 import snscrape.modules.twitter as sntwitter
 import re
 
+
 def fetch_twitter_comments(tweet_url, limit):
     tweet_id = None
-    if 'twitter.com' in tweet_url or 'x.com' in tweet_url:
-        match = re.search(r'/status/(\d+)', tweet_url)
+    if "twitter.com" in tweet_url or "x.com" in tweet_url:
+        match = re.search(r"/status/(\d+)", tweet_url)
         if match:
             tweet_id = match.group(1)
 

@@ -1,250 +1,246 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
+  <head>
     {% include 'partials/head.html' %}
     <title>Upload Data - SentiSocial</title>
-</head>
-<body>
-    
+  </head>
+  <body>
     <!-- Navigation Bar -->
     {% include 'partials/navbar.html' %}
-    
+
     <!-- Page Header -->
     <header class="bg-light py-5">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-lg-8">
-                    <h1 class="fw-bold">Upload Social Media Data</h1>
-                    <p class="lead">Import comments and posts from social media platforms for sentiment analysis</p>
-                </div>
-                <div class="col-lg-4 text-lg-end">
-                    <nav aria-label="breadcrumb">
-                        <ol class="breadcrumb justify-content-lg-end mb-0">
-                            <li class="breadcrumb-item"><a href="{{ url_for('main.home') }}">Home</a></li>
-                            <li class="breadcrumb-item active" aria-current="page">Upload Data</li>
-                        </ol>
-                    </nav>
-                </div>
-            </div>
+      <div class="container">
+        <div class="row align-items-center">
+          <div class="col-lg-8">
+            <h1 class="fw-bold">Upload Social Media Data</h1>
+            <p class="lead">Import comments and posts from social media platforms for sentiment analysis</p>
+          </div>
+          <div class="col-lg-4 text-lg-end">
+            <nav aria-label="breadcrumb">
+              <ol class="breadcrumb justify-content-lg-end mb-0">
+                <li class="breadcrumb-item"><a href="{{ url_for('main.home') }}">Home</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Upload Data</li>
+              </ol>
+            </nav>
+          </div>
         </div>
+      </div>
     </header>
-    
+
     <!-- Feedback Messages -->
     {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-    <div class="container mt-4">
-        {% for category, message in messages %}
-        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-            {{ message }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      {% if messages %}
+        <div class="container mt-4">
+          {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+              {{ message }}
+              <button class="btn-close" aria-label="Close" data-bs-dismiss="alert" type="button"></button>
+            </div>
+          {% endfor %}
         </div>
-        {% endfor %}
-    </div>
-    {% endif %}
+      {% endif %}
     {% endwith %}
-    
+
     <!-- Upload Options Section -->
     <section class="py-5">
-        <div class="container">
-            <h2 class="mb-4">Choose Upload Method</h2>
-            <div class="row upload-options">
-                <div class="col-md-4 mb-4">
-                    <div class="upload-option-card text-center h-100" id="manualEntryCard" data-bs-toggle="collapse" data-bs-target="#manualEntryForm" aria-expanded="false">
-                        <div class="upload-option-icon">
-                            <i class="bi bi-keyboard"></i>
-                        </div>
-                        <h4>Manual Entry</h4>
-                        <p>Directly enter social media posts or comments for analysis</p>
-                    </div>
-                </div>
-                <div class="col-md-4 mb-4">
-                    <div class="upload-option-card text-center h-100" id="fileUploadCard" data-bs-toggle="collapse" data-bs-target="#fileUploadForm" aria-expanded="false">
-                        <div class="upload-option-icon">
-                            <i class="bi bi-file-earmark-text"></i>
-                        </div>
-                        <h4>File Upload</h4>
-                        <p>Upload CSV, JSON, or Excel files containing social media data</p>
-                    </div>
-                </div>
-                <div class="col-md-4 mb-4">
-                    <div class="upload-option-card text-center h-100" id="urlEntryCard" data-bs-toggle="collapse" data-bs-target="#urlEntryForm" aria-expanded="false">
-                        <div class="upload-option-icon">
-                            <i class="bi bi-link-45deg"></i>
-                        </div>
-                        <h4>Platform URL</h4>
-                        <p>Provide links to social media posts or accounts to analyze</p>
-                    </div>
-                </div>
+      <div class="container">
+        <h2 class="mb-4">Choose Upload Method</h2>
+        <div class="row upload-options">
+          <div class="col-md-4 mb-4">
+            <div id="manualEntryCard" class="upload-option-card text-center h-100" aria-expanded="false" data-bs-target="#manualEntryForm" data-bs-toggle="collapse">
+              <div class="upload-option-icon">
+                <i class="bi bi-keyboard"></i>
+              </div>
+              <h4>Manual Entry</h4>
+              <p>Directly enter social media posts or comments for analysis</p>
             </div>
-            
-            <!-- Manual Entry Form -->
-            <div class="collapse mt-4" id="manualEntryForm">
-                <div class="card">
-                    <div class="card-header bg-light">
-                        <h5 class="mb-0">Manual Data Entry</h5>
-                    </div>
-                    <div class="card-body">
-                        <form>
-                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                            <div class="mb-3">
-                                <label class="form-label">Social Media Platform</label>
-                                <select class="form-select" name="platform" required>
-                                    <option value="" selected disabled>Select platform</option>
-                                    <option value="Instagram">Instagram</option>
-                                    <option value="Twitter">Twitter</option>
-                                    <option value="Facebook">Facebook</option>
-                                    <option value="Tiktok">TikTok</option>
-                                    <option value="Youtube">YouTube</option>
-                                    <option value="Reddit">Reddit</option>
-                                    <option value="Other">Other</option>
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Title</label>
-                                <input type="text" class="form-control" name="title" placeholder="Enter a title for the dataset" required>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Description (Optional)</label>
-                                <textarea class="form-control" name="description" rows="3" placeholder="A default description will be created if you leave this field empty"></textarea>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Comments/Posts (One per line)</label>
-                                <textarea class="form-control" name="comments" rows="10" placeholder="Paste or type comments here, one per line" required></textarea>
-                            </div>
-                            <div class="text-end">
-                                <button type="button" class="btn btn-outline-secondary me-2" data-bs-toggle="collapse" data-bs-target="#manualEntryForm">Cancel</button>
-                                <button type="submit" class="btn btn-primary">Analyze Comments</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
+          </div>
+          <div class="col-md-4 mb-4">
+            <div id="fileUploadCard" class="upload-option-card text-center h-100" aria-expanded="false" data-bs-target="#fileUploadForm" data-bs-toggle="collapse">
+              <div class="upload-option-icon">
+                <i class="bi bi-file-earmark-text"></i>
+              </div>
+              <h4>File Upload</h4>
+              <p>Upload CSV, JSON, or Excel files containing social media data</p>
             </div>
-            
-            <!-- File Upload Form -->
-            <div class="collapse mt-4" id="fileUploadForm">
-                <div class="card">
-                    <div class="card-header bg-light">
-                        <h5 class="mb-0">File Upload</h5>
-                    </div>
-                    <div class="card-body">
-                        <form>
-                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                            <div class="mb-3">
-                                <label class="form-label">Social Media Platform</label>
-                                <select class="form-select" name="platform" required>
-                                    <option value="" selected disabled>Select platform</option>
-                                    <option value="Instagram">Instagram</option>
-                                    <option value="Twitter">Twitter</option>
-                                    <option value="Facebook">Facebook</option>
-                                    <option value="Tiktok">TikTok</option>
-                                    <option value="Youtube">YouTube</option>
-                                    <option value="Reddit">Reddit</option>
-                                    <option value="Other">Other</option>
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Title</label>
-                                <input type="text" class="form-control" name="title" placeholder="Enter a title for the dataset" required>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Description (Optional)</label>
-                                <textarea class="form-control" name="description" rows="3" placeholder="A default description will be created if you leave this field empty"></textarea>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Upload File</label>
-                                <input class="form-control" type="file" name="file" required>
-                                <div class="form-text">Text file only, one comment per line</div>
-                            </div>
-                            <div class="text-end">
-                                <button type="button" class="btn btn-outline-secondary me-2" data-bs-toggle="collapse" data-bs-target="#fileUploadForm">Cancel</button>
-                                <button type="submit" class="btn btn-primary">Upload & Analyze</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
+          </div>
+          <div class="col-md-4 mb-4">
+            <div id="urlEntryCard" class="upload-option-card text-center h-100" aria-expanded="false" data-bs-target="#urlEntryForm" data-bs-toggle="collapse">
+              <div class="upload-option-icon">
+                <i class="bi bi-link-45deg"></i>
+              </div>
+              <h4>Platform URL</h4>
+              <p>Provide links to social media posts or accounts to analyze</p>
             </div>
-            
-            <!-- URL Entry Form -->
-            <div class="collapse mt-4" id="urlEntryForm">
-                <div class="card">
-                    <div class="card-header bg-light">
-                        <h5 class="mb-0">Platform URL</h5>
-                    </div>
-                    <div class="card-body">
-                        <form>
-                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                            <div class="mb-3">
-                                <label class="form-label">Social Media Platform</label>
-                                <select class="form-select" name="platform" required>
-                                    <option value="" selected disabled>Select platform</option>
-                                    <option value="Youtube">YouTube</option>
-                                    <option value="Reddit">Reddit</option>
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Title</label>
-                                <input type="text" class="form-control" name="title" placeholder="Enter a title for the dataset" required>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Description (Optional)</label>
-                                <textarea class="form-control" name="description" rows="3" placeholder="A default description will be created if you leave this field empty"></textarea>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">URL</label>
-                                <input type="url" class="form-control" name="url" placeholder="Enter URL for fetching comments" required>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Comment Limit</label>
-                                <select class="form-select" name="comment_limit">
-                                    <option value="50">50 comments</option>
-                                    <option value="100" selected>100 comments</option>
-                                    <option value="200">200 comments</option>
-                                    <option value="500">500 comments</option>
-                                    <option value="1000">1000 comments</option>
-                                </select>
-                            </div>
-                            <div class="text-end">
-                                <button type="button" class="btn btn-outline-secondary me-2" data-bs-toggle="collapse" data-bs-target="#urlEntryForm">Cancel</button>
-                                <button type="submit" class="btn btn-primary">Fetch & Analyze</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
+          </div>
         </div>
+
+        <!-- Manual Entry Form -->
+        <div id="manualEntryForm" class="collapse mt-4">
+          <div class="card">
+            <div class="card-header bg-light">
+              <h5 class="mb-0">Manual Data Entry</h5>
+            </div>
+            <div class="card-body">
+              <form>
+                <input name="csrf_token" type="hidden" value="{{ csrf_token() }}" />
+                <div class="mb-3">
+                  <label class="form-label">Social Media Platform</label>
+                  <select class="form-select" name="platform" required>
+                    <option disabled selected value="">Select platform</option>
+                    <option value="Instagram">Instagram</option>
+                    <option value="Twitter">Twitter</option>
+                    <option value="Facebook">Facebook</option>
+                    <option value="Tiktok">TikTok</option>
+                    <option value="Youtube">YouTube</option>
+                    <option value="Reddit">Reddit</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Title</label>
+                  <input class="form-control" name="title" placeholder="Enter a title for the dataset" required type="text" />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Description (Optional)</label>
+                  <textarea class="form-control" name="description" placeholder="A default description will be created if you leave this field empty" rows="3"></textarea>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Comments/Posts (One per line)</label>
+                  <textarea class="form-control" name="comments" placeholder="Paste or type comments here, one per line" required rows="10"></textarea>
+                </div>
+                <div class="text-end">
+                  <button class="btn btn-outline-secondary me-2" data-bs-target="#manualEntryForm" data-bs-toggle="collapse" type="button">Cancel</button>
+                  <button class="btn btn-primary" type="submit">Analyze Comments</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- File Upload Form -->
+        <div id="fileUploadForm" class="collapse mt-4">
+          <div class="card">
+            <div class="card-header bg-light">
+              <h5 class="mb-0">File Upload</h5>
+            </div>
+            <div class="card-body">
+              <form>
+                <input name="csrf_token" type="hidden" value="{{ csrf_token() }}" />
+                <div class="mb-3">
+                  <label class="form-label">Social Media Platform</label>
+                  <select class="form-select" name="platform" required>
+                    <option disabled selected value="">Select platform</option>
+                    <option value="Instagram">Instagram</option>
+                    <option value="Twitter">Twitter</option>
+                    <option value="Facebook">Facebook</option>
+                    <option value="Tiktok">TikTok</option>
+                    <option value="Youtube">YouTube</option>
+                    <option value="Reddit">Reddit</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Title</label>
+                  <input class="form-control" name="title" placeholder="Enter a title for the dataset" required type="text" />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Description (Optional)</label>
+                  <textarea class="form-control" name="description" placeholder="A default description will be created if you leave this field empty" rows="3"></textarea>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Upload File</label>
+                  <input class="form-control" name="file" required type="file" />
+                  <div class="form-text">Text file only, one comment per line</div>
+                </div>
+                <div class="text-end">
+                  <button class="btn btn-outline-secondary me-2" data-bs-target="#fileUploadForm" data-bs-toggle="collapse" type="button">Cancel</button>
+                  <button class="btn btn-primary" type="submit">Upload & Analyze</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- URL Entry Form -->
+        <div id="urlEntryForm" class="collapse mt-4">
+          <div class="card">
+            <div class="card-header bg-light">
+              <h5 class="mb-0">Platform URL</h5>
+            </div>
+            <div class="card-body">
+              <form>
+                <input name="csrf_token" type="hidden" value="{{ csrf_token() }}" />
+                <div class="mb-3">
+                  <label class="form-label">Social Media Platform</label>
+                  <select class="form-select" name="platform" required>
+                    <option disabled selected value="">Select platform</option>
+                    <option value="Youtube">YouTube</option>
+                    <option value="Reddit">Reddit</option>
+                  </select>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Title</label>
+                  <input class="form-control" name="title" placeholder="Enter a title for the dataset" required type="text" />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Description (Optional)</label>
+                  <textarea class="form-control" name="description" placeholder="A default description will be created if you leave this field empty" rows="3"></textarea>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">URL</label>
+                  <input class="form-control" name="url" placeholder="Enter URL for fetching comments" required type="url" />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Comment Limit</label>
+                  <select class="form-select" name="comment_limit">
+                    <option value="50">50 comments</option>
+                    <option selected value="100">100 comments</option>
+                    <option value="200">200 comments</option>
+                    <option value="500">500 comments</option>
+                    <option value="1000">1000 comments</option>
+                  </select>
+                </div>
+                <div class="text-end">
+                  <button class="btn btn-outline-secondary me-2" data-bs-target="#urlEntryForm" data-bs-toggle="collapse" type="button">Cancel</button>
+                  <button class="btn btn-primary" type="submit">Fetch & Analyze</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
     </section>
-    
-    
+
     <!-- Recent Uploads Section -->
     <section class="py-5 bg-light">
-        <div class="container">
-            <h2 class="mb-4">Recent Uploads</h2>
-            <div class="table-responsive" id="upload-list-container">
-                <!-- Data will be populated by AJAX -->
-            </div>
+      <div class="container">
+        <h2 class="mb-4">Recent Uploads</h2>
+        <div id="upload-list-container" class="table-responsive">
+          <!-- Data will be populated by AJAX -->
         </div>
+      </div>
     </section>
-    
+
     <!-- Success Modal -->
-    <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="successModalLabel">Upload Successful</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    Your data has been uploaded successfully!
-                </div>
-                <div class="modal-footer">
-                    <a type="button" class="btn btn-primary" href="{{ url_for('upload.home') }}">Return to Upload</a>
-                </div>
-            </div>
+    <div id="successModal" class="modal fade" aria-hidden="true" aria-labelledby="successModalLabel" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 id="successModalLabel" class="modal-title">Upload Successful</h5>
+            <button class="btn-close" aria-label="Close" data-bs-dismiss="modal" type="button"></button>
+          </div>
+          <div class="modal-body">Your data has been uploaded successfully!</div>
+          <div class="modal-footer">
+            <a class="btn btn-primary" href="{{ url_for('upload.home') }}" type="button">Return to Upload</a>
+          </div>
         </div>
+      </div>
     </div>
-    
+
     {% include 'partials/footer.html' %}
-    
+
     <script src="{{ url_for('static', filename='js/file_upload.js') }}"></script>
-</body>
+  </body>
 </html>

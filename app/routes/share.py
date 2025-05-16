@@ -15,29 +15,14 @@ share_bp = flask.Blueprint("share", __name__, url_prefix="/share")
 def home():
     user_id = flask.session.get("user_id")
 
-    #Fetch all uploads by the user
-    uploads = (
-        db.session.query(Upload)
-        .filter_by(user_id=user_id)
-        .order_by(Upload.timestamp.desc())
-        .all()
-    )
+    # Fetch all uploads by the user
+    uploads = db.session.query(Upload).filter_by(user_id=user_id).order_by(Upload.timestamp.desc()).all()
 
-    #Fetch all shares sent by the user
-    recent_shares = (
-        db.session.query(Share)
-        .filter_by(sender_id=user_id)
-        .order_by(Share.timestamp.desc())
-        .all()
-    )
+    # Fetch all shares sent by the user
+    recent_shares = db.session.query(Share).filter_by(sender_id=user_id).order_by(Share.timestamp.desc()).all()
 
-    #Fetch all shares received by the user
-    shared_with_me = (
-        db.session.query(Share)
-        .filter_by(recipient_id=user_id)
-        .order_by(Share.timestamp.desc())
-        .all()
-    )
+    # Fetch all shares received by the user
+    shared_with_me = db.session.query(Share).filter_by(recipient_id=user_id).order_by(Share.timestamp.desc()).all()
 
     return flask.render_template(
         "share.html",
@@ -75,10 +60,7 @@ def share_internal():
             fail_list.append(email)
             continue
         # Check if the user is already shared with
-        existing = db.session.query(Share).filter_by(
-            upload_id=upload_id,
-            recipient_id=user.id
-        ).first()
+        existing = db.session.query(Share).filter_by(upload_id=upload_id, recipient_id=user.id).first()
         # If the share already exists, skip sending
         if not existing:
             share = Share(
@@ -87,7 +69,7 @@ def share_internal():
                 recipient_id=user.id,
                 recipient_email=email,
                 message=message,
-                timestamp=datetime.utcnow()
+                timestamp=datetime.utcnow(),
             )
             db.session.add(share)
 

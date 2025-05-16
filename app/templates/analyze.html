@@ -1,54 +1,48 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
+  <head>
     {% include 'partials/head.html' %}
     <title>Data Analysis - SentiSocial</title>
-</head>
-<body>
-
+  </head>
+  <body>
     <!-- Navigation Bar -->
     {% include 'partials/navbar.html' %}
 
     <!-- Page Header -->
     <header class="bg-light py-5">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-lg-8">
-                    <h1 class="fw-bold">Data Analysis Dashboard</h1>
-                    <p>
-                    <select id="upload-select" class="form-select" autocomplete="off">
-                        <option value="" disabled selected>
-                            Select a dataset
-                        </option>
-                        {% for upload in uploads %}
-                        <option value="{{ upload.id }}">
-                            ({{ loop.index }}) {{ upload.title }}
-                        </option>
-                        {% endfor %}
-                    </select>
-                    </p>
-                </div>
-                <div class="col-lg-4 text-lg-end">
-                    <nav aria-label="breadcrumb">
-                        <ol class="breadcrumb justify-content-lg-end mb-0">
-                            <li class="breadcrumb-item"><a href="{{ url_for('main.home') }}">Home</a></li>
-                            <li class="breadcrumb-item active" aria-current="page">Analysis</li>
-                        </ol>
-                    </nav>
-                </div>
-            </div>
+      <div class="container">
+        <div class="row align-items-center">
+          <div class="col-lg-8">
+            <h1 class="fw-bold">Data Analysis Dashboard</h1>
+            <p>
+              <select id="upload-select" class="form-select" autocomplete="off">
+                <option disabled selected value="">Select a dataset</option>
+                {% for upload in uploads %}
+                  <option value="{{ upload.id }}">({{ loop.index }}) {{ upload.title }}</option>
+                {% endfor %}
+              </select>
+            </p>
+          </div>
+          <div class="col-lg-4 text-lg-end">
+            <nav aria-label="breadcrumb">
+              <ol class="breadcrumb justify-content-lg-end mb-0">
+                <li class="breadcrumb-item"><a href="{{ url_for('main.home') }}">Home</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Analysis</li>
+              </ol>
+            </nav>
+          </div>
         </div>
+      </div>
     </header>
 
     <!-- Analysis Result Container -->
     <div class="py-5">
-        <div id="analyze-result-info" class="text-center">No Dataset Selected</div>
-        <iframe id="analyze-result-iframe" src="about:blank" scrolling="no" class="d-block w-100 h-0"></iframe>
+      <div id="analyze-result-info" class="text-center">No Dataset Selected</div>
+      <iframe id="analyze-result-iframe" class="d-block w-100 h-0" scrolling="no" src="about:blank"></iframe>
     </div>
 
     {% include 'partials/footer.html' %}
 
     <script src="{{ url_for('static', filename='js/analyze.js') }}"></script>
-
-</body>
+  </body>
 </html>

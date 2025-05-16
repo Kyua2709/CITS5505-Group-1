@@ -1,47 +1,50 @@
 <!-- Footer -->
 <footer class="footer py-4">
-    <div class="container">
-        <div class="row">
-            <div class="col-md-6 mb-4 mb-md-0">
-                <h5><i class="bi bi-bar-chart-line-fill me-2"></i>SentiSocial</h5>
-                <p class="text-muted">A powerful platform for analyzing sentiment in social media comments.</p>
-            </div>
-            <div class="col-md-3 mb-4 mb-md-0">
-                <h5>Quick Links</h5>
-                <ul class="list-unstyled">
-                    <li><a href="{{ url_for('main.home') }}">Home</a></li>
-                    {% if session.get('first_name') %}
-                        <li><a href="{{ url_for('upload.home') }}">Upload Data</a></li>
-                        <li><a href="{{ url_for('analyze.home') }}">Analysis</a></li>
-                        <li><a href="{{ url_for('share.home') }}">Share</a></li>
-                    {% else %}
-                        <li><a href="#" onclick="alert('Please log in to access this page.'); return false;">Upload Data</a></li>
-                        <li><a href="#" onclick="alert('Please log in to access this page.'); return false;">Analysis</a></li>
-                        <li><a href="#" onclick="alert('Please log in to access this page.'); return false;">Share</a></li>
-                    {% endif %}
-                </ul>
-            </div>
-            <div class="col-md-3 mb-4 mb-md-0">
-                <h5>Follow Us</h5>
-                <div class="social-icons mt-3">
-                    <a href="https://github.com/Kyua2709/CITS5505-Group-1" class="me-2 text-decoration-none">
-                        <i class="bi bi-facebook fs-4"></i>
-                    </a>
-                    <a href="https://github.com/Kyua2709/CITS5505-Group-1" class="me-2 text-decoration-none">
-                        <i class="bi bi-twitter fs-4"></i>
-                    </a>
-                    <a href="https://github.com/Kyua2709/CITS5505-Group-1" class="me-2 text-decoration-none">
-                        <i class="bi bi-linkedin fs-4"></i>
-                    </a>
-                    <a href="https://github.com/Kyua2709/CITS5505-Group-1" class="me-2 text-decoration-none">
-                        <i class="bi bi-instagram fs-4"></i>
-                    </a>
-                </div>
-            </div>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-6 mb-4 mb-md-0">
+        <h5>
+          <i class="bi bi-bar-chart-line-fill me-2"></i>
+          SentiSocial
+        </h5>
+        <p class="text-muted">A powerful platform for analyzing sentiment in social media comments.</p>
+      </div>
+      <div class="col-md-3 mb-4 mb-md-0">
+        <h5>Quick Links</h5>
+        <ul class="list-unstyled">
+          <li><a href="{{ url_for('main.home') }}">Home</a></li>
+          {% if session.get('first_name') %}
+            <li><a href="{{ url_for('upload.home') }}">Upload Data</a></li>
+            <li><a href="{{ url_for('analyze.home') }}">Analysis</a></li>
+            <li><a href="{{ url_for('share.home') }}">Share</a></li>
+          {% else %}
+            <li><a href="#" onclick="alert('Please log in to access this page.'); return false;">Upload Data</a></li>
+            <li><a href="#" onclick="alert('Please log in to access this page.'); return false;">Analysis</a></li>
+            <li><a href="#" onclick="alert('Please log in to access this page.'); return false;">Share</a></li>
+          {% endif %}
+        </ul>
+      </div>
+      <div class="col-md-3 mb-4 mb-md-0">
+        <h5>Follow Us</h5>
+        <div class="social-icons mt-3">
+          <a class="me-2 text-decoration-none" href="https://github.com/Kyua2709/CITS5505-Group-1">
+            <i class="bi bi-facebook fs-4"></i>
+          </a>
+          <a class="me-2 text-decoration-none" href="https://github.com/Kyua2709/CITS5505-Group-1">
+            <i class="bi bi-twitter fs-4"></i>
+          </a>
+          <a class="me-2 text-decoration-none" href="https://github.com/Kyua2709/CITS5505-Group-1">
+            <i class="bi bi-linkedin fs-4"></i>
+          </a>
+          <a class="me-2 text-decoration-none" href="https://github.com/Kyua2709/CITS5505-Group-1">
+            <i class="bi bi-instagram fs-4"></i>
+          </a>
         </div>
-        <hr>
-        <div class="text-center text-muted">
-            <small>&copy; 2025 SentiSocial. All rights reserved.</small>
-        </div>
+      </div>
     </div>
+    <hr />
+    <div class="text-center text-muted">
+      <small>&copy; 2025 SentiSocial. All rights reserved.</small>
+    </div>
+  </div>
 </footer>

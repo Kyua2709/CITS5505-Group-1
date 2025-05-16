@@ -1,181 +1,185 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
+  <head>
     {% include 'partials/head.html' %}
     <title>Share Analysis - SentiSocial</title>
-</head>
-<body>
-    
+  </head>
+  <body>
     <!-- Navigation Bar -->
     {% include 'partials/navbar.html' %}
-    
+
     <!-- Page Header -->
     <header class="bg-light py-5">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-lg-8">
-                    <h1 class="fw-bold">Share Your Analysis</h1>
-                    <p class="lead">Easily share your sentiment analysis results with teammates and stakeholders</p>
-                </div>
-                <div class="col-lg-4 text-lg-end">
-                    <nav aria-label="breadcrumb">
-                        <ol class="breadcrumb justify-content-lg-end mb-0">
-                            <li class="breadcrumb-item"><a href="{{ url_for('main.home') }}">Home</a></li>
-                            <li class="breadcrumb-item active" aria-current="page">Share</li>
-                        </ol>
-                    </nav>
-                </div>
-            </div>
+      <div class="container">
+        <div class="row align-items-center">
+          <div class="col-lg-8">
+            <h1 class="fw-bold">Share Your Analysis</h1>
+            <p class="lead">Easily share your sentiment analysis results with teammates and stakeholders</p>
+          </div>
+          <div class="col-lg-4 text-lg-end">
+            <nav aria-label="breadcrumb">
+              <ol class="breadcrumb justify-content-lg-end mb-0">
+                <li class="breadcrumb-item"><a href="{{ url_for('main.home') }}">Home</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Share</li>
+              </ol>
+            </nav>
+          </div>
         </div>
+      </div>
     </header>
-    
+
     <!-- Share Options Section -->
     <section class="py-5">
-        <div class="container">
-            <div class="row">
-                <!-- Left Column - Analysis Selection -->
-                <div class="col-lg-5 mb-4 mb-lg-0">
-                    <div class="card dashboard-card h-100">
-                        <div class="dashboard-card-header">
-                            <h5 class="mb-0">Select Analysis to Share</h5>
-                        </div>
-                        <div class="dashboard-card-body">
-                            <div class="list-group mb-4">
-                                {% for upload in uploads %}
-                                <a href="#" 
-                                class="list-group-item list-group-item-action" 
-                                data-title="{{ upload.title }}"
-                                data-platform="{{ upload.platform }}"
-                                data-id="{{ upload.id }}"
-                                onclick="selectAnalysis(this)">
-                                    <div class="d-flex w-100 justify-content-between">
-                                        <h6 class="mb-1">{{ upload.title }} - {{ upload.platform }}</h6>
-                                        <small>{{ upload.timestamp.strftime('%b %d') }}</small>
-                                    </div>
-                                    <p class="mb-1 small">
-                                        {{ upload.comments|length }} comments, 
-                                        {% set positive_count = upload.comments|selectattr("rating", "equalto", 1)|list|length %}
-                                        {% if upload.comments|length > 0 %}
-                                            {{ (positive_count / upload.comments|length * 100) | round(0) }}% positive sentiment
-                                        {% else %}
-                                            No comments yet
-                                        {% endif %}
-                                    </p>
-                                </a>
-                                {% else %}
-                                <p class="text-muted">No analyses found.</p>
-                                {% endfor %}
-                            </div>
-                            <div class="d-grid">
-                                <button class="btn btn-primary" id="exportPdfBtn">
-                                    <i class="bi bi-file-earmark-pdf me-2"></i>Export as Report
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+      <div class="container">
+        <div class="row">
+          <!-- Left Column - Analysis Selection -->
+          <div class="col-lg-5 mb-4 mb-lg-0">
+            <div class="card dashboard-card h-100">
+              <div class="dashboard-card-header">
+                <h5 class="mb-0">Select Analysis to Share</h5>
+              </div>
+              <div class="dashboard-card-body">
+                <div class="list-group mb-4">
+                  {% for upload in uploads %}
+                    <a
+                      class="list-group-item list-group-item-action"
+                      data-id="{{ upload.id }}"
+                      data-platform="{{ upload.platform }}"
+                      data-title="{{ upload.title }}"
+                      href="#"
+                      onclick="selectAnalysis(this)"
+                    >
+                      <div class="d-flex w-100 justify-content-between">
+                        <h6 class="mb-1">{{ upload.title }} - {{ upload.platform }}</h6>
+                        <small>{{ upload.timestamp.strftime('%b %d') }}</small>
+                      </div>
+                      <p class="mb-1 small">
+                        {{ upload.comments|length }} comments, {% set positive_count = upload.comments|selectattr("rating", "equalto", 1)|list|length %}
+                        {% if upload.comments|length > 0 %}
+                          {{ (positive_count / upload.comments|length * 100) | round(0) }}%
+                          positive sentiment
+                        {% else %}
+                          No comments yet
+                        {% endif %}
+                      </p>
+                    </a>
+                  {% else %}
+                    <p class="text-muted">No analyses found.</p>
+                  {% endfor %}
                 </div>
-                
-                <!-- Right Column - Share Form -->
-                <div class="col-lg-7">
-                    <div class="card dashboard-card mb-4">
-                        <div class="dashboard-card-header d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0">Share with Collaborators</h5>
-                            <span class="badge bg-success" id="selectedAnalysis"></span>
-                        </div>
-                        <div class="dashboard-card-body">
-                            <form id="shareForm">
-                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                <div class="mb-4">
-                                    <label class="form-label">Email Addresses</label>
-                                    <textarea class="form-control" name="emails" rows="3" placeholder="Enter email addresses (separate multiple emails with commas)" required></textarea>
-                                    <div class="form-text">Example: colleague@example.com, manager@example.com</div>
-                                </div>
-                                <div class="mb-4">
-                                    <label class="form-label">Message (Optional)</label>
-                                    <textarea class="form-control" name="message" rows="4" placeholder="Add a message to your collaborators"></textarea>
-                                </div>
-                                <div class="d-flex justify-content-end">
-                                    <button type="submit" class="btn btn-primary">
-                                        <i class="bi bi-send me-2"></i>Share Analysis
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                    
-                    <!-- Recently Shared -->
-                    <div class="card dashboard-card">
-                        <div class="dashboard-card-header">
-                            <h5 class="mb-0">Recently Shared</h5>
-                        </div>
-                        <div class="dashboard-card-body">
-                            {% for share in recent_shares %}
-                                    <div class="user-card">
-                                        <div class="flex-grow-1">
-                                            <h6 class="mb-0">
-                                                {% if share.recipient %}
-                                                    {{ share.recipient.first_name }} {{ share.recipient.last_name }}
-                                                {% else %}
-                                                    {{ share.recipient_email }}
-                                                {% endif %}
-                                            </h6>
-                                            <small class="text-muted">{{ share.recipient.email if share.recipient else share.recipient_email }}</small>
-                                            <div class="mt-1">
-                                                <span class="badge bg-info">{{ share.upload.title }}</span>
-                                                <small class="text-muted ms-2">Shared on {{ share.timestamp.strftime('%b %d, %Y') }}</small>
-                                            </div>
-                                        </div>
-                                    </div>
-                            {% else %}
-                                <div class="user-card">
-                                    <div class="flex-grow-1">
-                                        <p class="text-muted">You haven't shared any analysis yet.</p>
-                                    </div>
-                                </div>
-                            {% endfor %}
-                        </div>
-                    </div>
+                <div class="d-grid">
+                  <button id="exportPdfBtn" class="btn btn-primary">
+                    <i class="bi bi-file-earmark-pdf me-2"></i>
+                    Export as Report
+                  </button>
                 </div>
+              </div>
             </div>
+          </div>
+
+          <!-- Right Column - Share Form -->
+          <div class="col-lg-7">
+            <div class="card dashboard-card mb-4">
+              <div class="dashboard-card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Share with Collaborators</h5>
+                <span id="selectedAnalysis" class="badge bg-success"></span>
+              </div>
+              <div class="dashboard-card-body">
+                <form id="shareForm">
+                  <input name="csrf_token" type="hidden" value="{{ csrf_token() }}" />
+                  <div class="mb-4">
+                    <label class="form-label">Email Addresses</label>
+                    <textarea class="form-control" name="emails" placeholder="Enter email addresses (separate multiple emails with commas)" required rows="3"></textarea>
+                    <div class="form-text">Example: colleague@example.com, manager@example.com</div>
+                  </div>
+                  <div class="mb-4">
+                    <label class="form-label">Message (Optional)</label>
+                    <textarea class="form-control" name="message" placeholder="Add a message to your collaborators" rows="4"></textarea>
+                  </div>
+                  <div class="d-flex justify-content-end">
+                    <button class="btn btn-primary" type="submit">
+                      <i class="bi bi-send me-2"></i>
+                      Share Analysis
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+
+            <!-- Recently Shared -->
+            <div class="card dashboard-card">
+              <div class="dashboard-card-header">
+                <h5 class="mb-0">Recently Shared</h5>
+              </div>
+              <div class="dashboard-card-body">
+                {% for share in recent_shares %}
+                  <div class="user-card">
+                    <div class="flex-grow-1">
+                      <h6 class="mb-0">
+                        {% if share.recipient %}
+                          {{ share.recipient.first_name }}
+                          {{ share.recipient.last_name }}
+                        {% else %}
+                          {{ share.recipient_email }}
+                        {% endif %}
+                      </h6>
+                      <small class="text-muted">{{ share.recipient.email if share.recipient else share.recipient_email }}</small>
+                      <div class="mt-1">
+                        <span class="badge bg-info">{{ share.upload.title }}</span>
+                        <small class="text-muted ms-2">Shared on {{ share.timestamp.strftime('%b %d, %Y') }}</small>
+                      </div>
+                    </div>
+                  </div>
+                {% else %}
+                  <div class="user-card">
+                    <div class="flex-grow-1">
+                      <p class="text-muted">You haven't shared any analysis yet.</p>
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
     </section>
-    
+
     <!-- Shared with Me Section -->
     <section class="py-5 bg-light">
-        <div class="container">
-            <h2 class="mb-4">Shared With Me</h2>
-            <div class="row g-4">
-                {% for share in shared_with_me %}
-                        <div class="col-md-6 col-lg-4">
-                            <div class="card h-100">
-                                <div class="card-body">
-                                    <div class="d-flex align-items-center mb-3">
-                                        <div>
-                                            <span>{{ share.sender.first_name  }} {{ share.sender.last_name }}</span>
-                                            <small class="text-muted"> ({{ share.sender.email  }})</small> 
-                                        </div>
-                                        <small class="text-muted">Shared on {{ share.timestamp.strftime('%b %d, %Y') }}</small>
-                                    </div>
-                                    <h5 class="card-title">{{ share.upload.title }}</h5>
-                                    <p class="card-text">{{ share.message or "No message provided." }}</p>
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <span class="badge bg-primary">{{ share.upload.size }} items</span>
-                                        <a href="{{ url_for('analyze.home', upload_id=share.upload_id) }}" class="btn btn-outline-primary btn-sm">View Analysis</a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                {% else %}
-                    <div class="col-12">
-                        <p class="text-muted">No analysis has been shared with you yet.</p>
+      <div class="container">
+        <h2 class="mb-4">Shared With Me</h2>
+        <div class="row g-4">
+          {% for share in shared_with_me %}
+            <div class="col-md-6 col-lg-4">
+              <div class="card h-100">
+                <div class="card-body">
+                  <div class="d-flex align-items-center mb-3">
+                    <div>
+                      <span>{{ share.sender.first_name }} {{ share.sender.last_name }}</span>
+                      <small class="text-muted">({{ share.sender.email }})</small>
                     </div>
-                {% endfor %}
+                    <small class="text-muted">Shared on {{ share.timestamp.strftime('%b %d, %Y') }}</small>
+                  </div>
+                  <h5 class="card-title">{{ share.upload.title }}</h5>
+                  <p class="card-text">{{ share.message or "No message provided." }}</p>
+                  <div class="d-flex justify-content-between align-items-center">
+                    <span class="badge bg-primary">{{ share.upload.size }} items</span>
+                    <a class="btn btn-outline-primary btn-sm" href="{{ url_for('analyze.home', upload_id=share.upload_id) }}">View Analysis</a>
+                  </div>
+                </div>
+              </div>
             </div>
+          {% else %}
+            <div class="col-12">
+              <p class="text-muted">No analysis has been shared with you yet.</p>
+            </div>
+          {% endfor %}
         </div>
+      </div>
     </section>
-    
+
     {% include 'partials/footer.html' %}
 
     <script src="{{ url_for('static', filename='js/share.js') }}"></script>
-</body>
+  </body>
 </html>

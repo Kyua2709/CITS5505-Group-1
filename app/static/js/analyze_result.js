@@ -10,7 +10,13 @@ $(document).ready(async function () {
     return;
   } else if (upload.status !== "Completed") {
     if (parent) {
-      parent.postMessage({ type: "ready", info: "There was an error when processing the dataset, please contact administrator for assistance" }, "*");
+      parent.postMessage(
+        {
+          type: "ready",
+          info: "There was an error when processing the dataset, please contact administrator for assistance",
+        },
+        "*",
+      );
     }
     return;
   }
@@ -27,21 +33,21 @@ $(document).ready(async function () {
           label: "Positive",
           data: HISTOGRAM_DATA.positive,
           backgroundColor: "rgba(0, 128, 0, 0.5)",
-          stack: "sentiment"
+          stack: "sentiment",
         },
         {
           label: "Neutral",
           data: HISTOGRAM_DATA.neutral,
           backgroundColor: "rgba(255, 165, 0, 0.5)",
-          stack: "sentiment"
+          stack: "sentiment",
         },
         {
           label: "Negative",
           data: HISTOGRAM_DATA.negative,
           backgroundColor: "rgba(255, 0, 0, 0.5)",
-          stack: "sentiment"
-        }
-      ]
+          stack: "sentiment",
+        },
+      ],
     },
     options: {
       responsive: true,
@@ -49,7 +55,7 @@ $(document).ready(async function () {
         legend: { position: "top" },
         title: {
           display: true,
-          text: "Emotion Intensity Distribution by Sentiment"
+          text: "Emotion Intensity Distribution by Sentiment",
         },
         tooltip: {
           callbacks: {
@@ -58,54 +64,54 @@ $(document).ready(async function () {
               const label = item.label;
               const sentiment = item.dataset.label.toLowerCase();
               const examples = HISTOGRAM_DATA.samples[label]?.[sentiment] || [];
-              return examples.length
-                ? [`e.g.: ${examples.slice(0, 2).join(" / ")}`]
-                : [];
-            }
-          }
-        }
+              return examples.length ? [`e.g.: ${examples.slice(0, 2).join(" / ")}`] : [];
+            },
+          },
+        },
       },
       scales: {
         y: {
           beginAtZero: true,
-          stacked: true
+          stacked: true,
         },
         x: {
-          stacked: true
-        }
-      }
-    }
+          stacked: true,
+        },
+      },
+    },
   });
 
   // Sentiment distribution pie chart
-  const ctxDist = document.getElementById('distributionChart').getContext('2d');
+  const ctxDist = document.getElementById("distributionChart").getContext("2d");
   new Chart(ctxDist, {
-    type: 'pie',
+    type: "pie",
     data: {
-      labels: ['Positive', 'Neutral', 'Negative'],
-      datasets: [{
-        data: [
-          DISTRIBUTION_DATA.positive,
-          DISTRIBUTION_DATA.neutral,
-          DISTRIBUTION_DATA.negative
-        ],
-        backgroundColor: ['green', 'orange', 'red'],
-        hoverOffset: 10
-      }]
+      labels: ["Positive", "Neutral", "Negative"],
+      datasets: [
+        {
+          data: [DISTRIBUTION_DATA.positive, DISTRIBUTION_DATA.neutral, DISTRIBUTION_DATA.negative],
+          backgroundColor: ["green", "orange", "red"],
+          hoverOffset: 10,
+        },
+      ],
     },
     options: {
       responsive: true,
       plugins: {
-        legend: { position: 'bottom' },
-        title: { display: true, text: 'Sentiment Distribution' }
-      }
-    }
+        legend: { position: "bottom" },
+        title: { display: true, text: "Sentiment Distribution" },
+      },
+    },
   });
 
   /* ===========================
   Word Clouds
   ============================ */
-  const blacklist = new Set(`i|me|my|myself|we|us|our|ours|ourselves|you|your|yours|yourself|yourselves|he|him|his|himself|she|her|hers|herself|it|its|itself|they|them|their|theirs|themselves|what|which|who|whom|whose|this|that|these|those|am|is|are|was|were|be|been|being|have|has|had|having|do|does|did|doing|will|would|should|can|could|ought|cannot|a|an|the|and|but|if|or|because|as|until|while|of|at|by|for|with|about|against|between|into|through|during|before|after|above|below|to|from|up|upon|down|in|out|on|off|over|under|again|further|then|once|here|there|when|where|why|how|all|any|both|each|few|more|most|other|some|such|no|nor|not|only|own|same|so|than|too|very|say|says|said|shall`.split("|"));
+  const blacklist = new Set(
+    `i|me|my|myself|we|us|our|ours|ourselves|you|your|yours|yourself|yourselves|he|him|his|himself|she|her|hers|herself|it|its|itself|they|them|their|theirs|themselves|what|which|who|whom|whose|this|that|these|those|am|is|are|was|were|be|been|being|have|has|had|having|do|does|did|doing|will|would|should|can|could|ought|cannot|a|an|the|and|but|if|or|because|as|until|while|of|at|by|for|with|about|against|between|into|through|during|before|after|above|below|to|from|up|upon|down|in|out|on|off|over|under|again|further|then|once|here|there|when|where|why|how|all|any|both|each|few|more|most|other|some|such|no|nor|not|only|own|same|so|than|too|very|say|says|said|shall`.split(
+      "|",
+    ),
+  );
   const getWords = (content) =>
     (content.match(/\b[a-zA-Z']+\b/g) || [])
       .filter((word) => word.length > 1)
@@ -243,7 +249,7 @@ $(document).ready(async function () {
 
   // Check if the user is the owner of the upload
   if (!IS_OWNER) {
-    $('#export-pdf').hide();
+    $("#export-pdf").hide();
   }
 
   $("#export-pdf").on("click", async function () {
@@ -298,7 +304,7 @@ $(document).ready(async function () {
 
   // Check URL parameters, automatically export PDF if needed
   const urlParams = new URLSearchParams(window.location.search);
-  if (urlParams.get('export_pdf') === 'true') {
+  if (urlParams.get("export_pdf") === "true") {
     // Add a small delay to ensure page is fully rendered
     setTimeout(function () {
       $("#export-pdf").click();

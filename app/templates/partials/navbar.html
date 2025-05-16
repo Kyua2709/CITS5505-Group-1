@@ -1,56 +1,62 @@
 <!-- Navigation Bar -->
 <nav class="navbar navbar-expand-lg navbar-dark">
-    <div class="container">
-        <a class="navbar-brand" href="{{ url_for('main.home') }}">
-            <i class="bi bi-bar-chart-line-fill me-2"></i>SentiSocial
-        </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav me-auto">
-                <li class="nav-item">
-                    <a class="nav-link {% if request.endpoint == 'main.home' %}active{% endif %}" href="{{ url_for('main.home') }}">Home</a>
-                </li>
-                {% if session.get('first_name') %}
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.endpoint == 'upload.home' %}active{% endif %}" href="{{ url_for('upload.home') }}">Upload Data</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.endpoint == 'analyze.home' %}active{% endif %}" href="{{ url_for('analyze.home') }}">Analysis</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.endpoint == 'share.home' %}active{% endif %}" href="{{ url_for('share.home') }}">Share</a>
-                    </li>
-                {% else %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="#" onclick="alert('Please log in to access this page.'); return false;">Upload Data</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#" onclick="alert('Please log in to access this page.'); return false;">Analysis</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#" onclick="alert('Please log in to access this page.'); return false;">Share</a>
-                    </li>
-                {% endif %}
+  <div class="container">
+    <a class="navbar-brand" href="{{ url_for('main.home') }}">
+      <i class="bi bi-bar-chart-line-fill me-2"></i>
+      SentiSocial
+    </a>
+    <button class="navbar-toggler" data-bs-target="#navbarNav" data-bs-toggle="collapse" type="button">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div id="navbarNav" class="collapse navbar-collapse">
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item">
+          <a class="nav-link {% if request.endpoint == 'main.home' %}active{% endif %}" href="{{ url_for('main.home') }}">Home</a>
+        </li>
+        {% if session.get('first_name') %}
+          <li class="nav-item">
+            <a class="nav-link {% if request.endpoint == 'upload.home' %}active{% endif %}" href="{{ url_for('upload.home') }}">Upload Data</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {% if request.endpoint == 'analyze.home' %}active{% endif %}" href="{{ url_for('analyze.home') }}">Analysis</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {% if request.endpoint == 'share.home' %}active{% endif %}" href="{{ url_for('share.home') }}">Share</a>
+          </li>
+        {% else %}
+          <li class="nav-item">
+            <a class="nav-link" href="#" onclick="alert('Please log in to access this page.'); return false;">Upload Data</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#" onclick="alert('Please log in to access this page.'); return false;">Analysis</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#" onclick="alert('Please log in to access this page.'); return false;">Share</a>
+          </li>
+        {% endif %}
+      </ul>
+      <div class="d-flex align-items-center">
+        {% if session.get('first_name') %}
+          <div class="dropdown me-3">
+            <a id="userDropdown" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" aria-expanded="false" data-bs-toggle="dropdown" href="#">
+              <span>{{ session['first_name'] }}</span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+              <li>
+                <a class="dropdown-item" href="{{ url_for('main.logout', csrf_token=csrf_token()) }}">
+                  <i class="bi bi-box-arrow-right me-2"></i>
+                  Logout
+                </a>
+              </li>
             </ul>
-            <div class="d-flex align-items-center">
-                {% if session.get('first_name') %}
-                    <div class="dropdown me-3">
-                        <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                            <span>{{ session['first_name'] }}</span>
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                            <li><a class="dropdown-item" href="{{ url_for('main.logout', csrf_token=csrf_token()) }}"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
-                        </ul>
-                    </div>
-                {% else %}
-                    <div class="d-flex">
-                        <button class="btn btn-outline-light me-2" data-bs-toggle="modal" data-bs-target="#loginModal">Login</button>
-                        <button class="btn btn-light" data-bs-toggle="modal" data-bs-target="#registerModal">Sign Up</button>
-                    </div>
-                {% endif %}
-            </div>
-        </div>
+          </div>
+        {% else %}
+          <div class="d-flex">
+            <button class="btn btn-outline-light me-2" data-bs-target="#loginModal" data-bs-toggle="modal">Login</button>
+            <button class="btn btn-light" data-bs-target="#registerModal" data-bs-toggle="modal">Sign Up</button>
+          </div>
+        {% endif %}
+      </div>
     </div>
+  </div>
 </nav>

@@ -12,6 +12,7 @@ CACHE_DIR = cache_directory
 tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME, cache_dir=CACHE_DIR)
 model = AutoModelForSequenceClassification.from_pretrained(MODEL_NAME, cache_dir=CACHE_DIR)
 
+
 # Define function to predict sentiment from a given text string
 def predict_sentiment(text: str) -> int:
     # Tokenize the input text, prepare it for the model

@@ -7,13 +7,14 @@ from .youtube_crawler import fetch_youtube_comments
 
 # Mapping of supported platform hostnames to their corresponding fetch functions
 HANDLER = {
-    'Facebook': fetch_facebook_comments,
-    'Instagram': fetch_instagram_comments,
-    'Reddit': fetch_reddit_comments,
-    'Tiktok': fetch_tiktok_comments,
-    'Twitter': fetch_twitter_comments,
-    'Youtube': fetch_youtube_comments,
+    "Facebook": fetch_facebook_comments,
+    "Instagram": fetch_instagram_comments,
+    "Reddit": fetch_reddit_comments,
+    "Tiktok": fetch_tiktok_comments,
+    "Twitter": fetch_twitter_comments,
+    "Youtube": fetch_youtube_comments,
 }
+
 
 def fetch_comments(platform: str, url: str, limit: int):
     fetch_func = HANDLER.get(platform)
