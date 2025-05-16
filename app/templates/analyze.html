@@ -17,20 +17,11 @@
                     <h1 class="fw-bold">Data Analysis Dashboard</h1>
                     <p>
                     <select id="upload-select" class="form-select" autocomplete="off">
-                        <option value="" disabled
-                            {% if not selected_upload: %}
-                                selected
-                            {% endif %}
-                        >
+                        <option value="" disabled selected>
                             Select a dataset
                         </option>
                         {% for upload in uploads %}
-                        <option 
-                            value="{{ upload.id }}"
-                            {% if selected_upload and upload.id == selected_upload.id: %}
-                                selected
-                            {% endif %}
-                            >
+                        <option value="{{ upload.id }}">
                             ({{ loop.index }}) {{ upload.title }}
                         </option>
                         {% endfor %}

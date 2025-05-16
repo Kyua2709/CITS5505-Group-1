@@ -172,8 +172,4 @@ def home():
     user_id = flask.session.get('user_id')
     order = Upload.timestamp.desc()
     uploads = db.session.query(Upload).filter_by(user_id=user_id).order_by(order)
-
-    upload_id = flask.request.args.get('upload_id')
-    selected_upload = db.session.query(Upload).get(upload_id)
-
-    return flask.render_template("analyze.html", uploads=uploads, selected_upload=selected_upload)
+    return flask.render_template("analyze.html", uploads=uploads)
