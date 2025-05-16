@@ -26,7 +26,7 @@ def create_app(test_config=None, register_blueprints=True):
     os.makedirs(upload_folder, exist_ok=True)
 
     if test_config is None:
-        # 正常配置
+        # Normal Config
         app_folder = os.path.dirname(os.path.abspath(__file__))
         instance_folder = os.path.abspath(os.path.join(app_folder, '..', 'instance'))
         upload_folder = os.path.join(instance_folder, 'uploads')
@@ -38,7 +38,7 @@ def create_app(test_config=None, register_blueprints=True):
         app.config['SECRET_KEY'] = os.getenv('SQLITE_SECRET')
         app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{sqlite_db}"
     else:
-        # 测试配置
+        # Test Config
         app.config.update(test_config)
 
     app.config['UPLOAD_FOLDER'] = upload_folder
@@ -62,7 +62,7 @@ def create_app(test_config=None, register_blueprints=True):
     
     db.init_app(app)
     migrate.init_app(app, db)
-    mail.init_app(app)  # 初始化mail
+    mail.init_app(app)
     csrf.init_app(app)
     
     from .models import User, Upload, Comment, Share
