@@ -5,7 +5,6 @@ Flask-WTF
 python-dotenv
 werkzeug
 pytest>=7.0.0
-flask_mail
 
 # For packages.sentiment_analysis
 torch>=2.7.0

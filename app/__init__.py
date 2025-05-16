@@ -1,7 +1,6 @@
 from flask import Flask
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
-from flask_mail import Mail
 from flask_wtf import CSRFProtect
 import os
 from dotenv import load_dotenv
@@ -9,7 +8,6 @@ from dotenv import load_dotenv
 
 db = SQLAlchemy()
 migrate = Migrate()
-mail = Mail()
 csrf = CSRFProtect()
 
 
@@ -35,7 +33,6 @@ def create_app(test_config=None):
 
     db.init_app(app)
     migrate.init_app(app, db)
-    mail.init_app(app)
     csrf.init_app(app)
 
     from .models import User, Upload, Comment, Share
