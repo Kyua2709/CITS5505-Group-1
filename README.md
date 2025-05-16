@@ -18,7 +18,7 @@ This project aims to create a platform where users can upload social media comme
 
 ### Sentiment Analysis
 - AI-powered sentiment classification (positive, negative, neutral)
-- Temporal sentiment trend analysis
+- Emotion intensity analysis
 - Keyword extraction and visualization
 - Comment volume analysis
 - Influence analysis (comment engagement, user impact, etc.)
