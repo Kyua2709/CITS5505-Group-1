@@ -2,7 +2,7 @@ from facebook_scraper import get_posts
 import re
 
 def fetch_facebook_comments(url, limit):
-    m = re.search(r'posts/(\d+)', url)
+    m = re.search(r"/posts/(pfbid\w+|\d+)", url)
     if not m:
         raise ValueError("URL does not contain post ID")
 
