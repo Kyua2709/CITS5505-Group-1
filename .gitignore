@@ -16,3 +16,8 @@ venv/
 
 # Artifacts
 instance
+
+# Prettier
+node_modules
+package-lock.json
+package.json

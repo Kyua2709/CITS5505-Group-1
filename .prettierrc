@@ -1,0 +1,24 @@
+{
+    "plugins": [
+        "prettier-plugin-jinja-template",
+        "prettier-plugin-organize-attributes"
+    ],
+    "printWidth": 180,
+    "htmlWhitespaceSensitivity": "ignore",
+    "attributeGroups": [
+        "^id$",
+        "^class$",
+        "$DEFAULT"
+    ],
+    "attributeSort": "ASC",
+    "overrides": [
+        {
+            "files": [
+                "*.html"
+            ],
+            "options": {
+                "parser": "jinja-template"
+            }
+        }
+    ]
+}

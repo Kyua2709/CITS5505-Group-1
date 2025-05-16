@@ -2,10 +2,9 @@
   <table class="table">
     <thead>
       <tr>
-        <th style="width: 60%">Comment</th>
+        <th style="width: 75%">Comment</th>
         <th style="width: 15%">Sentiment</th>
         <th style="width: 10%">Score</th>
-        <th style="width: 15%">Date</th>
       </tr>
     </thead>
     <tbody>
@@ -27,7 +26,6 @@
           {% endif %}
         </td>
         <td>{{ comment.score }}</td>
-        <td>{{ comment.created_at.strftime("%b %d, %Y %I:%M %p") if comment.created_at else "N/A" }}</td>
       </tr>
       {% endfor %}
       {% endif %}

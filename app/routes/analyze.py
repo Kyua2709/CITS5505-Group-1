@@ -7,6 +7,7 @@ from collections import defaultdict
 
 from app import db
 from app.models import Comment, Upload
+from .utils import require_login
 
 # Create a Flask blueprint for analysis-related routes
 analyze_bp = flask.Blueprint(
@@ -67,21 +68,22 @@ def run_analyze_job():
 
     return flask.jsonify()
 
-@analyze_bp.route("/export/<upload_id>", methods=["GET"])
-def export(upload_id):
-    upload_folder = flask.current_app.config["UPLOAD_FOLDER"]
-    return flask.send_from_directory(upload_folder, upload_id)
-
 def percentage(x, y):
     r = x / max(y, 1)
     return round(100 * r)
 
 @analyze_bp.route("/result/<upload_id>", methods=["GET"])
+@require_login
 def result(upload_id):
     if 'user_id' not in flask.session:
         return flask.redirect(flask.url_for('main.index'))
-
+        
+    user_id = flask.session.get('user_id')
     upload = db.session.query(Upload).get(upload_id)
+    
+    if upload.user_id != user_id and not is_shared_with_user(upload_id, user_id):
+        flask.abort(403)
+        
     comments_query = db.session.query(Comment).filter(Comment.upload_id == upload.id).order_by(Comment.id)
 
     if flask.request.args.get("partial"):
@@ -90,7 +92,8 @@ def result(upload_id):
             for keyword in search.split():
                 comments_query = comments_query.filter(Comment.content.ilike(f"%{keyword}%"))
         page = flask.request.args.get("page", type=int, default=1)
-        per_page = 5
+        per_page = flask.request.args.get("per_page", type=int, default=5)
+        if per_page < 0: per_page = comments_query.count()
         comments = comments_query.paginate(page=page, per_page=per_page, error_out=False)
         return flask.render_template("partials/comment_list.html", comments=comments)
 
@@ -135,6 +138,8 @@ def result(upload_id):
         "neutral": [histogram_data[b]["Neutral"] for b in all_buckets],
         "negative": [histogram_data[b]["Negative"] for b in all_buckets],
     }
+    
+    auto_export_pdf = flask.request.args.get('export_pdf') == 'true'
 
     return flask.render_template(
         "partials/analyze_result.html",
@@ -145,14 +150,21 @@ def result(upload_id):
         comments_positive=comments_positive,
         comments_negative=comments_negative,
         distribution_data=distribution_data,
-        emotion_histogram_data=emotion_histogram_data
+        emotion_histogram_data=emotion_histogram_data,
+        auto_export_pdf=auto_export_pdf
     )
 
-@analyze_bp.route("/")
-def home():
-    if 'user_id' not in flask.session:
-        return flask.redirect(flask.url_for('main.index'))
+def is_shared_with_user(upload_id, user_id):
+    from app.models import Share
+    share = db.session.query(Share).filter_by(
+        upload_id=upload_id, 
+        recipient_id=user_id
+    ).first()
+    return share is not None
 
+@analyze_bp.route("/")
+@require_login
+def home():
     user_id = flask.session.get('user_id')
     order = Upload.timestamp.desc()
     uploads = db.session.query(Upload).filter_by(user_id=user_id).order_by(order)
