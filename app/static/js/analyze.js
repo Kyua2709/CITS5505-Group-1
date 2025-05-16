@@ -44,5 +44,13 @@ $(document).ready(function () {
   };
 
   // if has initially selected dataset, load
-  if (select.value) select.onchange();
+  {
+    let params = new URLSearchParams(window.location.search);
+    let upload_id = params.get("upload_id");
+    const optionExists = Array.from(select.options).some((option) => option.value === upload_id);
+    if (optionExists) {
+      select.value = upload_id;
+      select.onchange();
+    }
+  }
 });

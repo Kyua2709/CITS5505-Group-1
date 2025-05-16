@@ -6,7 +6,9 @@ from datetime import datetime
 from collections import defaultdict
 
 from app import db
-from app.models import Comment, Upload
+from app.models import Comment, Upload, Share
+from sqlalchemy import exists
+from .utils import require_login
 
 # Create a Flask blueprint for analysis-related routes
 analyze_bp = flask.Blueprint(
@@ -67,22 +69,19 @@ def run_analyze_job():
 
     return flask.jsonify()
 
-@analyze_bp.route("/export/<upload_id>", methods=["GET"])
-def export(upload_id):
-    upload_folder = flask.current_app.config["UPLOAD_FOLDER"]
-    return flask.send_from_directory(upload_folder, upload_id)
-
 def percentage(x, y):
     r = x / max(y, 1)
     return round(100 * r)
 
 @analyze_bp.route("/result/<upload_id>", methods=["GET"])
+@require_login
 def result(upload_id):
     if 'user_id' not in flask.session:
         return flask.redirect(flask.url_for('main.index'))
         
     user_id = flask.session.get('user_id')
     upload = db.session.query(Upload).get(upload_id)
+    is_owner = upload.user_id == user_id
     
     if upload.user_id != user_id and not is_shared_with_user(upload_id, user_id):
         flask.abort(403)
@@ -154,27 +153,23 @@ def result(upload_id):
         comments_negative=comments_negative,
         distribution_data=distribution_data,
         emotion_histogram_data=emotion_histogram_data,
-        auto_export_pdf=auto_export_pdf
+        auto_export_pdf=auto_export_pdf,
+        is_owner=is_owner
     )
 
 def is_shared_with_user(upload_id, user_id):
-    from app.models import Share
-    share = db.session.query(Share).filter_by(
-        upload_id=upload_id, 
-        recipient_id=user_id
-    ).first()
-    return share is not None
+    is_shared = db.session.query(
+    exists().where(
+        Share.upload_id == upload_id,
+        Share.recipient_id == user_id
+    )
+    ).scalar()
+    return is_shared
 
 @analyze_bp.route("/")
+@require_login
 def home():
-    if 'user_id' not in flask.session:
-        return flask.redirect(flask.url_for('main.index'))
-
     user_id = flask.session.get('user_id')
     order = Upload.timestamp.desc()
     uploads = db.session.query(Upload).filter_by(user_id=user_id).order_by(order)
-
-    upload_id = flask.request.args.get('upload_id')
-    selected_upload = db.session.query(Upload).get(upload_id)
-
-    return flask.render_template("analyze.html", uploads=uploads, selected_upload=selected_upload)
+    return flask.render_template("analyze.html", uploads=uploads)

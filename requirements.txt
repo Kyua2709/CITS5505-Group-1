@@ -1,18 +1,21 @@
 Flask>=2.0
 Flask-SQLAlchemy>=3.1.1
 flask_migrate
+Flask-WTF
 python-dotenv
 werkzeug
+pytest>=7.0.0
+flask_mail
 
 # For packages.sentiment_analysis
 torch>=2.7.0
 transformers>=4.51.3
 
 # For packages.crawler
-bs4
 facebook_scraper
 lxml_html_clean
 instaloader
 TikTokApi
 snscrape
 selenium
+

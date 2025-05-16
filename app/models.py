@@ -1,5 +1,5 @@
 from app import db
-from datetime import datetime
+from datetime import datetime, timezone
 import uuid
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -23,7 +23,7 @@ class User(db.Model):
 # Database Model
 class Upload(db.Model):
     id = db.Column(db.String(36), primary_key=True)
-    timestamp = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    timestamp = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
 
     title = db.Column(db.String(255), nullable=False)
     description = db.Column(db.Text, nullable=False)
@@ -52,7 +52,7 @@ class Comment(db.Model):
     content = db.Column(db.Text, nullable=False)
     score = db.Column(db.Integer, nullable=False)
     upload_id = db.Column(db.String(36), db.ForeignKey('upload.id'), nullable=False)
-    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
 
     @property
     def rating(self):

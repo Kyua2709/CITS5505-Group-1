@@ -1,6 +1,5 @@
 import snscrape.modules.twitter as sntwitter
 import re
-import time
 
 def fetch_twitter_comments(tweet_url, limit):
     tweet_id = None
@@ -19,7 +18,7 @@ def fetch_twitter_comments(tweet_url, limit):
     for i, tweet in enumerate(sntwitter.TwitterSearchScraper(query).get_items()):
         if i >= limit:
             break
-        if tweet.id != int(tweet_id):  # 跳过原始推文
+        if tweet.id != int(tweet_id):
             comments.append(tweet.rawContent)
             print(f"Found comment {i+1}: {tweet.rawContent[:50]}...")
 

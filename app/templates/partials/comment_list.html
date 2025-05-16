@@ -8,11 +8,6 @@
       </tr>
     </thead>
     <tbody>
-      {% if not (comments.total > 0) %}
-      <tr>
-        <td colspan="6" class="text-center">No comments found</td>
-      </tr>
-      {% else %}
       {% for comment in comments %}
       <tr>
         <td style="white-space: normal; word-wrap: break-word;">{{ comment.content }}</td>
@@ -27,8 +22,11 @@
         </td>
         <td>{{ comment.score }}</td>
       </tr>
+      {% else %}
+      <tr>
+        <td colspan="3" class="text-center">No comments found</td>
+      </tr>
       {% endfor %}
-      {% endif %}
     </tbody>
   </table>
 </div>
