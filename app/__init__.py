@@ -15,7 +15,12 @@ def create_app(test_config=None, register_blueprints=True):
         static_folder="static",  # Points to app/static
         template_folder="templates"  # Points to app/templates
     )
-    
+    app_folder = os.path.dirname(os.path.abspath(__file__))
+    instance_folder = os.path.abspath(os.path.join(app_folder, '..', 'instance'))
+    upload_folder = os.path.join(instance_folder, 'uploads')
+    sqlite_db = os.path.join(instance_folder, 'database.db')
+    os.makedirs(upload_folder, exist_ok=True)
+
     if test_config is None:
         # 正常配置
         app_folder = os.path.dirname(os.path.abspath(__file__))
@@ -31,7 +36,13 @@ def create_app(test_config=None, register_blueprints=True):
     else:
         # 测试配置
         app.config.update(test_config)
-    
+
+    app.config['UPLOAD_FOLDER'] = upload_folder
+    app.config['DEBUG'] = os.getenv('FLASK_DEBUG', '1') == '1'
+
+    app.config['SECRET_KEY'] = os.getenv('SQLITE_SECRET')
+
+    app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{sqlite_db}"
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     
     db.init_app(app)
@@ -41,14 +52,13 @@ def create_app(test_config=None, register_blueprints=True):
     with app.app_context():
         db.create_all()
     
-    if register_blueprints:
-        from .routes.main import main_bp
-        from .routes.analyze import analyze_bp
-        from .routes.upload import upload_bp
-        from .routes.share import share_bp
-        app.register_blueprint(main_bp)
-        app.register_blueprint(analyze_bp)
-        app.register_blueprint(upload_bp)
-        app.register_blueprint(share_bp)
-    
+    # Register route blueprints
+    from .routes.main import main_bp
+    from .routes.analyze import analyze_bp
+    from .routes.upload import upload_bp
+    from .routes.share import share_bp
+    app.register_blueprint(main_bp)
+    app.register_blueprint(analyze_bp)
+    app.register_blueprint(upload_bp)
+    app.register_blueprint(share_bp)
     return app
